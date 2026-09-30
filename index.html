@@ -671,6 +671,53 @@
       }
     }
 
+    /* COMPACT POS CATALOG: target 9-10 visible rows on phone */
+    @media screen and (max-width:992px) {
+      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-container {
+        height:calc(100dvh - 330px) !important;
+        min-height:0 !important;
+        overflow-y:auto !important;
+      }
+      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-card {
+        grid-template-columns:58px minmax(0,1fr) 38px !important;
+        grid-template-rows:auto auto !important;
+        column-gap:10px !important;
+        flex:0 0 74px !important;
+        min-height:74px !important;
+        height:74px !important;
+        padding:6px 4px !important;
+      }
+      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-img {
+        width:52px !important;
+        height:62px !important;
+        max-width:52px !important;
+        max-height:62px !important;
+        border-radius:7px !important;
+      }
+      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-title {
+        font-size:13.5px !important;
+        line-height:1.12 !important;
+        -webkit-line-clamp:2 !important;
+      }
+      #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-meta {
+        grid-column:2 !important;
+        grid-row:2 !important;
+        font-size:11.5px !important;
+        line-height:1.1 !important;
+        margin-top:2px !important;
+        white-space:nowrap !important;
+      }
+      #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-qty {
+        grid-column:3 !important;
+        grid-row:1 / 3 !important;
+        width:34px !important;
+        min-width:34px !important;
+        height:34px !important;
+        border-radius:8px !important;
+        font-size:14px !important;
+      }
+    }
+
     /* FINAL MOBILE FIX: drawer/menu, safe top area, and touch targets */
     @media screen and (max-width: 992px) {
       html, body {
