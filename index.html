@@ -2899,5 +2899,84 @@
       };
     })();
   </script>
+
+  <!-- Modern notification system -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    (function installModernNotifications() {
+      const nativeAlert = window.alert;
+      window.alert = function(message) {
+        const text = String(message == null ? '' : message);
+        const lower = text.toLowerCase();
+
+        let icon = 'info';
+        let title = 'Informasi';
+
+        if (
+          lower.includes('gagal') ||
+          lower.includes('error') ||
+          lower.includes('tidak dapat') ||
+          lower.includes('tidak ditemukan')
+        ) {
+          icon = 'error';
+          title = 'Terjadi Kesalahan';
+        } else if (
+          lower.includes('berhasil') ||
+          lower.includes('sukses') ||
+          lower.includes('tersimpan') ||
+          lower.includes('ditambahkan') ||
+          lower.includes('diperbarui') ||
+          lower.includes('dihapus')
+        ) {
+          icon = 'success';
+          title = 'Berhasil';
+        } else if (
+          lower.includes('stok barang habis') ||
+          lower.includes('melebihi stok') ||
+          lower.includes('peringatan') ||
+          lower.includes('kurang') ||
+          lower.includes('pilih ') ||
+          lower.includes('silakan')
+        ) {
+          icon = 'warning';
+          title = 'Perhatian';
+        }
+
+        if (typeof Swal === 'undefined') {
+          nativeAlert(text);
+          return;
+        }
+
+        Swal.fire({
+          icon: icon,
+          title: title,
+          text: text,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#0f5132',
+          background: '#ffffff',
+          color: '#212529',
+          allowOutsideClick: true,
+          allowEscapeKey: true,
+          customClass: {
+            popup: 'aspos-modern-alert',
+            confirmButton: 'aspos-modern-alert-btn'
+          }
+        });
+      };
+    })();
+  </script>
+  <style>
+    .aspos-modern-alert {
+      border-radius: 18px !important;
+      padding: 1.6rem !important;
+      box-shadow: 0 18px 55px rgba(0,0,0,.20) !important;
+    }
+    .aspos-modern-alert-btn {
+      border-radius: 10px !important;
+      padding: 9px 24px !important;
+      font-weight: 600 !important;
+    }
+  </style>
+
 </body>
 </html>
