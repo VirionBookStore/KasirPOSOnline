@@ -1784,8 +1784,18 @@
       }).getPromoList();
     }
 
+    function getLocalDateISO(date) {
+      var d = date || new Date();
+      var year = d.getFullYear();
+      var month = String(d.getMonth() + 1).padStart(2, '0');
+      var day = String(d.getDate()).padStart(2, '0');
+      return year + '-' + month + '-' + day;
+    }
+
     function loadDashboardStats() {
-      var today = new Date().toISOString().split('T')[0];
+      // Gunakan tanggal lokal HP, bukan UTC.
+      // Di Indonesia, toISOString() dini hari dapat masih menunjukkan tanggal kemarin.
+      var today = getLocalDateISO(new Date());
       google.script.run.withSuccessHandler(function(data) {
         document.getElementById("statTotalBarang").innerText = data.total_barang;
         document.getElementById("statTotalSupplier").innerText = data.total_supplier;
@@ -3459,6 +3469,9 @@
           readerDiv.style.display = 'none'; readerDiv.innerHTML = '';
         }
       }
+
+      // Expose engine scanner agar tombol scanner POS fullscreen dapat memakainya.
+      window.startScannerInstance = startScannerInstance;
 
       // Override global functions yang dipanggil oleh tombol HTML.
       window.toggleScanner = function() {
