@@ -218,6 +218,117 @@
         border-radius:12px !important;
         background:#fff !important;
       }
+    /* POS MOBILE: pilih barang -> lanjut -> transaksi */
+    @media screen and (max-width:992px){
+      #sec-posKasir.aspos-selection-mode .pos-right-panel{display:none!important;}
+      #sec-posKasir.aspos-selection-mode .pos-left-panel{
+        display:block!important;
+        margin:8px 12px 88px!important;
+        padding:12px!important;
+      }
+      #sec-posKasir.aspos-selection-mode .pos-left-panel > div:first-child{
+        font-size:18px!important;
+        color:#333!important;
+        margin:2px 2px 12px!important;
+      }
+      #sec-posKasir.aspos-selection-mode .best-product-container{
+        display:flex!important;
+        flex-direction:column!important;
+        gap:6px!important;
+        max-height:none!important;
+        overflow:visible!important;
+      }
+      #sec-posKasir.aspos-selection-mode .best-product-card{
+        display:grid!important;
+        grid-template-columns:72px 1fr auto!important;
+        grid-template-rows:auto auto auto!important;
+        column-gap:14px!important;
+        align-items:center!important;
+        min-height:92px!important;
+        padding:9px!important;
+        text-align:left!important;
+        border:0!important;
+        border-bottom:1px solid #edf0f2!important;
+        border-radius:0!important;
+        box-shadow:none!important;
+      }
+      #sec-posKasir.aspos-selection-mode .best-product-img{
+        grid-row:1 / 4!important;
+        width:72px!important;height:72px!important;
+        margin:0!important;
+        border-radius:8px!important;
+      }
+      #sec-posKasir.aspos-selection-mode .best-product-title{
+        height:auto!important;
+        margin:0!important;
+        font-size:15px!important;
+        line-height:1.25!important;
+        -webkit-line-clamp:2!important;
+        color:#222!important;
+      }
+      #sec-posKasir.aspos-selection-mode .best-product-card .best-product-price{
+        font-size:14px!important;
+        color:#0f5132!important;
+        text-align:left!important;
+      }
+      #sec-posKasir.aspos-selection-mode .best-product-card .catalog-stock{
+        font-size:12px!important;
+        color:#6c757d!important;
+      }
+      #sec-posKasir.aspos-selection-mode .best-product-card .catalog-qty{
+        grid-column:3!important;
+        grid-row:1 / 4!important;
+        min-width:34px!important;
+        height:34px!important;
+        border:1px solid #0f5132!important;
+        border-radius:8px!important;
+        display:flex!important;
+        align-items:center!important;
+        justify-content:center!important;
+        color:#0f5132!important;
+        font-weight:800!important;
+        font-size:15px!important;
+      }
+      #sec-posKasir.aspos-checkout-mode .pos-left-panel{display:none!important;}
+      #sec-posKasir.aspos-checkout-mode .pos-right-panel{display:block!important;}
+      #sec-posKasir.aspos-checkout-mode .aspos-mobile-pos-header{display:flex!important;}
+      #sec-posKasir.aspos-checkout-mode .aspos-mobile-pos-header .aspos-back-menu{display:flex!important;}
+      .aspos-selection-bar{
+        display:none;
+      }
+      #sec-posKasir.aspos-selection-mode .aspos-selection-bar{
+        display:flex!important;
+        position:fixed!important;
+        left:12px!important;
+        right:12px!important;
+        bottom:10px!important;
+        z-index:99990!important;
+        height:62px!important;
+        background:#10ad86!important;
+        border-radius:32px!important;
+        box-shadow:0 8px 25px rgba(0,0,0,.2)!important;
+        overflow:hidden!important;
+        align-items:center!important;
+      }
+      .aspos-selection-count{
+        flex:1!important;
+        color:#fff!important;
+        padding-left:24px!important;
+        font-size:18px!important;
+      }
+      .aspos-selection-count strong{font-size:30px!important;}
+      .aspos-selection-bar button{
+        height:100%!important;
+        min-width:145px!important;
+        border:0!important;
+        background:transparent!important;
+        color:#fff!important;
+        font-size:18px!important;
+        font-weight:800!important;
+      }
+      .aspos-selection-bar button span{font-size:32px!important;vertical-align:-3px!important;}
+    }
+
     #asposScanOverlay.active { display:block !important; }
     #asposScanOverlay .aspos-camera-head {
       position:absolute !important;
@@ -991,6 +1102,10 @@
 
             </div>
 
+          </div>
+          <div id="asposSelectionBar" class="aspos-selection-bar">
+            <div class="aspos-selection-count"><strong id="asposSelectionCount">0</strong><span> Barang</span></div>
+            <button type="button" onclick="openPosCheckout()">LANJUT <span>›</span></button>
           </div>
         </div>
 
@@ -1796,7 +1911,10 @@
           if (menuId === 'promoManajemen') loadPromoManajemen();
           if (menuId === 'stokMasuk') loadStokMasuk();
           if (menuId === 'returBarang') loadReturBarang();
-          if (menuId === 'posKasir') loadPosKatalog();
+          if (menuId === 'posKasir') {
+            setPosMobileMode('selection');
+            loadPosKatalog();
+          }
           if (menuId === 'riwayatPenjualan') loadRiwayat();
           if (menuId === 'riwayatPerBarang') initRiwayatPerBarang();
           if (menuId === 'dashboard') loadDashboardStats();
@@ -2094,6 +2212,39 @@
       }
     }
 
+    function setPosMobileMode(mode) {
+      var sec=document.getElementById('sec-posKasir');
+      if(!sec) return;
+      sec.classList.remove('aspos-selection-mode','aspos-checkout-mode');
+      if(mode==='checkout') sec.classList.add('aspos-checkout-mode');
+      else sec.classList.add('aspos-selection-mode');
+      var bar=document.getElementById('asposSelectionBar');
+      if(bar) bar.style.display=(mode==='checkout'?'none':'');
+    }
+
+    function openPosCheckout() {
+      if(!keranjang.length){
+        alert('Pilih barang terlebih dahulu.');
+        return;
+      }
+      setPosMobileMode('checkout');
+      var sec=document.getElementById('sec-posKasir');
+      if(sec) sec.scrollIntoView({behavior:'smooth',block:'start'});
+      renderKeranjang();
+    }
+
+    function syncPosSelectionBar() {
+      var count=keranjang.reduce(function(s,i){return s+Number(i.qty||0);},0);
+      var el=document.getElementById('asposSelectionCount');
+      if(el) el.innerText=count;
+      document.querySelectorAll('#bestProductGrid .best-product-card').forEach(function(card){
+        var id=card.getAttribute('data-id-barang');
+        var item=keranjang.find(function(k){return String(k.id_barang)===String(id);});
+        var q=card.querySelector('.catalog-qty');
+        if(q) q.innerText=item?item.qty:'';
+      });
+    }
+
     function loadPosKatalog() {
       var showCatalog = function(data) {
         globalDataBarang = Array.isArray(data) ? data : [];
@@ -2146,6 +2297,7 @@
       activeList.forEach(function(item) {
         var div = document.createElement("div");
         div.className = "best-product-card";
+        div.setAttribute("data-id-barang", String(item.id_barang || ""));
         div.setAttribute("role", "button");
         div.setAttribute("tabindex", "0");
         div.onclick = function() { tambahKeKeranjang(item); };
@@ -2162,9 +2314,9 @@
         div.innerHTML =
           '<img src="' + imgUrl + '" class="best-product-img" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/70?text=Img\';">' +
           '<div class="best-product-title" title="' + String(item.nama_barang || '') + '">' + String(item.nama_barang || '-') + '</div>' +
-          '<div style="font-size:10px;color:#6c757d;margin-bottom:3px;">ID: ' + String(item.id_barang || '-') + '</div>' +
+          '<div class="catalog-stock">sisa ' + stok + '</div>' +
           '<div class="best-product-price">Rp ' + Number(item.harga_jual || 0).toLocaleString('id-ID') + '</div>' +
-          '<div style="font-size:10px;color:#198754;font-weight:700;">Stok: ' + stok + '</div>';
+          '<div class="catalog-qty"></div>';
         grid.appendChild(div);
       });
     }
@@ -2188,6 +2340,7 @@
         `;
         grid.appendChild(div);
       });
+      syncPosSelectionBar();
     }
 
     function handlePosInput() {
@@ -2279,6 +2432,7 @@
         });
       }
       renderKeranjang();
+      syncPosSelectionBar();
     }
 
     function kalkulasiPromoKeranjang() {
