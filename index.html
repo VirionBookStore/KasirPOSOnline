@@ -806,6 +806,7 @@
 </style>
 <style>
 /* POS 3 tahap mobile */
+.catalog-meta{font-size:11px;color:#737d79;display:flex;gap:5px;align-items:center}
 @media screen and (max-width:992px){
 #sec-posKasir.aspos-selection-mode .pos-right-panel{display:none!important}
 #sec-posKasir.aspos-selection-mode .pos-left-panel{display:block!important;margin:0!important;padding:8px 10px 95px!important;background:#fff!important;border-radius:0!important;box-shadow:none!important}
@@ -1665,7 +1666,7 @@
     <div class="modal-content aspos-item-edit-content">
       <div class="aspos-item-edit-head"><div class="aspos-item-edit-product"><div id="editItemPosThumb" class="aspos-item-edit-thumb">#</div><div><div id="editItemPosName" class="aspos-item-edit-name">Barang</div><div id="editItemPosId" class="aspos-item-edit-id">-</div></div></div><div id="editItemPosPriceInfo" class="aspos-item-edit-price">Rp 0</div></div>
       <div class="aspos-item-edit-qty"><button type="button" onclick="editItemQty(-1)">−</button><strong id="editItemPosQty">1</strong><button type="button" onclick="editItemQty(1)">+</button></div>
-      <div class="aspos-item-edit-fields"><div class="aspos-edit-field"><label>Harga jual sementara</label><input type="number" id="editItemPosPrice" min="0" inputmode="numeric"></div><div class="aspos-edit-field"><label>Diskon / potongan</label><div class="aspos-disc-row"><select id="editItemPosDiscType"><option value="Rp">Rp</option><option value="%">%</option></select><input type="number" id="editItemPosDiscVal" min="0" inputmode="numeric"></div></div></div>
+      <div class="aspos-item-edit-fields"><div class="aspos-edit-field"><label>Harga jual sementara</label><input type="number" id="editItemPosPrice" min="0" inputmode="numeric" oninput="updateEditItemPreview()"></div><div class="aspos-edit-field"><label>Diskon / potongan</label><div class="aspos-disc-row"><select id="editItemPosDiscType"><option value="Rp">Rp</option><option value="%">%</option></select><input type="number" id="editItemPosDiscVal" min="0" inputmode="numeric" oninput="updateEditItemPreview()"></div></div></div>
       <div class="aspos-item-edit-preview"><span>Subtotal item</span><strong id="editItemPosSubtotal">Rp 0</strong></div>
       <div class="aspos-item-edit-actions"><button type="button" class="aspos-edit-delete" onclick="hapusItemDariEdit()">HAPUS</button><button type="button" class="aspos-edit-save" onclick="simpanEditItemPos()">OK</button></div>
     </div>
@@ -2441,8 +2442,7 @@
         div.innerHTML =
           '<img src="' + imgUrl + '" class="best-product-img" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/70?text=Img\';">' +
           '<div class="best-product-title" title="' + String(item.nama_barang || '') + '">' + String(item.nama_barang || '-') + '</div>' +
-          '<div class="catalog-stock">sisa ' + stok + '</div>' +
-          '<div class="best-product-price">Rp ' + Number(item.harga_jual || 0).toLocaleString('id-ID') + '</div>' +
+          '<div class="catalog-meta"><span>sisa ' + stok + '</span><span>•</span><span>Rp ' + Number(item.harga_jual || 0).toLocaleString('id-ID') + '</span></div>' +
           '<div class="catalog-qty"></div>';
         grid.appendChild(div);
       });
