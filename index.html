@@ -155,7 +155,7 @@
       #sec-posKasir{padding:0 12px 110px!important}.aspos-mobile-pos-header{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;background:#fff;margin:0 -12px;border-bottom:1px solid #e8ecef}
       .aspos-pos-title{font-size:25px;font-weight:800}.aspos-pos-subtitle{font-size:12px;color:#7b8581;margin-top:3px}.aspos-cart-badge{min-width:58px;height:44px;border-radius:24px;background:#10ad86;color:#fff;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:800}
       .aspos-mobile-tools{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:#fff;margin:0 -12px 8px;padding:7px 8px;border-bottom:1px solid #e8ecef}.aspos-mobile-tools button{border:0;background:#fff;color:#09886b;font-weight:700;min-height:52px;border-radius:12px;font-size:21px}.aspos-mobile-tools span{display:block;font-size:9px;color:#68746f}
-      .pos-grid{display:flex!important;flex-direction:column!important;gap:8px!important}.pos-left-panel{display:none!important}.pos-right-panel{order:1!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+      .pos-grid{display:flex!important;flex-direction:column!important;gap:8px!important}.pos-right-panel{order:1!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}.pos-left-panel{display:block!important;order:2!important;padding:12px!important;background:#fff!important;border:0!important;border-radius:16px!important;box-shadow:0 2px 10px rgba(0,0,0,.05)!important}.pos-left-panel .best-product-container{max-height:480px!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding-right:2px!important}.pos-left-panel .best-product-card{min-height:145px!important;padding:9px!important;border-radius:12px!important}.pos-left-panel .best-product-img{width:62px!important;height:62px!important}.pos-left-panel .best-product-title{font-size:11px!important}
       .pos-right-panel>div:first-child{background:#fff;border:0!important;border-radius:16px;padding:10px!important;margin-bottom:8px!important;box-shadow:0 2px 10px rgba(0,0,0,.05)}.pos-right-panel>div:first-child h3{display:none}
       #searchPos{height:48px!important;border:1px solid #d9e1de!important;border-radius:14px!important;background:#f1f5f4;padding:10px 14px!important;font-size:15px!important;box-shadow:none!important}
       .pos-right-panel>div:nth-child(2){background:#fff;border-radius:16px;padding:14px!important;box-shadow:0 2px 10px rgba(0,0,0,.05)}
@@ -2060,23 +2060,78 @@
     }
 
     function loadPosKatalog() {
-      google.script.run.withSuccessHandler(function(data) {
+      var showCatalog = function(data) {
         globalDataBarang = Array.isArray(data) ? data : [];
         try { localStorage.setItem('aspos_barang_cache', JSON.stringify(globalDataBarang)); } catch(e) {}
-        document.getElementById("searchPos").value = "";
-        let suggestionBox = document.getElementById("suggestionBox");
-        if(suggestionBox) suggestionBox.style.display = "none";
-      }).withFailureHandler(function(err) {
+
+        var search = document.getElementById("searchPos");
+        if (search) search.value = "";
+        var suggestionBox = document.getElementById("suggestionBox");
+        if (suggestionBox) suggestionBox.style.display = "none";
+
+        // Transaksi memakai sumber data yang sama persis dengan Master Barang.
+        renderProductCatalogGrid(globalDataBarang);
+      };
+
+      var showCatalogError = function(err) {
+        console.error('[AS-Pos] katalog Master Barang gagal dimuat:', err);
         try {
           var cached = JSON.parse(localStorage.getItem('aspos_barang_cache') || 'null');
-          if (Array.isArray(cached)) globalDataBarang = cached;
+          if (Array.isArray(cached)) {
+            globalDataBarang = cached;
+            renderProductCatalogGrid(cached);
+          }
         } catch(e) {}
-        console.error('[AS-Pos] katalog gagal dimuat:', err);
-      }).getBarang();
+      };
 
-      google.script.run.withSuccessHandler(function(bestList) {
-        renderProductBestGrid(bestList);
-      }).getProductBest();
+      try {
+        google.script.run
+          .withSuccessHandler(showCatalog)
+          .withFailureHandler(showCatalogError)
+          .getBarang();
+      } catch(e) {
+        showCatalogError(e);
+      }
+    }
+
+    function renderProductCatalogGrid(list) {
+      var grid = document.getElementById("bestProductGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      var activeList = (Array.isArray(list) ? list : []).filter(function(item) {
+        return item && item.status !== "Tidak Aktif";
+      });
+
+      if (!activeList.length) {
+        grid.innerHTML = '<div style="font-size:12px;color:#6c757d;grid-column:1/-1;text-align:center;padding:18px;">Belum ada barang aktif di Master Barang.</div>';
+        return;
+      }
+
+      activeList.forEach(function(item) {
+        var div = document.createElement("div");
+        div.className = "best-product-card";
+        div.setAttribute("role", "button");
+        div.setAttribute("tabindex", "0");
+        div.onclick = function() { tambahKeKeranjang(item); };
+        div.onkeydown = function(e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            tambahKeKeranjang(item);
+          }
+        };
+
+        var imgUrl = item.gambar || 'https://via.placeholder.com/70?text=No+Img';
+        var stok = Number(item.stok || 0);
+
+        div.innerHTML =
+          '<img src="' + imgUrl + '" class="best-product-img" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/70?text=Img\';">' +
+          '<div class="best-product-title" title="' + String(item.nama_barang || '') + '">' + String(item.nama_barang || '-') + '</div>' +
+          '<div style="font-size:10px;color:#6c757d;margin-bottom:3px;">ID: ' + String(item.id_barang || '-') + '</div>' +
+          '<div class="best-product-price">Rp ' + Number(item.harga_jual || 0).toLocaleString('id-ID') + '</div>' +
+          '<div style="font-size:10px;color:#198754;font-weight:700;">Stok: ' + stok + '</div>';
+        grid.appendChild(div);
+      });
     }
 
     function renderProductBestGrid(list) {
