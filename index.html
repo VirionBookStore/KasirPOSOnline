@@ -1205,25 +1205,53 @@
     }
 
     function switchMenu(menuId, el) {
-      stopAllScanners();
-      document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
-      document.querySelectorAll('.sidebar-menu li a').forEach(a => a.classList.remove('active'));
-      
-      if (el) el.classList.add('active');
-      document.getElementById('sec-' + menuId).classList.add('active');
-
-      if (menuId === 'masterBarang') loadBarang();
-      if (menuId === 'supplier') loadSupplier();
-      if (menuId === 'promoManajemen') loadPromoManajemen();
-      if (menuId === 'stokMasuk') loadStokMasuk();
-      if (menuId === 'returBarang') loadReturBarang();
-      if (menuId === 'posKasir') loadPosKatalog();
-      if (menuId === 'riwayatPenjualan') loadRiwayat();
-      if (menuId === 'riwayatPerBarang') initRiwayatPerBarang();
-      if (menuId === 'dashboard') loadDashboardStats();
-      
-      // Sembunyikan sidebar di mobile setelah menu dipilih
+      // Tutup drawer terlebih dahulu agar area konten langsung menerima sentuhan.
       closeSidebarMobile();
+
+      // Hentikan kamera dengan aman sebelum berpindah halaman.
+      try { if (typeof stopAllScanners === 'function') stopAllScanners(); } catch (e) {
+        console.warn('Gagal menghentikan scanner saat pindah menu:', e);
+      }
+
+      document.querySelectorAll('.page-section').forEach(function(sec) {
+        sec.classList.remove('active');
+      });
+      document.querySelectorAll('.sidebar-menu li a').forEach(function(a) {
+        a.classList.remove('active');
+      });
+
+      var target = document.getElementById('sec-' + menuId);
+      if (!target) {
+        console.error('Menu section tidak ditemukan:', menuId);
+        return false;
+      }
+
+      if (el) el.classList.add('active');
+      target.classList.add('active');
+
+      // Kembalikan posisi konten ke atas saat pindah menu di HP.
+      var contentBody = document.querySelector('.content-body');
+      if (contentBody) contentBody.scrollTop = 0;
+
+      // Jalankan loader setelah tampilan menu sudah aktif.
+      // setTimeout mencegah proses API mengganggu event sentuhan menu di HP.
+      setTimeout(function() {
+        try {
+          if (menuId === 'masterBarang') loadBarang();
+          if (menuId === 'supplier') loadSupplier();
+          if (menuId === 'promoManajemen') loadPromoManajemen();
+          if (menuId === 'stokMasuk') loadStokMasuk();
+          if (menuId === 'returBarang') loadReturBarang();
+          if (menuId === 'posKasir') loadPosKatalog();
+          if (menuId === 'riwayatPenjualan') loadRiwayat();
+          if (menuId === 'riwayatPerBarang') initRiwayatPerBarang();
+          if (menuId === 'dashboard') loadDashboardStats();
+        } catch (e) {
+          console.error('Gagal memuat menu ' + menuId + ':', e);
+        }
+      }, 0);
+
+      return false;
     }
 
     function initApp() {
