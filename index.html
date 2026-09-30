@@ -953,11 +953,7 @@
         <!-- DASHBOARD -->
         <div id="sec-dashboard" class="page-section active">
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;">
-            <div class="card" style="padding: 20px; text-align: center;">
-              <h4 style="margin:0; color:#6c757d; font-size:12px;">TOTAL PRODUK</h4>
-              <p id="statTotalBarang" style="font-size:24px; font-weight:bold; color:var(--primary-color); margin:10px 0 0 0;">0</p>
-            </div>
-            <div class="card" style="padding: 20px; text-align: center;">
+<div class="card" style="padding: 20px; text-align: center;">
               <h4 style="margin:0; color:#6c757d; font-size:12px;">TOTAL SUPPLIER</h4>
               <p id="statTotalSupplier" style="font-size:24px; font-weight:bold; color:#0d6efd; margin:10px 0 0 0;">0</p>
             </div>
@@ -1194,7 +1190,7 @@
                 </div>
                 <div id="readerPos"></div>
                 <div style="position:relative;">
-                  <input type="text" id="searchPos" class="form-control" placeholder="Ketik nama barang atau scan barcode..." oninput="handlePosInput()" autocomplete="off" style="width:100%;box-sizing:border-box;padding:10px;font-size:14px;border:2px solid var(--primary-color);">
+                  <input type="text" id="searchPos" class="form-control" placeholder="Ketik nama barang atau scan barcode..." oninput="handlePosInput()" onkeydown="asposSearchKeydown(event)" autocomplete="off" style="width:100%;box-sizing:border-box;padding:10px;font-size:14px;border:2px solid var(--primary-color);">
                   <div id="suggestionBox" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid #ced4da;border-radius:4px;max-height:250px;overflow-y:auto;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.15);"></div>
                 </div>
               </div>
@@ -2086,10 +2082,14 @@
       // Di Indonesia, toISOString() dini hari dapat masih menunjukkan tanggal kemarin.
       var today = getLocalDateISO(new Date());
       google.script.run.withSuccessHandler(function(data) {
-        document.getElementById("statTotalBarang").innerText = data.total_barang;
-        document.getElementById("statTotalSupplier").innerText = data.total_supplier;
-        document.getElementById("statTotalTransaksi").innerText = data.total_transaksi;
-        document.getElementById("statPendapatanHariIni").innerText = "Rp " + data.total_pendapatan.toLocaleString('id-ID');
+        var elBarang=document.getElementById("statTotalBarang");
+        var elSupplier=document.getElementById("statTotalSupplier");
+        var elTransaksi=document.getElementById("statTotalTransaksi");
+        var elPendapatan=document.getElementById("statPendapatanHariIni");
+        if(elBarang) elBarang.innerText=data.total_barang;
+        if(elSupplier) elSupplier.innerText=data.total_supplier;
+        if(elTransaksi) elTransaksi.innerText=data.total_transaksi;
+        if(elPendapatan) elPendapatan.innerText="Rp "+Number(data.total_pendapatan||0).toLocaleString('id-ID');
       }).getDashboardData(today, today);
     }
 
@@ -2483,6 +2483,17 @@
       renderProductCatalogGrid(globalDataBarang);
       setTimeout(function(){ try { input.focus(); input.scrollIntoView({behavior:'smooth',block:'center'}); } catch(e){} },80);
     }
+
+    function asposSearchKeydown(e) {
+      if(e.key!=='Enter') return;
+      e.preventDefault();
+      var input=document.getElementById('searchPos');
+      var q=String(input?input.value:'').trim().toLowerCase();
+      if(!q) return;
+      var list=(Array.isArray(globalDataBarang)?globalDataBarang:[]).filter(function(item){return item&&item.status!=='Tidak Aktif';});
+      var item=list.find(function(x){return String(x.id_barang||'').trim().toLowerCase()===q;});
+      if(item){tambahKeKeranjang(item);input.value='';handlePosInput();}
+    }
     function asposCloseSearch() {
       var sec=document.getElementById('sec-posKasir'); if(!sec)return;
       sec.classList.remove('aspos-search-open');
@@ -2496,9 +2507,9 @@
       var keyword=String(inputEl ? inputEl.value : '').trim().toLowerCase();
       var suggestionBox=document.getElementById('suggestionBox');
       var activeBarang=(Array.isArray(globalDataBarang)?globalDataBarang:[]).filter(function(item){return item && item.status!=='Tidak Aktif';});
-      if(document.getElementById('sec-posKasir') && document.getElementById('sec-posKasir').classList.contains('aspos-selection-mode')){
+      if(document.getElementById('sec-posKasir') && (document.getElementById('sec-posKasir').classList.contains('aspos-selection-mode') || document.getElementById('sec-posKasir').classList.contains('aspos-search-open'))){
         if(!keyword){ if(suggestionBox)suggestionBox.style.display='none'; renderProductCatalogGrid(activeBarang); return; }
-        var keywords=keyword.split(/\\s+/).filter(function(k){return k.length>0;});
+        var keywords=keyword.split(/\s+/).filter(function(k){return k.length>0;});
         var filtered=activeBarang.filter(function(item){
           var nama=String(item.nama_barang||'').toLowerCase(), id=String(item.id_barang||'').toLowerCase();
           return keywords.every(function(kw){return nama.indexOf(kw)>=0 || id.indexOf(kw)>=0;});
@@ -2510,7 +2521,7 @@
       if(!keyword){if(suggestionBox)suggestionBox.style.display='none';return;}
       var exactMatch=activeBarang.find(function(item){return String(item.id_barang||'').toLowerCase()===keyword;});
       if(exactMatch){tambahKeKeranjang(exactMatch);inputEl.value='';if(suggestionBox)suggestionBox.style.display='none';return;}
-      var keywords2=keyword.split(/\\s+/).filter(function(k){return k.length>0;});
+      var keywords2=keyword.split(/\s+/).filter(function(k){return k.length>0;});
       var filtered2=activeBarang.filter(function(item){var nama=String(item.nama_barang||'').toLowerCase(),id=String(item.id_barang||'').toLowerCase();return keywords2.every(function(kw){return nama.indexOf(kw)>=0||id.indexOf(kw)>=0;});});
       if(!suggestionBox)return;
       suggestionBox.innerHTML='';
