@@ -804,6 +804,62 @@
     }
 
 </style>
+<style>
+/* POS 3 tahap mobile */
+@media screen and (max-width:992px){
+#sec-posKasir.aspos-selection-mode .pos-right-panel{display:none!important}
+#sec-posKasir.aspos-selection-mode .pos-left-panel{display:block!important;margin:0!important;padding:8px 10px 95px!important;background:#fff!important;border-radius:0!important;box-shadow:none!important}
+#sec-posKasir.aspos-selection-mode .pos-left-panel>div:first-child{display:none!important}
+#sec-posKasir.aspos-selection-mode .best-product-container{display:flex!important;flex-direction:column!important;gap:0!important;max-height:none!important;overflow-y:auto!important;padding:0!important}
+#sec-posKasir.aspos-selection-mode .best-product-card{display:grid!important;grid-template-columns:78px 1fr 44px!important;grid-template-rows:auto auto!important;align-items:center!important;column-gap:10px!important;min-height:78px!important;height:78px!important;padding:7px 4px!important;border:0!important;border-bottom:1px solid #edf1ef!important;border-radius:0!important;box-shadow:none!important;text-align:left!important}
+#sec-posKasir.aspos-selection-mode .best-product-img{grid-column:1;grid-row:1/3;width:66px!important;height:66px!important;border-radius:10px!important;margin:0!important;background:#eef2f4!important}
+#sec-posKasir.aspos-selection-mode .best-product-title{grid-column:2;grid-row:1;font-size:15px!important;font-weight:700!important;height:auto!important;line-height:1.18!important;margin:0!important;color:#202522!important}
+#sec-posKasir.aspos-selection-mode .catalog-stock{grid-column:2;grid-row:2;font-size:11px!important;color:#737d79!important;margin-top:3px!important}
+#sec-posKasir.aspos-selection-mode .best-product-price{grid-column:2;grid-row:2;font-size:11px!important;color:#737d79!important;text-align:right!important;margin-right:54px!important;font-weight:700!important}
+#sec-posKasir.aspos-selection-mode .catalog-qty{grid-column:3;grid-row:1/3;justify-self:center;min-width:28px;height:28px;line-height:28px;text-align:center;border:2px solid #68706d;border-radius:7px;font-size:16px;font-weight:800;color:#202522}
+#sec-posKasir.aspos-selection-mode .catalog-qty:empty{border-color:transparent}
+.aspos-checkout-header{display:none}
+#sec-posKasir.aspos-checkout-mode .aspos-mobile-pos-header{display:none!important}
+#sec-posKasir.aspos-checkout-mode .aspos-checkout-header{display:grid!important;grid-template-columns:52px 1fr auto;align-items:center;height:66px;background:#fff;border-bottom:1px solid #e5ebe8;position:sticky;top:0;z-index:80;margin:0 -12px;padding:0 10px}
+#sec-posKasir.aspos-checkout-mode .aspos-detail-back{border:0;background:#fff;color:#0aa681;font-size:48px;line-height:1;height:52px}
+#sec-posKasir.aspos-checkout-mode .aspos-detail-total-top{text-align:center;font-size:22px;font-weight:900;color:#151a18}
+#sec-posKasir.aspos-checkout-mode .aspos-detail-pay-top{border:0;background:#0caf86;color:#fff;border-radius:25px;padding:12px 18px;font-size:15px;font-weight:800}
+#sec-posKasir.aspos-checkout-mode .pos-left-panel{display:none!important}
+#sec-posKasir.aspos-checkout-mode .pos-right-panel{display:flex!important;order:1!important;padding:0!important;margin:0 -12px!important;background:#fff!important;border:0!important;border-radius:0!important;box-shadow:none!important;min-height:calc(100dvh - 66px)}
+#sec-posKasir.aspos-checkout-mode .aspos-desktop-search-area,#sec-posKasir.aspos-checkout-mode .aspos-mobile-cart-heading,#sec-posKasir.aspos-checkout-mode .aspos-desktop-payment-method{display:none!important}
+#sec-posKasir.aspos-checkout-mode .pos-right-panel>div:nth-child(2){display:flex!important;flex-direction:column!important;padding:0!important;background:#fff!important;border-radius:0!important;box-shadow:none!important;width:100%!important}
+#sec-posKasir.aspos-checkout-mode .pos-right-panel>div:nth-child(2)>h3{display:none!important}
+#sec-posKasir.aspos-checkout-mode #tabelKeranjang tbody{display:block!important}
+#sec-posKasir.aspos-checkout-mode #tabelKeranjang tr{display:grid!important;grid-template-columns:34px 56px 1fr 44px!important;gap:8px!important;align-items:center!important;padding:14px 18px!important;border-bottom:1px solid #eef2f0!important}
+#sec-posKasir.aspos-checkout-mode #tabelKeranjang td{display:block!important;border:0!important;padding:0!important}
+#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1){grid-column:3;grid-row:1/3}
+#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(2){grid-column:2;grid-row:1/3}
+#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(3){grid-column:3;grid-row:2;text-align:left!important}
+#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4){grid-column:4;grid-row:1/3;text-align:right!important}
+#sec-posKasir.aspos-checkout-mode #tabelKeranjang input[type=number]{width:50px!important;border:0!important;background:#eef3f1!important;border-radius:50%!important;height:50px!important;text-align:center!important;font-size:16px!important;font-weight:800!important}
+#sec-posKasir.aspos-checkout-mode .aspos-cart-item-title{font-size:16px!important;font-weight:800!important;line-height:1.2!important;cursor:pointer!important}
+#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(3) b{font-size:12px!important;color:#707a76!important}
+#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4)>div{display:block!important}
+#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4) select,#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4) input{display:none!important}
+#sec-posKasir.aspos-checkout-mode .aspos-remove-cart{width:36px!important;height:42px!important;padding:0!important;border:0!important;background:transparent!important;color:#c52d36!important;font-size:0!important}
+#sec-posKasir.aspos-checkout-mode .aspos-remove-cart:before{content:"🗑";font-size:23px}
+#sec-posKasir.aspos-checkout-mode .aspos-checkout-action{margin-top:auto!important;padding:12px 16px 18px!important;border-top:1px solid #e4eae7!important;background:#fff!important;box-shadow:0 -5px 18px rgba(0,0,0,.06)!important}
+#sec-posKasir.aspos-checkout-mode .aspos-detail-total{display:flex!important;justify-content:space-between!important;align-items:center!important;font-size:15px!important;margin-bottom:10px!important}
+#sec-posKasir.aspos-checkout-mode .aspos-detail-total strong{font-size:21px!important;color:#079f7b!important}
+#sec-posKasir.aspos-checkout-mode .aspos-pay-detail-btn{width:100%!important;height:54px!important;border-radius:28px!important;font-size:17px!important;font-weight:900!important}
+.aspos-item-edit-modal{z-index:200000!important;background:rgba(0,0,0,.58)!important;padding:12px!important}
+.aspos-item-edit-content{max-width:590px!important;width:100%!important;border-radius:18px!important;overflow:hidden!important}
+.aspos-item-edit-head{display:flex;align-items:center;justify-content:space-between;padding:18px;border-bottom:1px solid #e7ecea}
+.aspos-item-edit-product{display:flex;align-items:center;gap:12px;min-width:0}
+.aspos-item-edit-thumb{width:64px;height:64px;border-radius:50%;background:#eef3f5;color:#cbd1d4;display:flex;align-items:center;justify-content:center;font-size:27px;font-weight:900;flex:none}
+.aspos-item-edit-name{font-size:18px;font-weight:900;line-height:1.15}.aspos-item-edit-id{font-size:12px;color:#6e7773;margin-top:4px}.aspos-item-edit-price{font-size:13px;color:#68726e;font-weight:700}
+.aspos-item-edit-qty{display:grid;grid-template-columns:1fr 90px 1fr;align-items:center;padding:22px 18px;border-bottom:1px solid #e7ecea}
+.aspos-item-edit-qty button{justify-self:center;width:62px;height:62px;border:0;border-radius:12px;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.12);font-size:42px;line-height:1}.aspos-item-edit-qty strong{text-align:center;font-size:30px}
+.aspos-item-edit-fields{padding:16px 18px;display:grid;gap:12px}.aspos-edit-field label{display:block;font-size:12px;color:#68726e;font-weight:700;margin-bottom:6px}.aspos-edit-field input,.aspos-edit-field select{height:48px;border:1px solid #d7e0dc;border-radius:12px;padding:0 12px;font-size:16px;box-sizing:border-box;width:100%}.aspos-disc-row{display:grid;grid-template-columns:86px 1fr;gap:8px}
+.aspos-item-edit-preview{margin:0 18px 14px;padding:13px 15px;background:#f1f6f4;border-radius:12px;display:flex;justify-content:space-between;font-size:13px}.aspos-item-edit-preview strong{color:#079f7b;font-size:16px}
+.aspos-item-edit-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 18px 18px}.aspos-item-edit-actions button{height:52px;border-radius:27px;font-size:16px;font-weight:900}.aspos-edit-delete{border:1px solid #d4dadd;background:#f2f5f6;color:#222}.aspos-edit-save{border:0;background:#0caf86;color:#fff}
+}
+</style>
 </head>
 <body>
 
