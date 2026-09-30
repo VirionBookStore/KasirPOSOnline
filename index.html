@@ -1056,6 +1056,101 @@
       }
     }
 </style>
+<style id="HIDE POS CART ICON">@media screen and (max-width:992px){#sec-posKasir .aspos-mobile-icons button[aria-label="Keranjang"]{display:none!important}}</style>
+<style id="POS SEARCH FIX">
+@media screen and (max-width:992px){
+  #sec-posKasir.aspos-search-open .aspos-desktop-search-area,
+  #sec-posKasir .aspos-desktop-search-area.aspos-mobile-search-open{
+    display:block!important;
+    position:relative!important;
+    z-index:100!important;
+    margin:0 8px 8px!important;
+    padding:8px!important;
+    background:#fff!important;
+    border-radius:12px!important;
+    box-shadow:0 2px 10px rgba(0,0,0,.08)!important;
+  }
+  #sec-posKasir.aspos-search-open .aspos-desktop-search-area h3,
+  #sec-posKasir.aspos-search-open .aspos-desktop-search-area button{
+    display:none!important;
+  }
+  #sec-posKasir.aspos-search-open .aspos-desktop-search-area input#searchPos{
+    display:block!important;
+    width:100%!important;
+    height:42px!important;
+    font-size:15px!important;
+    box-sizing:border-box!important;
+  }
+
+  /* 9-ish compact rows in the initial catalog */
+  #sec-posKasir.aspos-selection-mode .pos-left-panel{
+    height:calc(100dvh - 230px)!important;
+    overflow:hidden!important;
+  }
+  #sec-posKasir.aspos-selection-mode .best-product-container{
+    height:100%!important;
+    max-height:none!important;
+    overflow-y:auto!important;
+    padding:0!important;
+    margin:0!important;
+    gap:0!important;
+  }
+  #sec-posKasir.aspos-selection-mode .best-product-card{
+    flex:0 0 68px!important;
+    min-height:68px!important;
+    height:68px!important;
+    grid-template-columns:52px minmax(0,1fr) 34px!important;
+    column-gap:9px!important;
+    padding:4px 0!important;
+  }
+  #sec-posKasir.aspos-selection-mode .best-product-img{
+    width:48px!important;
+    height:58px!important;
+    max-width:48px!important;
+    max-height:58px!important;
+    border-radius:6px!important;
+  }
+  #sec-posKasir.aspos-selection-mode .best-product-title{
+    font-size:13px!important;
+    line-height:1.1!important;
+    max-height:29px!important;
+    margin:0!important;
+  }
+  #sec-posKasir.aspos-selection-mode .catalog-meta{
+    font-size:10.5px!important;
+    margin-top:1px!important;
+  }
+  #sec-posKasir.aspos-selection-mode .catalog-qty{
+    width:32px!important;
+    min-width:32px!important;
+    height:32px!important;
+    border-radius:7px!important;
+  }
+
+  /* Bottom action bar: smaller and cleaner */
+  #sec-posKasir.aspos-selection-mode .aspos-selection-bar{
+    left:46px!important;
+    right:46px!important;
+    bottom:12px!important;
+    height:54px!important;
+    border-radius:28px!important;
+  }
+  #sec-posKasir.aspos-selection-mode .aspos-selection-count{
+    padding-left:16px!important;
+    font-size:14px!important;
+  }
+  #sec-posKasir.aspos-selection-mode .aspos-selection-count strong{
+    font-size:24px!important;
+  }
+  #sec-posKasir.aspos-selection-mode .aspos-selection-bar button{
+    min-width:112px!important;
+    font-size:15px!important;
+  }
+  #sec-posKasir.aspos-selection-mode .aspos-selection-bar button span{
+    font-size:22px!important;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -1353,8 +1448,7 @@
             <div class="aspos-mobile-icons">
               <button type="button" aria-label="Cari" onclick="asposOpenSearch()">⌕</button>
                             <button type="button" aria-label="Scan barcode" onclick="togglePosScanner()">▣</button>
-              <button type="button" aria-label="Keranjang" onclick="document.getElementById('tabelKeranjang').scrollIntoView({behavior:'smooth'})">🛒<b id="asposCartCount">0</b></button>
-            </div>
+              </div>
           </div>
           <!-- LAYOUT BARU: Kiri (Best Seller), Kanan (Search + Cart) -->
           <!-- Di HP urutannya ditukar via CSS agar Search+Cart ada di ATAS -->
@@ -2665,13 +2759,17 @@
     function asposOpenSearch() {
       var sec=document.getElementById('sec-posKasir');
       var input=document.getElementById('searchPos');
+      var area=sec ? sec.querySelector('.aspos-desktop-search-area') : null;
       if(!sec || !input) return;
       if(sec.classList.contains('aspos-checkout-mode')) return;
       sec.classList.add('aspos-search-open');
+      if(area) area.classList.add('aspos-mobile-search-open');
+      input.style.display='block';
       input.value='';
       var box=document.getElementById('suggestionBox'); if(box) box.style.display='none';
-      renderProductCatalogGrid(globalDataBarang);
-      setTimeout(function(){ try { input.focus(); input.scrollIntoView({behavior:'smooth',block:'center'}); } catch(e){} },80);
+      setTimeout(function(){
+        try { input.focus(); input.scrollIntoView({behavior:'smooth',block:'center'}); } catch(e){}
+      },120);
     }
 
     function asposSearchKeydown(e) {
