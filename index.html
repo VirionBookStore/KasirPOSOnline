@@ -1109,17 +1109,54 @@
 
       function callGas(functionName, args, success, failure) {
         if (!apiUrl || apiUrl.indexOf('PASTE_URL_WEB_APP_GAS') !== -1) {
-          const err = new Error('URL Web App GAS belum diisi. Buka index.html dan isi AS_POS_CONFIG.GAS_WEB_APP_URL.');
-          if (typeof failure === 'function') failure(err);
-          else alert(err.message);
+          const err = new Error('URL Web App GAS belum diisi.');
+          if (typeof failure === 'function') failure(err); else console.error(err);
           return;
         }
 
+        // Fungsi baca memakai JSONP agar GitHub Pages dapat menerima
+        // respons Apps Script tanpa terhalang CORS/redirect.
+        const readOnly = {
+          getBarang:1, getProductBest:1, getPromoList:1,
+          getDashboardData:1, getSupplier:1, getPenjualan:1,
+          getDetailPenjualanByNota:1, getLaporanPenjualanBarangAdvanced:1,
+          getStokMasuk:1, getReturBarang:1, getLogoToko:1
+        };
+
+        if (readOnly[functionName]) {
+          const callbackName = '__aspos_cb_' + Date.now() + '_' + Math.floor(Math.random()*100000);
+          const script = document.createElement('script');
+          const cleanup = function() {
+            try { delete window[callbackName]; } catch(e) { window[callbackName]=undefined; }
+            if (script.parentNode) script.parentNode.removeChild(script);
+          };
+          window[callbackName] = function(result) {
+            cleanup();
+            if (result && result.ok === false) {
+              if (typeof failure === 'function') failure(new Error(result.message || 'Gagal menjalankan fungsi GAS.'));
+              return;
+            }
+            if (typeof success === 'function') success(result ? result.data : undefined);
+          };
+          script.onerror = function() {
+            cleanup();
+            const err = new Error('Gagal mengambil data dari Web App GAS.');
+            if (typeof failure === 'function') failure(err);
+          };
+          script.src = apiUrl +
+            '?api=jsonp&functionName=' + encodeURIComponent(functionName) +
+            '&args=' + encodeURIComponent(JSON.stringify(args || [])) +
+            '&prefix=' + encodeURIComponent(callbackName) +
+            '&_=' + Date.now();
+          document.head.appendChild(script);
+          return;
+        }
+
+        // Fungsi tulis tetap memakai POST.
         fetch(apiUrl, {
           method: 'POST',
           redirect: 'follow',
           cache: 'no-store',
-          // text/plain sengaja dipakai agar request tidak memicu preflight CORS.
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ functionName: functionName, args: args || [] })
         })
@@ -1137,10 +1174,8 @@
         .catch(function(error) {
           console.error('[AS-Pos GAS]', functionName, error);
           if (typeof failure === 'function') failure(error);
-          else alert('Koneksi ke server gagal: ' + error.message);
         });
       }
-
       function makeRunner(success, failure) {
         return new Proxy({}, {
           get: function(target, prop) {
