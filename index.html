@@ -200,6 +200,13 @@
     </div>
   </div>
 
+  <div id="asposScanOverlay">
+    <div class="aspos-camera-head"><div class="aspos-camera-title">Scan Barcode / QRCode</div><button class="aspos-camera-close" type="button" onclick="stopPosScanner()">×</button></div>
+    <div id="asposScanMount"></div>
+    <div class="aspos-scan-guide"><div class="aspos-scan-line"></div></div>
+    <div class="aspos-scan-hint">Arahkan barcode ke dalam kotak untuk memindai</div>
+  </div>
+
   <!-- Halaman Utama Aplikasi -->
   <div id="appWrapper">
     
@@ -471,15 +478,13 @@
         <!-- KASIR (POS) -->
         <div id="sec-posKasir" class="page-section">
           <div class="aspos-mobile-pos-header">
-            <div><div class="aspos-pos-title">Penjualan</div><div class="aspos-pos-subtitle">Pilih barang untuk ditambahkan</div></div>
-            <div class="aspos-cart-badge"><span id="asposCartCount">0</span> 🛒</div>
-          </div>
-          <div class="aspos-mobile-tools">
-            <button type="button" onclick="document.getElementById('searchPos').focus()">⌕<span>Cari</span></button>
-            <button type="button" onclick="document.getElementById('searchPos').focus()">＋<span>Tambah</span></button>
-            <button type="button" onclick="togglePosScanner()">▣<span>Scan</span></button>
-            <button type="button" onclick="togglePosScanner()">▥<span>Barcode</span></button>
-            <button type="button" onclick="document.getElementById('searchPos').focus()">⌕<span>Kategori</span></button>
+            <button type="button" class="aspos-back-menu" onclick="openSidebarMobile()">☰</button>
+            <div class="aspos-mobile-icons">
+              <button type="button" aria-label="Cari" onclick="asposOpenSearch()">⌕</button>
+              <button type="button" aria-label="Tambah" onclick="document.getElementById('searchPos').focus()">＋</button>
+              <button type="button" aria-label="Scan barcode" onclick="togglePosScanner()">▣</button>
+              <button type="button" aria-label="Keranjang" onclick="document.getElementById('tabelKeranjang').scrollIntoView({behavior:'smooth'})">🛒<b id="asposCartCount">0</b></button>
+            </div>
           </div>
           <!-- LAYOUT BARU: Kiri (Best Seller), Kanan (Search + Cart) -->
           <!-- Di HP urutannya ditukar via CSS agar Search+Cart ada di ATAS -->
@@ -497,15 +502,15 @@
             <div class="card pos-right-panel" style="padding: 15px; display: flex; flex-direction: column; overflow: visible;">
               
               <!-- Bagian Input / Search -->
-              <div style="margin-bottom: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                  <h3 style="margin:0; font-size:16px;">Input Penjualan</h3>
+              <div class="aspos-desktop-search-area">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                  <h3 style="margin:0;font-size:16px;">Input Penjualan</h3>
                   <button class="btn btn-outline btn-sm" onclick="togglePosScanner()">📷 Scan Barcode</button>
                 </div>
                 <div id="readerPos"></div>
-                <div style="position: relative;">
-                  <input type="text" id="searchPos" class="form-control" placeholder="Ketik nama barang atau scan barcode..." oninput="handlePosInput()" autocomplete="off" style="width:100%; box-sizing: border-box; padding: 10px; font-size: 14px; border: 2px solid var(--primary-color);">
-                  <div id="suggestionBox" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ced4da; border-radius: 4px; max-height: 250px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></div>
+                <div style="position:relative;">
+                  <input type="text" id="searchPos" class="form-control" placeholder="Ketik nama barang atau scan barcode..." oninput="handlePosInput()" autocomplete="off" style="width:100%;box-sizing:border-box;padding:10px;font-size:14px;border:2px solid var(--primary-color);">
+                  <div id="suggestionBox" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid #ced4da;border-radius:4px;max-height:250px;overflow-y:auto;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.15);"></div>
                 </div>
               </div>
 
@@ -3031,6 +3036,43 @@
       window.stopPosScanner = function() { stopScannerGeneric('readerPos', 'html5QrCodePos', 'isPosScanning'); };
       window.stopAllScanners = function() {
         window.stopScanner(); window.stopMasukScanner(); window.stopReturScanner(); window.stopPosScanner();
+      };
+    })();
+  </script>
+
+  <script>
+    (function installFullscreenPosScanner(){
+      var originalStart = window.startScannerInstance;
+      var originalStop = window.stopPosScanner;
+      window.togglePosScanner = function(){
+        var overlay=document.getElementById('asposScanOverlay');
+        var reader=document.getElementById('readerPos');
+        var mount=document.getElementById('asposScanMount');
+        if(!overlay || !reader || !mount || !originalStart){ return; }
+        if(overlay.classList.contains('active')){ originalStop(); return; }
+        mount.appendChild(reader);
+        overlay.classList.add('active');
+        originalStart('readerPos','html5QrCodePos',function(value){
+          overlay.classList.remove('active');
+          var el=document.getElementById('searchPos');
+          if(el){el.value=value;}
+          if(typeof handlePosInput==='function') handlePosInput();
+        });
+      };
+      window.stopPosScanner=function(){
+        try{ if(typeof originalStop==='function') originalStop(); }catch(e){}
+        var overlay=document.getElementById('asposScanOverlay');
+        if(overlay) overlay.classList.remove('active');
+        var reader=document.getElementById('readerPos');
+        var holder=document.querySelector('.aspos-desktop-search-area');
+        if(reader && holder && reader.parentElement!==holder) holder.insertBefore(reader, holder.firstChild);
+      };
+      window.asposOpenSearch=function(){
+        var el=document.getElementById('searchPos');
+        if(!el)return;
+        el.style.display='block';
+        el.focus();
+        el.scrollIntoView({behavior:'smooth',block:'center'});
       };
     })();
   </script>
