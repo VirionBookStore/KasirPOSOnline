@@ -909,6 +909,153 @@
 .aspos-item-edit-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 18px 18px}.aspos-item-edit-actions button{height:52px;border-radius:27px;font-size:16px;font-weight:900}.aspos-edit-delete{border:1px solid #d4dadd;background:#f2f5f6;color:#222}.aspos-edit-save{border:0;background:#0caf86;color:#fff}
 }
 </style>
+<style>
+    /* FINAL POS MOBILE: 9-10 produk memenuhi area layar */
+    @media screen and (max-width:992px){
+      #sec-posKasir.aspos-selection-mode{
+        padding:0 0 72px !important;
+        margin:0 !important;
+        height:calc(100dvh - 0px) !important;
+        box-sizing:border-box !important;
+        overflow:hidden !important;
+      }
+
+      #sec-posKasir.aspos-selection-mode .aspos-mobile-pos-header{
+        height:60px !important;
+        min-height:60px !important;
+        flex:0 0 60px !important;
+      }
+
+      #sec-posKasir.aspos-selection-mode .pos-left-panel{
+        margin:0 !important;
+        padding:0 18px !important;
+        height:calc(100dvh - 350px) !important;
+        min-height:0 !important;
+        box-sizing:border-box !important;
+        overflow:hidden !important;
+        border-radius:0 !important;
+        box-shadow:none !important;
+        background:#fff !important;
+      }
+
+      #sec-posKasir.aspos-selection-mode .pos-left-panel > div:first-child{
+        display:none !important;
+      }
+
+      #sec-posKasir.aspos-selection-mode .best-product-container{
+        display:flex !important;
+        flex-direction:column !important;
+        gap:0 !important;
+        height:100% !important;
+        min-height:0 !important;
+        max-height:none !important;
+        overflow-y:auto !important;
+        overflow-x:hidden !important;
+        padding:0 0 8px !important;
+        margin:0 !important;
+        -webkit-overflow-scrolling:touch !important;
+        scrollbar-width:none !important;
+      }
+      #sec-posKasir.aspos-selection-mode .best-product-container::-webkit-scrollbar{
+        display:none !important;
+      }
+
+      #sec-posKasir.aspos-selection-mode .best-product-card{
+        flex:0 0 104px !important;
+        width:100% !important;
+        min-height:104px !important;
+        height:104px !important;
+        box-sizing:border-box !important;
+        display:grid !important;
+        grid-template-columns:62px minmax(0,1fr) 38px !important;
+        grid-template-rows:auto auto !important;
+        column-gap:10px !important;
+        align-items:center !important;
+        padding:7px 0 !important;
+        margin:0 !important;
+        border:0 !important;
+        border-bottom:1px solid #e7ecea !important;
+        border-radius:0 !important;
+        box-shadow:none !important;
+        background:#fff !important;
+      }
+
+      #sec-posKasir.aspos-selection-mode .best-product-img{
+        grid-column:1 !important;
+        grid-row:1 / 3 !important;
+        width:58px !important;
+        height:72px !important;
+        max-width:58px !important;
+        max-height:72px !important;
+        margin:0 !important;
+        border-radius:7px !important;
+        object-fit:cover !important;
+      }
+
+      #sec-posKasir.aspos-selection-mode .best-product-title{
+        grid-column:2 !important;
+        grid-row:1 !important;
+        align-self:end !important;
+        margin:0 !important;
+        font-size:14px !important;
+        line-height:1.16 !important;
+        height:auto !important;
+        max-height:34px !important;
+        -webkit-line-clamp:2 !important;
+        overflow:hidden !important;
+      }
+
+      #sec-posKasir.aspos-selection-mode .catalog-meta,
+      #sec-posKasir.aspos-selection-mode .best-product-card .catalog-stock{
+        grid-column:2 !important;
+        grid-row:2 !important;
+        align-self:start !important;
+        margin:2px 0 0 !important;
+        font-size:11.5px !important;
+        line-height:1.15 !important;
+        white-space:nowrap !important;
+      }
+
+      #sec-posKasir.aspos-selection-mode .best-product-card .best-product-price{
+        font-size:11.5px !important;
+      }
+
+      #sec-posKasir.aspos-selection-mode .best-product-card .catalog-qty{
+        grid-column:3 !important;
+        grid-row:1 / 3 !important;
+        width:34px !important;
+        min-width:34px !important;
+        height:34px !important;
+        margin:0 !important;
+        border:2px solid #0f5132 !important;
+        border-radius:8px !important;
+        font-size:14px !important;
+      }
+
+      #sec-posKasir.aspos-selection-mode .aspos-selection-bar{
+        left:24px !important;
+        right:24px !important;
+        bottom:16px !important;
+        height:58px !important;
+        border-radius:30px !important;
+      }
+
+      #sec-posKasir.aspos-selection-mode .aspos-selection-count{
+        padding-left:18px !important;
+        font-size:16px !important;
+      }
+      #sec-posKasir.aspos-selection-mode .aspos-selection-count strong{
+        font-size:26px !important;
+      }
+      #sec-posKasir.aspos-selection-mode .aspos-selection-bar button{
+        min-width:125px !important;
+        font-size:16px !important;
+      }
+      #sec-posKasir.aspos-selection-mode .aspos-selection-bar button span{
+        font-size:25px !important;
+      }
+    }
+</style>
 </head>
 <body>
 
