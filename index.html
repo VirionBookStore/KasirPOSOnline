@@ -377,7 +377,7 @@
       border:0 !important;
       background:#000 !important;
     }
-    #asposScanMount #readerPos video,
+    #asposScanMount{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;background:#edf3f1!important}#asposScanMount video, #asposScanMount #readerPos video,
     #asposScanOverlay #readerPos video {
       position:absolute !important;
       inset:0 !important;
@@ -806,6 +806,7 @@
 </style>
 <style>
 /* POS 3 tahap mobile */
+.aspos-scan-loading,.aspos-scan-error{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;box-sizing:border-box;color:#52605a;font-weight:800;background:#edf3f1;z-index:3}.aspos-scan-error{color:#b4232c}
 .catalog-meta{font-size:11px;color:#737d79;display:flex;gap:5px;align-items:center}
 @media screen and (max-width:992px){
 #sec-posKasir.aspos-selection-mode .pos-right-panel{display:none!important}
@@ -2470,60 +2471,53 @@
       syncPosSelectionBar();
     }
 
+
+    function asposOpenSearch() {
+      var sec=document.getElementById('sec-posKasir');
+      var input=document.getElementById('searchPos');
+      if(!sec || !input) return;
+      if(sec.classList.contains('aspos-checkout-mode')) return;
+      sec.classList.add('aspos-search-open');
+      input.value='';
+      var box=document.getElementById('suggestionBox'); if(box) box.style.display='none';
+      renderProductCatalogGrid(globalDataBarang);
+      setTimeout(function(){ try { input.focus(); input.scrollIntoView({behavior:'smooth',block:'center'}); } catch(e){} },80);
+    }
+    function asposCloseSearch() {
+      var sec=document.getElementById('sec-posKasir'); if(!sec)return;
+      sec.classList.remove('aspos-search-open');
+      var input=document.getElementById('searchPos'); if(input)input.value='';
+      var box=document.getElementById('suggestionBox'); if(box)box.style.display='none';
+      renderProductCatalogGrid(globalDataBarang);
+    }
+
     function handlePosInput() {
-      let inputEl = document.getElementById("searchPos");
-      let keyword = inputEl.value.trim().toLowerCase();
-      let suggestionBox = document.getElementById("suggestionBox");
-      
-      if (keyword === "") {
-        suggestionBox.style.display = "none";
-        return;
-      }
-
-      let activeBarang = globalDataBarang.filter(item => item.status !== "Tidak Aktif");
-
-      let exactMatch = activeBarang.find(item => String(item.id_barang || "").toLowerCase() === keyword);
-      if (exactMatch) {
-        tambahKeKeranjang(exactMatch);
-        inputEl.value = "";
-        suggestionBox.style.display = "none";
-        return;
-      }
-
-      let keywords = keyword.split(" ").filter(k => k.length > 0);
-      let filtered = activeBarang.filter(item => {
-        let nama = String(item.nama_barang || "").toLowerCase();
-        let idBarang = String(item.id_barang || "").toLowerCase();
-        return keywords.every(kw => nama.includes(kw) || idBarang.includes(kw));
-      });
-
-      if (filtered.length > 0) {
-        suggestionBox.innerHTML = "";
-        filtered.forEach(item => {
-          let div = document.createElement("div");
-          div.style.cssText = "padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center;";
-          div.onmouseover = function() { this.style.background = "#f8f9fa"; };
-          div.onmouseout = function() { this.style.background = "white"; };
-          div.onclick = function() {
-            tambahKeKeranjang(item);
-            inputEl.value = "";
-            suggestionBox.style.display = "none";
-            inputEl.focus();
-          };
-          div.innerHTML = `
-            <div>
-              <div style="font-weight: 600; font-size: 13px; color: #333;">${item.nama_barang}</div>
-              <div style="font-size: 11px; color: #6c757d;">ID: ${item.id_barang} | Stok: <b>${item.stok}</b></div>
-            </div>
-            <div style="font-weight: bold; color: var(--primary-color); font-size: 13px;">Rp ${Number(item.harga_jual).toLocaleString('id-ID')}</div>
-          `;
-          suggestionBox.appendChild(div);
+      var inputEl=document.getElementById('searchPos');
+      var keyword=String(inputEl ? inputEl.value : '').trim().toLowerCase();
+      var suggestionBox=document.getElementById('suggestionBox');
+      var activeBarang=(Array.isArray(globalDataBarang)?globalDataBarang:[]).filter(function(item){return item && item.status!=='Tidak Aktif';});
+      if(document.getElementById('sec-posKasir') && document.getElementById('sec-posKasir').classList.contains('aspos-selection-mode')){
+        if(!keyword){ if(suggestionBox)suggestionBox.style.display='none'; renderProductCatalogGrid(activeBarang); return; }
+        var keywords=keyword.split(/\\s+/).filter(function(k){return k.length>0;});
+        var filtered=activeBarang.filter(function(item){
+          var nama=String(item.nama_barang||'').toLowerCase(), id=String(item.id_barang||'').toLowerCase();
+          return keywords.every(function(kw){return nama.indexOf(kw)>=0 || id.indexOf(kw)>=0;});
         });
-        suggestionBox.style.display = "block";
-      } else {
-        suggestionBox.innerHTML = `<div style="padding: 10px; text-align: center; color: #dc3545; font-size: 12px;">Barang tidak ditemukan atau tidak aktif</div>`;
-        suggestionBox.style.display = "block";
+        renderProductCatalogGrid(filtered);
+        if(suggestionBox)suggestionBox.style.display='none';
+        return;
       }
+      if(!keyword){if(suggestionBox)suggestionBox.style.display='none';return;}
+      var exactMatch=activeBarang.find(function(item){return String(item.id_barang||'').toLowerCase()===keyword;});
+      if(exactMatch){tambahKeKeranjang(exactMatch);inputEl.value='';if(suggestionBox)suggestionBox.style.display='none';return;}
+      var keywords2=keyword.split(/\\s+/).filter(function(k){return k.length>0;});
+      var filtered2=activeBarang.filter(function(item){var nama=String(item.nama_barang||'').toLowerCase(),id=String(item.id_barang||'').toLowerCase();return keywords2.every(function(kw){return nama.indexOf(kw)>=0||id.indexOf(kw)>=0;});});
+      if(!suggestionBox)return;
+      suggestionBox.innerHTML='';
+      if(filtered2.length){
+        filtered2.slice(0,20).forEach(function(item){var div=document.createElement('div');div.style.cssText='padding:10px 15px;border-bottom:1px solid #eee;cursor:pointer;display:flex;justify-content:space-between;align-items:center;';div.onclick=function(){tambahKeKeranjang(item);inputEl.value='';suggestionBox.style.display='none';inputEl.focus();};div.innerHTML='<div><div style="font-weight:600;font-size:13px;color:#333;">'+String(item.nama_barang||'-')+'</div><div style="font-size:11px;color:#6c757d;">ID: '+String(item.id_barang||'-')+' | Stok: <b>'+String(item.stok||0)+'</b></div></div><div style="font-weight:bold;color:var(--primary-color);font-size:13px;">Rp '+Number(item.harga_jual||0).toLocaleString('id-ID')+'</div>';suggestionBox.appendChild(div);});
+        suggestionBox.style.display='block';
+      }else{suggestionBox.innerHTML='<div style="padding:10px;text-align:center;color:#dc3545;font-size:12px;">Barang tidak ditemukan atau tidak aktif</div>';suggestionBox.style.display='block';}
     }
 
     document.addEventListener('click', function(e) {
@@ -3328,15 +3322,34 @@
     }
 
     function togglePosScanner() {
-      var readerDiv = document.getElementById("readerPos");
-      if (!isPosScanning) {
-        readerDiv.style.display = "block";
-        html5QrCodePos = new Html5Qrcode("readerPos");
-        html5QrCodePos.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 100 } },
-          function(decodedText) { document.getElementById("searchPos").value = decodedText; handlePosInput(); stopPosScanner(); }, function() {}
-        ).catch(err => { alert("Kamera error: " + err); readerDiv.style.display = "none"; });
-        isPosScanning = true;
-      } else { stopPosScanner(); }
+      var overlay=document.getElementById('asposScanOverlay');
+      var mount=document.getElementById('asposScanMount');
+      if(isPosScanning){ stopPosScanner(); return; }
+      if(!overlay||!mount){ alert('Tampilan scanner tidak tersedia.'); return; }
+      // Tampilkan scanner UI lebih dulu agar tidak ada layar hitam kosong saat kamera mulai.
+      overlay.style.display='block';
+      mount.innerHTML='<div class="aspos-scan-loading">Mengaktifkan kamera…</div>';
+      mount.style.background='#edf3f1';
+      mount.style.opacity='1';
+      try { document.body.classList.add('aspos-camera-active'); } catch(e){}
+      html5QrCodePos=new Html5Qrcode('asposScanMount',{verbose:false});
+      isPosScanning=true;
+      var scanConfig={fps:12,qrbox:function(viewfinderWidth,viewfinderHeight){var w=Math.floor(Math.min(viewfinderWidth*0.78,420));var h=Math.floor(Math.min(viewfinderHeight*0.28,150));return {width:Math.max(220,w),height:Math.max(90,h)};},aspectRatio:1.7777778,disableFlip:false};
+      html5QrCodePos.start({facingMode:{ideal:'environment'}},scanConfig,function(decodedText){
+        var value=String(decodedText||'').trim(); if(!value)return;
+        var scanner=html5QrCodePos; isPosScanning=false;
+        Promise.resolve(scanner.stop()).catch(function(){}).finally(function(){
+          mount.innerHTML=''; mount.style.background='#edf3f1'; overlay.style.display='none';
+          document.body.classList.remove('aspos-camera-active');
+          var inp=document.getElementById('searchPos');if(inp){inp.value=value;}
+          handlePosInput();
+        });
+      },function(){}).catch(function(err){
+        console.error('POS scanner error',err);isPosScanning=false;
+        try{html5QrCodePos.clear();}catch(e){}
+        mount.innerHTML='<div class="aspos-scan-error">Kamera tidak dapat dibuka.<br><small>Periksa izin kamera lalu coba lagi.</small></div>';
+        setTimeout(function(){overlay.style.display='none';mount.innerHTML='';document.body.classList.remove('aspos-camera-active');},1200);
+      });
     }
 
     function stopScanner() {
@@ -3355,8 +3368,11 @@
     }
 
     function stopPosScanner() {
-      if (html5QrCodePos && isPosScanning) { html5QrCodePos.stop().then(() => { document.getElementById("readerPos").style.display = "none"; isPosScanning = false; }).catch(() => { document.getElementById("readerPos").style.display = "none"; isPosScanning = false; });
-      } else { document.getElementById("readerPos").style.display = "none"; isPosScanning = false; }
+      var overlay=document.getElementById('asposScanOverlay'),mount=document.getElementById('asposScanMount');
+      var scanner=html5QrCodePos; isPosScanning=false;
+      if(scanner&&typeof scanner.stop==='function'){
+        Promise.resolve(scanner.stop()).catch(function(){}).finally(function(){try{scanner.clear();}catch(e){};html5QrCodePos=null;if(mount)mount.innerHTML='';if(overlay)overlay.style.display='none';document.body.classList.remove('aspos-camera-active');});
+      } else {html5QrCodePos=null;if(mount)mount.innerHTML='';if(overlay)overlay.style.display='none';document.body.classList.remove('aspos-camera-active');}
     }
 
     function stopAllScanners() {
