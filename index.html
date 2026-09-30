@@ -1114,6 +1114,7 @@
           </div>
           <!-- LAYOUT BARU: Kiri (Best Seller), Kanan (Search + Cart) -->
           <!-- Di HP urutannya ditukar via CSS agar Search+Cart ada di ATAS -->
+          <div class="aspos-checkout-header"><button type="button" class="aspos-detail-back" onclick="backToPosSelection()">‹</button><div class="aspos-detail-total-top" id="asposDetailTotalTop">Rp 0</div><button type="button" class="aspos-detail-pay-top" onclick="prosesCheckout()">BAYAR</button></div>
           <div class="pos-grid" style="display: grid; grid-template-columns: 1.2fr 2fr; gap: 20px;">
             
             <!-- PANEL KIRI: BEST SELLER -->
@@ -1155,20 +1156,10 @@
               </div>
 
               <!-- Bagian Checkout / Bayar -->
-              <div style="border-top: 1px solid var(--border-color); padding-top: 10px;">
-                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 10px;">
-                  <span>Total Tagihan:</span>
-                  <span id="posTotalBayar" style="color: var(--primary-color);">Rp 0</span>
-                </div>
-                <div class="form-group">
-                  <label>Metode Pembayaran:</label>
-                  <select id="posMetode" class="form-control">
-                    <option value="Tunai">Tunai (Cash)</option>
-                    <option value="QRIS">QRIS</option>
-                    <option value="Transfer Bank">Transfer Bank</option>
-                  </select>
-                </div>
-                <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 10px; font-size: 14px;" onclick="prosesCheckout()">Bayar & Cetak Nota</button>
+              <div class="aspos-checkout-action">
+                <div class="aspos-detail-total"><span>Total</span><strong id="posTotalBayar">Rp 0</strong></div>
+                <div class="form-group aspos-desktop-payment-method"><label>Metode Pembayaran:</label><select id="posMetode" class="form-control"><option value="Tunai">Tunai (Cash)</option><option value="QRIS">QRIS</option><option value="Transfer Bank">Transfer Bank</option></select></div>
+                <button id="asposPayFromDetail" class="btn btn-primary aspos-pay-detail-btn" type="button" onclick="prosesCheckout()">BAYAR</button>
               </div>
 
             </div>
@@ -1610,6 +1601,17 @@
           </div>
         </form>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal Edit Item POS -->
+  <div id="modalEditItemPos" class="modal aspos-item-edit-modal">
+    <div class="modal-content aspos-item-edit-content">
+      <div class="aspos-item-edit-head"><div class="aspos-item-edit-product"><div id="editItemPosThumb" class="aspos-item-edit-thumb">#</div><div><div id="editItemPosName" class="aspos-item-edit-name">Barang</div><div id="editItemPosId" class="aspos-item-edit-id">-</div></div></div><div id="editItemPosPriceInfo" class="aspos-item-edit-price">Rp 0</div></div>
+      <div class="aspos-item-edit-qty"><button type="button" onclick="editItemQty(-1)">−</button><strong id="editItemPosQty">1</strong><button type="button" onclick="editItemQty(1)">+</button></div>
+      <div class="aspos-item-edit-fields"><div class="aspos-edit-field"><label>Harga jual sementara</label><input type="number" id="editItemPosPrice" min="0" inputmode="numeric"></div><div class="aspos-edit-field"><label>Diskon / potongan</label><div class="aspos-disc-row"><select id="editItemPosDiscType"><option value="Rp">Rp</option><option value="%">%</option></select><input type="number" id="editItemPosDiscVal" min="0" inputmode="numeric"></div></div></div>
+      <div class="aspos-item-edit-preview"><span>Subtotal item</span><strong id="editItemPosSubtotal">Rp 0</strong></div>
+      <div class="aspos-item-edit-actions"><button type="button" class="aspos-edit-delete" onclick="hapusItemDariEdit()">HAPUS</button><button type="button" class="aspos-edit-save" onclick="simpanEditItemPos()">OK</button></div>
     </div>
   </div>
 
@@ -2289,26 +2291,18 @@
     }
 
     function setPosMobileMode(mode) {
-      var sec=document.getElementById('sec-posKasir');
-      if(!sec) return;
+      var sec=document.getElementById('sec-posKasir'); if(!sec) return;
       sec.classList.remove('aspos-selection-mode','aspos-checkout-mode','aspos-search-open');
-      if(mode==='checkout') sec.classList.add('aspos-checkout-mode');
-      else sec.classList.add('aspos-selection-mode');
-      var bar=document.getElementById('asposSelectionBar');
-      if(bar) bar.style.display=(mode==='checkout'?'none':'');
-      if(mode==='selection') syncPosSelectionBar();
+      if(mode==='checkout'||mode==='detail') sec.classList.add('aspos-checkout-mode'); else sec.classList.add('aspos-selection-mode');
+      var bar=document.getElementById('asposSelectionBar'); if(bar) bar.style.display=(mode==='checkout'||mode==='detail'?'none':'');
+      if(mode==='selection') syncPosSelectionBar(); else updatePosDetailTotals();
     }
-
-    function openPosCheckout() {
-      if(!keranjang.length){
-        alert('Pilih barang terlebih dahulu.');
-        return;
-      }
-      setPosMobileMode('checkout');
-      var sec=document.getElementById('sec-posKasir');
-      if(sec) sec.scrollIntoView({behavior:'smooth',block:'start'});
-      renderKeranjang();
+    function openPosCheckout(){
+      if(!keranjang.length){alert('Pilih barang terlebih dahulu.');return;}
+      setPosMobileMode('detail'); var sec=document.getElementById('sec-posKasir'); if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'}); renderKeranjang(); updatePosDetailTotals();
     }
+    function backToPosSelection(){closeEditItemPos();setPosMobileMode('selection');var sec=document.getElementById('sec-posKasir');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
+    function updatePosDetailTotals(){var total=Math.max(0,Number(subtotalKotor||0)-Number(totalDiskonItem||0));var a=document.getElementById('asposDetailTotalTop'),b=document.getElementById('posTotalBayar');if(a)a.innerText='Rp '+total.toLocaleString('id-ID');if(b)b.innerText='Rp '+total.toLocaleString('id-ID');}
 
     function syncPosSelectionBar() {
       var count=keranjang.reduce(function(s,i){return s+Number(i.qty||0);},0);
@@ -2519,6 +2513,13 @@
       syncPosSelectionBar();
     }
 
+    var asposEditingItemIndex=-1;
+    function openEditItemPos(idx){if(idx<0||idx>=keranjang.length)return;asposEditingItemIndex=idx;var i=keranjang[idx],n=document.getElementById('editItemPosName'),id=document.getElementById('editItemPosId'),pi=document.getElementById('editItemPosPriceInfo'),q=document.getElementById('editItemPosQty'),p=document.getElementById('editItemPosPrice'),dt=document.getElementById('editItemPosDiscType'),dv=document.getElementById('editItemPosDiscVal'),th=document.getElementById('editItemPosThumb');if(n)n.innerText=i.nama_barang||'Barang';if(id)id.innerText=i.id_barang||'-';if(pi)pi.innerText='Rp '+Number(i.harga_jual||0).toLocaleString('id-ID');if(q)q.innerText=String(i.qty||1);if(p)p.value=Number(i.harga_jual||0);if(dt)dt.value=i.disc_type||'Rp';if(dv)dv.value=Number(i.disc_val||0);if(th)th.innerText=(String(i.nama_barang||'#').trim().charAt(0)||'#').toUpperCase();updateEditItemPreview();var m=document.getElementById('modalEditItemPos');if(m)m.style.display='flex';}
+    function closeEditItemPos(){var m=document.getElementById('modalEditItemPos');if(m)m.style.display='none';asposEditingItemIndex=-1;}
+    function editItemQty(d){if(asposEditingItemIndex<0)return;var i=keranjang[asposEditingItemIndex],m=globalDataBarang.find(function(b){return String(b.id_barang)===String(i.id_barang)}),max=m?Number(m.stok||0):9999,n=Math.max(1,Number(i.qty||1)+d);if(max>0&&n>max){alert('Jumlah melebihi stok tersedia ('+max+').');n=max}i.qty=n;document.getElementById('editItemPosQty').innerText=String(n);updateEditItemPreview();}
+    function updateEditItemPreview(){if(asposEditingItemIndex<0)return;var i=keranjang[asposEditingItemIndex],p=Number(document.getElementById('editItemPosPrice').value)||0,q=Number(i.qty)||1,t=document.getElementById('editItemPosDiscType').value,d=Number(document.getElementById('editItemPosDiscVal').value)||0,b=p*q,x=t==='%'?b*d/100:d;if(x>b)x=b;document.getElementById('editItemPosSubtotal').innerText='Rp '+Math.max(0,b-x).toLocaleString('id-ID');}
+    function simpanEditItemPos(){if(asposEditingItemIndex<0)return;var i=keranjang[asposEditingItemIndex];i.harga_jual=Math.max(0,Number(document.getElementById('editItemPosPrice').value)||0);i.disc_type=document.getElementById('editItemPosDiscType').value;i.disc_val=Math.max(0,Number(document.getElementById('editItemPosDiscVal').value)||0);closeEditItemPos();renderKeranjang();updatePosDetailTotals();}
+    function hapusItemDariEdit(){if(asposEditingItemIndex<0)return;var x=asposEditingItemIndex;closeEditItemPos();hapusDariKeranjang(x);}
     function kalkulasiPromoKeranjang() {
       keranjang.forEach(item => item.promoPotongan = 0);
       let groups = {};
@@ -2636,7 +2637,7 @@
         var tr = document.createElement("tr");
         tr.innerHTML = `
           <td>
-            <div style="font-weight:600;">${k.nama_barang}</div>
+            <div class="aspos-cart-item-title" onclick="openEditItemPos(${idx})" title="Ketuk untuk ubah qty, harga, atau diskon">${k.nama_barang}</div>
             <div style="color:#6c757d; font-size:10px;">Rp ${k.harga_jual.toLocaleString('id-ID')} /item</div>
             ${promoBadge}
           </td>
@@ -2772,8 +2773,10 @@
       };
 
       closeModalPembayaran();
+      closeEditItemPos();
       tampilkanStruk(lastTransaksi);
       keranjang = [];
+      setPosMobileMode('selection');
       renderKeranjang();
       loadPosKatalog();
 
