@@ -168,6 +168,14 @@
       .aspos-quick-pay{display:grid!important;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px}.aspos-quick-pay button{min-height:38px;border:1px solid #dce5e1;background:#fff;border-radius:9px;font-size:10px;font-weight:800;color:#087e65}
       #modalPembayaran .modal-footer{margin:0!important;padding:10px 16px 14px!important;background:#fff;border-top:1px solid #e7ecea}#btnKonfirmasiBayar{width:100%;height:52px;border-radius:28px;font-size:16px;font-weight:800}
     }
+    @media screen and (max-width:992px){
+      #sec-masterBarang .table-responsive{overflow-x:auto!important;-webkit-overflow-scrolling:touch;background:#fff;border-radius:14px}
+      #sec-masterBarang .toolbar{padding:10px!important;background:#fff;border-radius:14px;margin-bottom:10px}
+      #sec-masterBarang .toolbar-left{display:grid!important;grid-template-columns:1fr 1fr;gap:7px}
+      #sec-masterBarang .toolbar-left .btn{min-height:44px;border-radius:12px!important}
+      #sec-masterBarang #searchInput{height:44px!important;border-radius:12px!important;margin-top:8px}
+      #sec-masterBarang #tabelBarang{min-width:980px!important}
+    }
   </style>
 </head>
 <body>
@@ -1338,10 +1346,35 @@
     }
 
     function loadBarang() {
-      google.script.run.withSuccessHandler(function(data) {
+      var showData = function(data) {
+        data = Array.isArray(data) ? data : [];
         globalDataBarang = data;
+        try { localStorage.setItem('aspos_barang_cache', JSON.stringify(data)); } catch(e) {}
         renderTabelBarang(data);
-      }).getBarang();
+      };
+
+      var showError = function(err) {
+        console.error('[AS-Pos] getBarang gagal:', err);
+        var cached = null;
+        try { cached = JSON.parse(localStorage.getItem('aspos_barang_cache') || 'null'); } catch(e) {}
+        if (Array.isArray(cached) && cached.length) {
+          showData(cached);
+          return;
+        }
+        var tbody = document.querySelector('#tabelBarang tbody');
+        if (tbody) {
+          tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:35px;color:#dc3545;">Data barang belum dapat dimuat.<br><small>Periksa koneksi Web App GAS lalu tekan menu Master Barang lagi.</small></td></tr>';
+        }
+      };
+
+      try {
+        google.script.run
+          .withSuccessHandler(showData)
+          .withFailureHandler(showError)
+          .getBarang();
+      } catch(e) {
+        showError(e);
+      }
     }
 
     function renderTabelBarang(data) {
@@ -1551,10 +1584,17 @@
 
     function loadPosKatalog() {
       google.script.run.withSuccessHandler(function(data) {
-        globalDataBarang = data;
+        globalDataBarang = Array.isArray(data) ? data : [];
+        try { localStorage.setItem('aspos_barang_cache', JSON.stringify(globalDataBarang)); } catch(e) {}
         document.getElementById("searchPos").value = "";
         let suggestionBox = document.getElementById("suggestionBox");
         if(suggestionBox) suggestionBox.style.display = "none";
+      }).withFailureHandler(function(err) {
+        try {
+          var cached = JSON.parse(localStorage.getItem('aspos_barang_cache') || 'null');
+          if (Array.isArray(cached)) globalDataBarang = cached;
+        } catch(e) {}
+        console.error('[AS-Pos] katalog gagal dimuat:', err);
       }).getBarang();
 
       google.script.run.withSuccessHandler(function(bestList) {
