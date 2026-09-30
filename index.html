@@ -2811,7 +2811,17 @@
         try {
           // Minta izin kamera lebih dulu. Ini membantu browser/GitHub Pages
           // menampilkan prompt permission dengan benar.
-          await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+          // Minta izin kamera hanya untuk memastikan permission tersedia.
+          // Setelah izin didapat, hentikan stream sementara agar Html5Qrcode
+          // dapat membuka kamera yang sama tanpa konflik "Could not start video source".
+          const permissionStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: 'environment' } },
+            audio: false
+          });
+          permissionStream.getTracks().forEach(function(track) {
+            try { track.stop(); } catch (e) {}
+          });
+
           const cameraId = await chooseCamera();
           readerDiv.innerHTML = '';
           scanner = new Html5Qrcode(readerId, { verbose: false });
