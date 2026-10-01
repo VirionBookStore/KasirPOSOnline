@@ -2734,7 +2734,7 @@
       </div>
       <div class="modal-footer" style="text-align: center; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
         <button class="btn btn-outline btn-sm" onclick="closeModalStruk()">Tutup</button>
-        <button class="btn btn-outline btn-sm" onclick="downloadStrukImage()">💾 Simpan HP/PC</button>
+        <button class="btn btn-outline btn-sm" onclick="downloadStrukImage()">💾 Simpan HP/PC</button>\n        <button class="btn btn-outline btn-sm" onclick="printStruk()">🖨️ Print</button>
         <button class="btn btn-primary btn-sm" onclick="shareStrukImage()">📤 Share (WA, dll)</button>
       </div>
     </div>
@@ -4013,6 +4013,14 @@
          }
        })();
        document.getElementById("modalStruk").style.display = "flex";
+    }
+
+    function printStruk(){
+      var area=document.getElementById('areaStruk'); if(!area)return;
+      var w=window.open('','_blank','width=420,height=700');
+      if(!w){alert('Pop-up diblokir. Izinkan pop-up untuk mencetak struk.');return;}
+      w.document.write('<html><head><title>Struk '+((lastTransaksi&&lastTransaksi.no_nota)||'Transaksi')+'</title><style>body{font-family:monospace;margin:12px}*{box-sizing:border-box}</style></head><body>'+area.outerHTML+'</body></html>');
+      w.document.close();w.focus();setTimeout(function(){w.print();w.close();},300);
     }
 
     function downloadStrukImage() {
