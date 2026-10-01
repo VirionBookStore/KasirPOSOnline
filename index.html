@@ -3080,14 +3080,14 @@
       var groups={};
       rows.forEach(function(r){
         var raw=String(r.tanggal||''); var key=raw.slice(0,10);
-        if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(key)){ var d=new Date(raw); key=isNaN(d)?raw:d.toISOString().slice(0,10); }
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(key)){ var d=new Date(raw); key=isNaN(d)?raw:d.toISOString().slice(0,10); }
         (groups[key]||(groups[key]=[])).push(r);
       });
       var keys=Object.keys(groups).sort().reverse();
       if(!keys.length){box.innerHTML='<div class="laporan-empty">Belum ada transaksi.</div>';return;}
       box.innerHTML=keys.map(function(k,idx){
         var arr=groups[k], total=arr.reduce(function(s,x){return s+Number(x.total_bayar||0)},0);
-        var id='lh_'+k.replace(/\\W/g,'_');
+        var id='lh_'+k.replace(/\W/g,'_');
         return '<div class="hari-row"><button type="button" class="hari-btn" onclick="toggleHariLaporan(\''+id+'\')"><span><b>'+formatHariLaporan(k)+'</b><small>'+arr.length+' transaksi · Rp '+total.toLocaleString('id-ID')+'</small></span><span>›</span></button><div id="'+id+'" class="nota-list">'+arr.map(function(x){var n=String(x.no_nota||'').replace(/'/g,"\\\\'");return '<button type="button" onclick="bukaStrukUlang(\''+n+'\')"><span><b>'+x.no_nota+'</b><small>'+(x.kasir||'-')+' · '+(x.total_item||0)+' item</small></span><strong>Rp '+Number(x.total_bayar||0).toLocaleString('id-ID')+'</strong></button>';}).join('')+'</div></div>';
       }).join('');
       if(keys[0])toggleHariLaporan('lh_'+keys[0].replace(/\\W/g,'_'));
