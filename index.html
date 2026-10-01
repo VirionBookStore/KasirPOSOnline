@@ -1712,6 +1712,51 @@
 }
 .aspos-bottom-back{display:none}
 </style>
+<style id="ASPOS-CART-NAME-FORCE-FINAL">
+@media screen and (max-width:992px){
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1){
+    position:relative!important;
+    display:block!important;
+    grid-column:2!important;
+    grid-row:1!important;
+    min-width:0!important;
+    overflow:visible!important;
+  }
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang .aspos-cart-item-title{
+    display:block!important;
+    position:relative!important;
+    visibility:visible!important;
+    opacity:1!important;
+    color:#2f3432!important;
+    font-size:12px!important;
+    font-weight:800!important;
+    line-height:15px!important;
+    width:100%!important;
+    height:15px!important;
+    max-height:15px!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+    white-space:nowrap!important;
+    text-overflow:ellipsis!important;
+  }
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang .aspos-cart-meta{
+    position:relative!important;
+    display:flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+    color:#7a8581!important;
+    font-size:9.5px!important;
+    line-height:15px!important;
+    height:15px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1)>div[style]{
+    display:none!important;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -3589,11 +3634,13 @@
         totalDiskonItem += potongan;
 
         let promoBadge = (k.promoPotongan > 0) ? `<div style="color:#198754; font-size:9.5px; font-weight:bold;">(Promo - Rp ${k.promoPotongan.toLocaleString('id-ID')})</div>` : '';
+        // Fallback nama memastikan judul selalu muncul walaupun item hasil scanner tidak membawa nama_barang.
+        let cartName = String(k.nama_barang || k.id_barang || 'Barang');
 
         var tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>
-            <div class="aspos-cart-item-title" onclick="openEditItemPos(${idx})" title="Ketuk untuk ubah qty, harga, atau diskon">${k.nama_barang}</div>
+          <td data-cart-name="${cartName.replace(/"/g, '&quot;')}">
+            <div class="aspos-cart-item-title" onclick="openEditItemPos(${idx})" title="Ketuk untuk ubah qty, harga, atau diskon">${cartName}</div>
             <div class="aspos-cart-meta"><span>Rp ${k.harga_jual.toLocaleString('id-ID')} /item</span><b>Rp ${k.subtotal.toLocaleString('id-ID')}</b></div>
             ${promoBadge}
           </td>
