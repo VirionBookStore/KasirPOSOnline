@@ -1570,6 +1570,148 @@
   #sec-posKasir.aspos-checkout-mode .aspos-pay-detail-btn{height:42px!important;min-height:42px!important;border-radius:22px!important;font-size:15px!important}
 }
 </style>
+<style id="ASPOS-CHECKOUT-COMPACT-V2">
+@media screen and (max-width:992px){
+  /* Header atas checkout dihilangkan: total + bayar cukup di bagian bawah. */
+  #sec-posKasir.aspos-checkout-mode .aspos-checkout-header{display:none!important}
+  #sec-posKasir.aspos-checkout-mode .pos-right-panel{
+    min-height:calc(100dvh - 66px)!important;
+    height:calc(100dvh - 66px)!important;
+  }
+  #sec-posKasir.aspos-checkout-mode .pos-right-panel>div:nth-child(2){
+    height:100%!important;
+    min-height:0!important;
+  }
+  /* Daftar keranjang memakai ruang yang tersedia, bukan berhenti di kotak pendek. */
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang{
+    width:100%!important;
+  }
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang thead{display:none!important}
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang tbody{
+    display:block!important;
+    width:100%!important;
+  }
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang tr{
+    display:grid!important;
+    grid-template-columns:34px minmax(0,1fr) 28px!important;
+    align-items:center!important;
+    gap:8px!important;
+    padding:8px 4px!important;
+    min-height:52px!important;
+  }
+  /* Judul produk wajib terlihat di atas harga/item. */
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1){
+    grid-column:2!important;
+    grid-row:1!important;
+    display:block!important;
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+  #sec-posKasir.aspos-checkout-mode .aspos-cart-item-title{
+    display:block!important;
+    visibility:visible!important;
+    opacity:1!important;
+    width:100%!important;
+    height:16px!important;
+    max-height:16px!important;
+    font-size:12px!important;
+    line-height:16px!important;
+    font-weight:800!important;
+    color:#303633!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  #sec-posKasir.aspos-checkout-mode .aspos-cart-meta{
+    display:flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+    align-items:center!important;
+    gap:7px!important;
+    height:15px!important;
+    line-height:15px!important;
+    margin:0!important;
+    font-size:9.5px!important;
+    color:#7a8581!important;
+    white-space:nowrap!important;
+  }
+  #sec-posKasir.aspos-checkout-mode .aspos-cart-meta b{
+    font-size:10px!important;
+    color:#3f4945!important;
+  }
+  /* Qty tetap kecil. */
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(2){
+    grid-column:1!important;grid-row:1!important;align-self:center!important;
+  }
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang input[type=number]{
+    width:32px!important;height:32px!important;min-width:32px!important;
+    padding:0!important;border:0!important;border-radius:50%!important;
+    background:#eef3f1!important;text-align:center!important;
+    font-size:13px!important;font-weight:800!important;
+  }
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(3){display:none!important}
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4){
+    grid-column:3!important;grid-row:1!important;min-width:28px!important;
+  }
+  #sec-posKasir.aspos-checkout-mode .aspos-remove-cart{
+    width:24px!important;height:26px!important;min-width:24px!important;
+  }
+  #sec-posKasir.aspos-checkout-mode .aspos-remove-cart:before{
+    font-size:15px!important;opacity:.7!important;
+  }
+  /* Container daftar barang: tinggi fleksibel sampai panel bayar. */
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang{
+    max-height:none!important;
+    min-height:0!important;
+  }
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang{
+    margin:0!important;
+  }
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang{
+    border:0!important;
+  }
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang tbody:empty:before{
+    content:"Keranjang kosong";
+    display:block;
+    text-align:center;
+    padding:20px;
+    color:#8a9490;
+    font-size:12px;
+  }
+  /* Tombol kembali dipindah ke bawah, satu area dengan Total/Bayar. */
+  #sec-posKasir.aspos-checkout-mode .aspos-checkout-action{
+    padding:5px 10px calc(7px + env(safe-area-inset-bottom))!important;
+  }
+  #sec-posKasir.aspos-checkout-mode .aspos-bottom-back{
+    display:block!important;
+    width:auto!important;
+    height:26px!important;
+    padding:0 6px!important;
+    margin:0 2px 3px!important;
+    border:0!important;
+    background:transparent!important;
+    color:#0aa681!important;
+    font-size:12px!important;
+    font-weight:800!important;
+    line-height:26px!important;
+  }
+  #sec-posKasir.aspos-checkout-mode .aspos-detail-total{
+    height:27px!important;
+    margin:0 4px 4px!important;
+    font-size:13px!important;
+  }
+  #sec-posKasir.aspos-checkout-mode .aspos-detail-total strong{
+    font-size:18px!important;
+  }
+  #sec-posKasir.aspos-checkout-mode .aspos-pay-detail-btn{
+    height:42px!important;
+    min-height:42px!important;
+    border-radius:22px!important;
+    font-size:15px!important;
+  }
+}
+.aspos-bottom-back{display:none}
+</style>
 </head>
 <body>
 
@@ -1915,6 +2057,7 @@
 
               <!-- Bagian Checkout / Bayar -->
               <div class="aspos-checkout-action">
+                <button type="button" class="aspos-bottom-back" onclick="backToPosSelection()">‹ KEMBALI</button>
                 <div class="aspos-detail-total"><span>Total</span><strong id="posTotalBayar">Rp 0</strong></div>
                 <div class="form-group aspos-desktop-payment-method"><label>Metode Pembayaran:</label><select id="posMetode" class="form-control"><option value="Tunai">Tunai (Cash)</option><option value="QRIS">QRIS</option><option value="Transfer Bank">Transfer Bank</option></select></div>
                 <button id="asposPayFromDetail" class="btn btn-primary aspos-pay-detail-btn" type="button" onclick="prosesCheckout()">BAYAR</button>
