@@ -1757,6 +1757,35 @@
   }
 }
 </style>
+<style id="ASPOS-CART-NAME-GUARANTEE">
+@media screen and (max-width:992px){
+  /* Nama produk ditampilkan langsung dari data-cart-name agar selalu terlihat di checkout mobile. */
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td[data-cart-name]::before{
+    content:attr(data-cart-name)!important;
+    display:block!important;
+    width:100%!important;
+    height:16px!important;
+    margin:0!important;
+    padding:0!important;
+    color:#2f3432!important;
+    font-size:12px!important;
+    line-height:16px!important;
+    font-weight:800!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td[data-cart-name] .aspos-cart-item-title{
+    display:none!important;
+  }
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td[data-cart-name]{
+    color:#2f3432!important;
+    min-height:32px!important;
+  }
+}
+</style>
 </head>
 <body>
 
