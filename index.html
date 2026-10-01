@@ -1545,6 +1545,31 @@
   transform:scale(.94)!important;
 }
 </style>
+<style id="ASPOS-CART-COMPACT-FINAL">
+@media screen and (max-width:992px){
+  #sec-posKasir.aspos-checkout-mode{height:calc(100dvh - 66px)!important;min-height:calc(100dvh - 66px)!important;overflow:hidden!important;padding-bottom:0!important}
+  #sec-posKasir.aspos-checkout-mode .pos-right-panel{height:calc(100dvh - 66px)!important;min-height:0!important;overflow:hidden!important}
+  #sec-posKasir.aspos-checkout-mode .pos-right-panel>div:nth-child(2){height:100%!important;min-height:0!important;overflow:hidden!important}
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;padding:0 10px 96px!important;box-sizing:border-box!important}
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang tr{grid-template-columns:34px minmax(0,1fr) 28px!important;gap:8px!important;padding:8px 4px!important;min-height:54px!important;box-sizing:border-box!important}
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1){grid-column:2!important;grid-row:1!important;min-width:0!important}
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(2){grid-column:1!important;grid-row:1!important;align-self:center!important}
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(3){display:none!important}
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4){grid-column:3!important;grid-row:1!important;min-width:28px!important;align-self:center!important}
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang input[type=number]{width:32px!important;min-width:32px!important;height:32px!important;padding:0!important;border:0!important;background:#eef3f1!important;border-radius:50%!important;text-align:center!important;font-size:13px!important;font-weight:800!important;box-sizing:border-box!important}
+  #sec-posKasir.aspos-checkout-mode .aspos-cart-item-title{font-size:12.5px!important;line-height:16px!important;height:16px!important;max-height:16px!important;margin:0!important;font-weight:800!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  #sec-posKasir.aspos-checkout-mode .aspos-cart-item-title.aspos-title-scroll{display:block!important;height:16px!important;line-height:16px!important;overflow-x:auto!important;overflow-y:hidden!important;text-overflow:clip!important;white-space:nowrap!important}
+  #sec-posKasir.aspos-checkout-mode .aspos-cart-meta{display:flex!important;align-items:center!important;gap:7px!important;height:15px!important;line-height:15px!important;margin-top:1px!important;white-space:nowrap!important;overflow:hidden!important;font-size:9.5px!important;color:#7a8581!important}
+  #sec-posKasir.aspos-checkout-mode .aspos-cart-meta b{font-size:10.5px!important;color:#3f4945!important;font-weight:800!important}
+  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1)>div[style]{display:none!important}
+  #sec-posKasir.aspos-checkout-mode .aspos-remove-cart{width:24px!important;height:28px!important;min-width:24px!important;padding:0!important;border:0!important;background:transparent!important;color:#9aa5a1!important;font-size:0!important}
+  #sec-posKasir.aspos-checkout-mode .aspos-remove-cart:before{content:"🗑"!important;font-size:16px!important;line-height:28px!important;opacity:.75!important}
+  #sec-posKasir.aspos-checkout-mode .aspos-checkout-action{position:fixed!important;left:0!important;right:0!important;bottom:0!important;z-index:99990!important;margin:0!important;padding:7px 10px calc(7px + env(safe-area-inset-bottom))!important;border-top:1px solid #e4eae7!important;background:#fff!important;box-shadow:0 -4px 14px rgba(0,0,0,.08)!important}
+  #sec-posKasir.aspos-checkout-mode .aspos-detail-total{height:28px!important;margin:0 4px 5px!important;font-size:13px!important}
+  #sec-posKasir.aspos-checkout-mode .aspos-detail-total strong{font-size:18px!important}
+  #sec-posKasir.aspos-checkout-mode .aspos-pay-detail-btn{height:42px!important;min-height:42px!important;border-radius:22px!important;font-size:15px!important}
+}
+</style>
 </head>
 <body>
 
@@ -3426,10 +3451,10 @@
         tr.innerHTML = `
           <td>
             <div class="aspos-cart-item-title" onclick="openEditItemPos(${idx})" title="Ketuk untuk ubah qty, harga, atau diskon">${k.nama_barang}</div>
-            <div style="color:#6c757d; font-size:10px;">Rp ${k.harga_jual.toLocaleString('id-ID')} /item</div>
+            <div class="aspos-cart-meta"><span>Rp ${k.harga_jual.toLocaleString('id-ID')} /item</span><b>Rp ${k.subtotal.toLocaleString('id-ID')}</b></div>
             ${promoBadge}
           </td>
-          <td><input type="number" class="form-control" style="width:50px; padding:3px;" value="${k.qty}" min="1" onchange="ubahQtyItem(${idx}, this.value)"></td>
+          <td><input type="number" class="form-control" value="${k.qty}" min="1" onchange="ubahQtyItem(${idx}, this.value)"></td>
           <td><b>Rp ${k.subtotal.toLocaleString('id-ID')}</b></td>
           <td style="text-align: right;">
             <div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">
