@@ -1530,6 +1530,21 @@
 }
 </style>
 
+<style id="ASPOS-SCAN-ICON-FINAL">
+/* Ikon scanner kamera/barcode untuk POS mobile */
+.aspos-mobile-scan-btn svg{
+  width:28px!important;
+  height:28px!important;
+  display:block!important;
+}
+.aspos-mobile-scan-btn{
+  cursor:pointer!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+.aspos-mobile-scan-btn:active{
+  transform:scale(.94)!important;
+}
+</style>
 </head>
 <body>
 
@@ -1828,7 +1843,7 @@
               <input type="text" id="searchPosMobile" class="aspos-mobile-search-input" placeholder="Cari barang..." autocomplete="off"
                 oninput="syncMobilePosSearch(this)" onkeydown="asposSearchKeydown(event)">
             </div>
-            <button type="button" class="aspos-mobile-scan-btn" aria-label="Scan barcode" onclick="togglePosScanner()">▣</button>
+            <button type="button" class="aspos-mobile-scan-btn" aria-label="Scan barcode" title="Scan barcode dengan kamera" onclick="togglePosScanner()"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 17v-3a4 4 0 0 1 4-4h3M31 10h3a4 4 0 0 1 4 4v3M38 31v3a4 4 0 0 1-4 4h-3M17 38h-3a4 4 0 0 1-4-4v-3" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><path d="M15 20v8M19 18v12M23 20v8M27 18v12M31 20v8M35 18v12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
           </div>
           <!-- LAYOUT BARU: Kiri (Best Seller), Kanan (Search + Cart) -->
           <!-- Di HP urutannya ditukar via CSS agar Search+Cart ada di ATAS -->
