@@ -850,6 +850,14 @@
       }
     }
 
+<style id="laporan-transaksi-style">
+.laporan-transaksi-panel{margin-top:12px;background:#fff;border:1px solid #e4e8e7;border-radius:12px;overflow:hidden}
+.laporan-detail-head{display:flex;align-items:center;gap:16px;padding:14px 16px;border-bottom:1px solid #e7ecea;font-size:20px}
+.laporan-detail-head button{border:0;background:transparent;color:#139b7b;font-weight:700;font-size:16px}
+.hari-row{border-bottom:1px solid #e7ecea}.hari-btn{width:100%;display:flex;justify-content:space-between;align-items:center;border:0;background:#effbf8;padding:16px;text-align:left;font-size:18px}.hari-btn small,.nota-list small{display:block;color:#777;font-size:12px;margin-top:4px}.nota-list{display:none;background:#fff}.nota-list.open{display:block}.nota-list button{width:100%;display:flex;justify-content:space-between;align-items:center;padding:13px 16px 13px 30px;border:0;border-bottom:1px solid #eee;background:#fff;text-align:left}.nota-list button b{font-size:14px}.nota-list strong{font-size:14px;color:#139b7b}.laporan-empty,.laporan-loading{padding:25px;text-align:center;color:#777}
+.struk-menu3{position:absolute;right:12px;top:10px}.struk-menu3 button{border:0;background:transparent;font-size:28px;color:#139b7b;padding:4px 10px}.struk-edit-menu{position:absolute;right:12px;top:48px;background:#fff;border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 18px #0002;z-index:20;display:none;min-width:190px}.struk-edit-menu button{display:block;width:100%;padding:12px 14px;border:0;background:#fff;text-align:left;font-size:14px}.struk-edit-menu button+button{border-top:1px solid #eee}
+.koreksi-box{padding:12px}.koreksi-item{border:1px solid #ddd;border-radius:9px;padding:10px;margin-bottom:8px}.koreksi-item input{width:80px;padding:6px;margin-left:5px}.koreksi-item button{float:right;border:0;background:#fee;color:#c33;border-radius:6px;padding:6px 8px}.koreksi-actions{display:flex;gap:8px}.koreksi-actions button{flex:1;padding:10px;border-radius:8px;border:0;font-weight:700}.koreksi-save{background:#139b7b;color:#fff}.koreksi-cancel{background:#eee}
+</style>
 </style>
 <style>
 /* POS 3 tahap mobile */
@@ -3055,7 +3063,37 @@
       if(s&&!s.value)s.value=iso; if(e&&!e.value)e.value=iso;
       var u=document.getElementById('laporanUpdateTime'); if(u)u.textContent='baru saja';
     }
-    function bukaLaporanTransaksi(){ switchMenu('riwayatPenjualan'); }
+    function bukaLaporanTransaksi(){
+      var sec=document.getElementById('sec-laporan'); if(!sec)return;
+      var old=document.getElementById('laporanTransaksiPanel'); if(old)old.remove();
+      var panel=document.createElement('div'); panel.id='laporanTransaksiPanel'; panel.className='laporan-transaksi-panel';
+      panel.innerHTML='<div class="laporan-detail-head"><button type="button" onclick="this.closest(\'#laporanTransaksiPanel\').remove()">‹ Kembali</button><b>Transaksi Penjualan</b></div><div id="laporanHarianList"><div class="laporan-loading">Memuat transaksi...</div></div>';
+      sec.appendChild(panel); renderLaporanHarian();
+    }
+    function formatHariLaporan(v){
+      var d=new Date(v); if(isNaN(d)) return String(v||'-');
+      return d.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    }
+    function renderLaporanHarian(){
+      var box=document.getElementById('laporanHarianList'); if(!box)return;
+      var rows=Array.isArray(globalRiwayatData)?globalRiwayatData:[];
+      var groups={};
+      rows.forEach(function(r){
+        var raw=String(r.tanggal||''); var key=raw.slice(0,10);
+        if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(key)){ var d=new Date(raw); key=isNaN(d)?raw:d.toISOString().slice(0,10); }
+        (groups[key]||(groups[key]=[])).push(r);
+      });
+      var keys=Object.keys(groups).sort().reverse();
+      if(!keys.length){box.innerHTML='<div class="laporan-empty">Belum ada transaksi.</div>';return;}
+      box.innerHTML=keys.map(function(k,idx){
+        var arr=groups[k], total=arr.reduce(function(s,x){return s+Number(x.total_bayar||0)},0);
+        var id='lh_'+k.replace(/\\W/g,'_');
+        return '<div class="hari-row"><button type="button" class="hari-btn" onclick="toggleHariLaporan(\''+id+'\')"><span><b>'+formatHariLaporan(k)+'</b><small>'+arr.length+' transaksi · Rp '+total.toLocaleString('id-ID')+'</small></span><span>›</span></button><div id="'+id+'" class="nota-list">'+arr.map(function(x){var n=String(x.no_nota||'').replace(/'/g,"\\\\'");return '<button type="button" onclick="bukaStrukUlang(\''+n+'\')"><span><b>'+x.no_nota+'</b><small>'+(x.kasir||'-')+' · '+(x.total_item||0)+' item</small></span><strong>Rp '+Number(x.total_bayar||0).toLocaleString('id-ID')+'</strong></button>';}).join('')+'</div></div>';
+      }).join('');
+      if(keys[0])toggleHariLaporan('lh_'+keys[0].replace(/\\W/g,'_'));
+    }
+    function toggleHariLaporan(id){var e=document.getElementById(id);if(e)e.classList.toggle('open');}
+
     function bukaLaporanBarang(){ switchMenu('riwayatPerBarang'); }
     function bukaLaporanKategori(){
       var sec=document.getElementById('sec-laporan');
@@ -3964,6 +4002,16 @@
        document.getElementById("strukKembali").innerText = "Rp " + (kembaliUang >= 0 ? kembaliUang : 0).toLocaleString('id-ID');
        document.getElementById("strukMetode").innerText = data.metode_pembayaran || data.metode || 'Tunai';
 
+       (function(){
+         var m=document.getElementById("modalStruk");
+         if(m && !m.querySelector(".struk-menu3")){
+           var host=m.querySelector("#areaStruk") || m.firstElementChild || m;
+           if(host && getComputedStyle(host).position==="static") host.style.position="relative";
+           var wrap=document.createElement("div"); wrap.className="struk-menu3";
+           wrap.innerHTML='<button type="button" onclick="toggleStrukEditMenu(event)">⋮</button><div class="struk-edit-menu" id="strukEditMenu"><button type="button" onclick="bukaEditorStruk()">✏️ Edit struk</button><button type="button" onclick="tutupStrukMenu()">↩️ Retur / koreksi</button></div>';
+           (host||m).appendChild(wrap);
+         }
+       })();
        document.getElementById("modalStruk").style.display = "flex";
     }
 
@@ -3996,6 +4044,24 @@
        });
     }
 
+    function toggleStrukEditMenu(e){if(e)e.stopPropagation();var x=document.getElementById('strukEditMenu');if(x)x.style.display=x.style.display==='block'?'none':'block';}
+    function tutupStrukMenu(){var x=document.getElementById('strukEditMenu');if(x)x.style.display='none';}
+    function bukaEditorStruk(){
+      tutupStrukMenu(); if(!lastTransaksi)return;
+      var old=document.getElementById('koreksiStrukBox');if(old)old.remove();
+      var box=document.createElement('div');box.id='koreksiStrukBox';box.className='koreksi-box';
+      box.innerHTML='<b>Edit Struk</b><div style="font-size:12px;color:#777;margin:5px 0 10px">Ubah harga, diskon, qty atau hapus barang. Perubahan ini saat ini disiapkan sebagai koreksi tampilan; penyimpanan ke stok memerlukan fungsi koreksi di Apps Script.</div>'+
+        lastTransaksi.items.map(function(it,i){return '<div class="koreksi-item" data-i="'+i+'"><b>'+it.nama_barang+'</b><br>Qty <input type="number" min="0" class="kq" value="'+Number(it.qty||0)+'"> Harga <input type="number" min="0" class="kh" value="'+Number(it.harga_jual||0)+'"><button type="button" onclick="this.closest(\'.koreksi-item\').remove()">Hapus</button><br><label>Disc Rp <input type="number" min="0" class="kd" value="'+Number(it.disc_val||0)+'"></label></div>';}).join('')+
+        '<div class="koreksi-actions"><button class="koreksi-cancel" onclick="document.getElementById(\'koreksiStrukBox\').remove()">Batal</button><button class="koreksi-save" onclick="terapkanKoreksiStruk()">Terapkan</button></div>';
+      var area=document.getElementById('areaStruk');if(area)area.parentNode.insertBefore(box,area);else document.getElementById('modalStruk').appendChild(box);
+    }
+    function terapkanKoreksiStruk(){
+      var box=document.getElementById('koreksiStrukBox');if(!box||!lastTransaksi)return;
+      var items=[];box.querySelectorAll('.koreksi-item').forEach(function(row){var i=Number(row.dataset.i),src=lastTransaksi.items[i];if(!src)return;var q=Number(row.querySelector('.kq').value)||0,h=Number(row.querySelector('.kh').value)||0,d=Number(row.querySelector('.kd').value)||0;if(q>0)items.push(Object.assign({},src,{qty:q,harga_jual:h,disc_val:d,subtotal=Math.max(0,h*q-d)}));});
+      lastTransaksi.items=items;lastTransaksi.total_bayar=items.reduce(function(s,x){return s+Number(x.subtotal||0)},0);
+      box.remove();tampilkanStruk(lastTransaksi);
+      alert('Koreksi tampilan struk diterapkan. Untuk mengembalikan stok dan menyimpan retur/edit secara permanen, perlu ditambahkan fungsi koreksi pada Apps Script.');
+    }
     function loadRiwayat() {
       google.script.run.withSuccessHandler(function(data) {
         globalRiwayatData = data;
