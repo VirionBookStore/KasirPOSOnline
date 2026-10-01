@@ -1786,6 +1786,27 @@
   }
 }
 </style>
+<style id="ASPOS-RIWAYAT-COMPACT-V1">
+@media screen and (max-width:992px){
+  #sec-riwayatPenjualan .card{margin:0!important;border-radius:6px!important}
+  #sec-riwayatPenjualan .card-header{padding:10px!important;gap:8px!important;display:flex!important;flex-direction:column!important;align-items:stretch!important}
+  #sec-riwayatPenjualan .card-header>span{font-size:15px!important;font-weight:800!important}
+  #sec-riwayatPenjualan .table-responsive{overflow-x:hidden!important;width:100%!important}
+  #sec-riwayatPenjualan #tabelRiwayat{width:100%!important;table-layout:fixed!important;font-size:10px!important}
+  #sec-riwayatPenjualan #tabelRiwayat th,#sec-riwayatPenjualan #tabelRiwayat td{padding:7px 4px!important;line-height:1.15!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  #sec-riwayatPenjualan #tabelRiwayat th:nth-child(1),#sec-riwayatPenjualan #tabelRiwayat td:nth-child(1){width:29%!important}
+  #sec-riwayatPenjualan #tabelRiwayat th:nth-child(2),#sec-riwayatPenjualan #tabelRiwayat td:nth-child(2){width:21%!important}
+  #sec-riwayatPenjualan #tabelRiwayat th:nth-child(3),#sec-riwayatPenjualan #tabelRiwayat td:nth-child(3){width:10%!important;text-align:center!important}
+  #sec-riwayatPenjualan #tabelRiwayat th:nth-child(4),#sec-riwayatPenjualan #tabelRiwayat td:nth-child(4){width:20%!important}
+  #sec-riwayatPenjualan #tabelRiwayat th:nth-child(5),#sec-riwayatPenjualan #tabelRiwayat td:nth-child(5){width:20%!important;text-align:center!important}
+  #sec-riwayatPenjualan .riwayat-nota{font-size:9.5px!important;white-space:nowrap!important}
+  #sec-riwayatPenjualan .riwayat-tanggal{font-size:9px!important}
+  #sec-riwayatPenjualan .riwayat-total{font-size:9px!important;font-weight:700!important}
+  #sec-riwayatPenjualan .riwayat-aksi{white-space:nowrap!important}
+  #sec-riwayatPenjualan .riwayat-aksi .badge-ubah{font-size:8px!important;padding:3px 4px!important;margin:1px!important}
+  #sec-riwayatPenjualan .search-box{font-size:11px!important;padding:6px 8px!important}
+}
+</style>
 </head>
 <body>
 
@@ -2159,12 +2180,9 @@
                   <tr>
                     <th>No Nota</th>
                     <th>Tanggal</th>
-                    <th>Supplier</th>
                     <th>Total Item</th>
                     <th>Total Bayar</th>
-                    <th>Metode</th>
-                    <th>Kasir</th>
-                    <th style="text-align: center;">Aksi Struk</th>
+                    <th style="text-align:center;">Aksi</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -3925,14 +3943,14 @@
         var tr = document.createElement("tr");
         var safeNota = String(r.no_nota || '').replace(/'/g, "\\'");
         tr.innerHTML = `
-          <td><b>${r.no_nota}</b></td>
-          <td>${r.tanggal}</td>
-          <td>${r.supplier}</td>
-          <td>${r.total_item}</td>
-          <td>Rp ${Number(r.total_bayar).toLocaleString('id-ID')}</td>
-          <td>${r.metode_pembayaran}</td>
-          <td>${r.kasir || '-'}</td>
-          <td style="text-align: center;"><button class="badge-ubah" onclick="bukaStrukUlang('${safeNota}')" title="Cetak atau bagikan struk transaksi ini">Cetak / Share Struk</button></td>
+          <td class="riwayat-nota"><b>${r.no_nota}</b></td>
+          <td class="riwayat-tanggal">${r.tanggal}</td>
+          <td class="riwayat-item">${r.total_item}</td>
+          <td class="riwayat-total">Rp ${Number(r.total_bayar).toLocaleString('id-ID')}</td>
+          <td class="riwayat-aksi">
+            <button class="badge-ubah" onclick="bukaEditTransaksi('${safeNota}')" title="Edit transaksi / retur barang">✏️ Edit</button>
+            <button class="badge-ubah" onclick="bukaStrukUlang('${safeNota}')" title="Cetak atau bagikan struk transaksi ini">🧾 Struk</button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
@@ -3946,6 +3964,23 @@
         String(r.supplier || "").toLowerCase().includes(keyword)
       );
       renderTabelRiwayat(filtered);
+    }
+
+    function bukaEditTransaksi(noNota) {
+      var header = globalRiwayatData.find(r => String(r.no_nota).trim() === String(noNota).trim());
+      google.script.run.withSuccessHandler(function(detailTransaksi) {
+        if (!detailTransaksi || detailTransaksi.length === 0) {
+          alert("Detail transaksi tidak ditemukan!");
+          return;
+        }
+        var daftar = detailTransaksi.map((d, idx) =>
+          (idx + 1) + ". " + (d.nama_barang || d.id_barang) + " — Qty " + Number(d.qty || 0) +
+          " — Rp " + Number(d.subtotal || 0).toLocaleString('id-ID')
+        ).join("\n");
+        var pesan = "Edit transaksi " + noNota + "\n\n" + daftar +
+          "\n\nMenu edit transaksi sudah disiapkan. Pengurangan barang harus mengembalikan stok ke Master Barang.";
+        alert(pesan + "\n\nCatatan: penyimpanan perubahan stok memerlukan fungsi backend Apps Script edit transaksi agar riwayat dan stok berubah secara bersamaan.");
+      }).getDetailPenjualanByNota(noNota);
     }
 
     function bukaStrukUlang(noNota) {
