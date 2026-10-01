@@ -4057,7 +4057,7 @@
     }
     function terapkanKoreksiStruk(){
       var box=document.getElementById('koreksiStrukBox');if(!box||!lastTransaksi)return;
-      var items=[];box.querySelectorAll('.koreksi-item').forEach(function(row){var i=Number(row.dataset.i),src=lastTransaksi.items[i];if(!src)return;var q=Number(row.querySelector('.kq').value)||0,h=Number(row.querySelector('.kh').value)||0,d=Number(row.querySelector('.kd').value)||0;if(q>0)items.push(Object.assign({},src,{qty:q,harga_jual:h,disc_val:d,subtotal=Math.max(0,h*q-d)}));});
+      var items=[];box.querySelectorAll('.koreksi-item').forEach(function(row){var i=Number(row.dataset.i),src=lastTransaksi.items[i];if(!src)return;var q=Number(row.querySelector('.kq').value)||0,h=Number(row.querySelector('.kh').value)||0,d=Number(row.querySelector('.kd').value)||0;if(q>0)items.push(Object.assign({},src,{qty:q,harga_jual:h,disc_val:d,subtotal:Math.max(0,h*q-d)}));});
       lastTransaksi.items=items;lastTransaksi.total_bayar=items.reduce(function(s,x){return s+Number(x.subtotal||0)},0);
       box.remove();tampilkanStruk(lastTransaksi);
       alert('Koreksi tampilan struk diterapkan. Untuk mengembalikan stok dan menyimpan retur/edit secara permanen, perlu ditambahkan fungsi koreksi pada Apps Script.');
