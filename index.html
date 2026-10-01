@@ -1267,7 +1267,209 @@
 #sec-posKasir.aspos-checkout-mode .aspos-cart-item-title.aspos-title-scroll::-webkit-scrollbar{display:none!important}
 #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(3) b{display:block!important;margin-top:1px!important;font-size:11px!important;line-height:16px!important;color:#707a76!important;white-space:nowrap!important}
 }
-</style>\n</head>
+</style>\n<style id="ASPOS-MOBILE-SEARCH-FULL-CATALOG-FIX">
+@media screen and (max-width:992px){
+  /* Kolom pencarian selalu terlihat di POS mobile, bukan lagi ikon pencarian. */
+  #sec-posKasir.aspos-selection-mode .aspos-mobile-pos-header{
+    display:flex!important;
+    height:64px!important;
+    min-height:64px!important;
+    box-sizing:border-box!important;
+    padding:8px 12px!important;
+    margin:0!important;
+    gap:8px!important;
+    background:#fff!important;
+  }
+  #sec-posKasir.aspos-selection-mode .aspos-mobile-search-wrap{
+    display:block!important;
+    flex:1 1 auto!important;
+    min-width:0!important;
+    position:relative!important;
+  }
+  #sec-posKasir.aspos-selection-mode .aspos-mobile-search-input{
+    display:block!important;
+    width:100%!important;
+    height:46px!important;
+    box-sizing:border-box!important;
+    border:1.5px solid #cbd8d3!important;
+    border-radius:13px!important;
+    background:#f4f7f6!important;
+    color:#1d2925!important;
+    padding:0 14px!important;
+    outline:none!important;
+    font-size:15px!important;
+    font-weight:500!important;
+  }
+  #sec-posKasir.aspos-selection-mode .aspos-mobile-search-input:focus{
+    border-color:#0f8b6d!important;
+    background:#fff!important;
+    box-shadow:0 0 0 3px rgba(15,139,109,.10)!important;
+  }
+  #sec-posKasir.aspos-selection-mode .aspos-back-menu,
+  #sec-posKasir.aspos-selection-mode .aspos-mobile-scan-btn{
+    flex:0 0 46px!important;
+    width:46px!important;
+    height:46px!important;
+    min-width:46px!important;
+    border:0!important;
+    border-radius:12px!important;
+    background:#fff!important;
+    color:#0f8066!important;
+    font-size:27px!important;
+    font-weight:800!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  #sec-posKasir.aspos-checkout-mode .aspos-mobile-search-wrap,
+  #sec-posKasir.aspos-checkout-mode .aspos-mobile-scan-btn{
+    display:none!important;
+  }
+
+  /* Katalog memakai seluruh ruang sampai ke area tombol LANJUT.
+     Tombol LANJUT tetap fixed di atas katalog sehingga tidak membuat
+     ruang kosong putih di bawah daftar. */
+  #sec-posKasir.aspos-selection-mode{
+    height:calc(100dvh - 118px)!important;
+    min-height:calc(100dvh - 118px)!important;
+    padding:0!important;
+    margin:0!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  #sec-posKasir.aspos-selection-mode .pos-grid{
+    height:calc(100dvh - 182px)!important;
+    min-height:0!important;
+    display:block!important;
+    overflow:hidden!important;
+  }
+  #sec-posKasir.aspos-selection-mode .pos-left-panel{
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    margin:0!important;
+    padding:0 12px 0!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    background:#fff!important;
+  }
+  #sec-posKasir.aspos-selection-mode .pos-left-panel>div:first-child{
+    display:none!important;
+  }
+  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-container{
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    padding:0 0 4px!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+  }
+  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-container::-webkit-scrollbar{
+    display:none!important;
+  }
+  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-card{
+    flex:0 0 54px!important;
+    width:100%!important;
+    min-height:54px!important;
+    height:54px!important;
+    box-sizing:border-box!important;
+    display:grid!important;
+    grid-template-columns:46px minmax(0,1fr) 34px!important;
+    grid-template-rows:auto auto!important;
+    column-gap:9px!important;
+    align-items:center!important;
+    padding:2px 0!important;
+    margin:0!important;
+    border:0!important;
+    border-bottom:1px solid #e7ecea!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    text-align:left!important;
+    background:#fff!important;
+  }
+  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-img{
+    grid-column:1!important;
+    grid-row:1 / 3!important;
+    width:40px!important;
+    height:50px!important;
+    max-width:40px!important;
+    max-height:50px!important;
+    margin:0!important;
+    border-radius:6px!important;
+    object-fit:cover!important;
+  }
+  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-title{
+    grid-column:2!important;
+    grid-row:1!important;
+    height:28px!important;
+    max-height:28px!important;
+    margin:0!important;
+    font-size:12.5px!important;
+    line-height:14px!important;
+    font-weight:800!important;
+    display:-webkit-box!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    line-clamp:2!important;
+    overflow:hidden!important;
+  }
+  #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-meta{
+    grid-column:2!important;
+    grid-row:2!important;
+    margin:0!important;
+    font-size:10px!important;
+    line-height:11px!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-qty{
+    grid-column:3!important;
+    grid-row:1 / 3!important;
+    width:32px!important;
+    min-width:32px!important;
+    height:32px!important;
+    border:2px solid #0f5132!important;
+    border-radius:8px!important;
+    font-size:14px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-sizing:border-box!important;
+  }
+  #sec-posKasir.aspos-selection-mode .aspos-selection-bar{
+    left:42px!important;
+    right:42px!important;
+    bottom:10px!important;
+    height:52px!important;
+    z-index:99990!important;
+    border-radius:27px!important;
+  }
+  #sec-posKasir.aspos-selection-mode .aspos-selection-count{
+    padding-left:14px!important;
+    font-size:13px!important;
+  }
+  #sec-posKasir.aspos-selection-mode .aspos-selection-count strong{
+    font-size:23px!important;
+  }
+  #sec-posKasir.aspos-selection-mode .aspos-selection-bar button{
+    min-width:108px!important;
+    font-size:14px!important;
+  }
+}
+</style>
+</head>
 <body>
 
   <!-- Halaman Login -->
@@ -1560,11 +1762,12 @@
         <!-- KASIR (POS) -->
         <div id="sec-posKasir" class="page-section">
           <div class="aspos-mobile-pos-header">
-            <button type="button" class="aspos-back-menu" onclick="openSidebarMobile()">☰</button>
-            <div class="aspos-mobile-icons">
-              <button type="button" aria-label="Cari" onclick="asposOpenSearch()">⌕</button>
-                            <button type="button" aria-label="Scan barcode" onclick="togglePosScanner()">▣</button>
-              </div>
+            <button type="button" class="aspos-back-menu" onclick="openSidebarMobile()" aria-label="Menu">☰</button>
+            <div class="aspos-mobile-search-wrap">
+              <input type="text" id="searchPosMobile" class="aspos-mobile-search-input" placeholder="Cari barang..." autocomplete="off"
+                oninput="syncMobilePosSearch(this)" onkeydown="asposSearchKeydown(event)">
+            </div>
+            <button type="button" class="aspos-mobile-scan-btn" aria-label="Scan barcode" onclick="togglePosScanner()">▣</button>
           </div>
           <!-- LAYOUT BARU: Kiri (Best Seller), Kanan (Search + Cart) -->
           <!-- Di HP urutannya ditukar via CSS agar Search+Cart ada di ATAS -->
@@ -2941,6 +3144,13 @@
       var input=document.getElementById('searchPos'); if(input)input.value='';
       var box=document.getElementById('suggestionBox'); if(box)box.style.display='none';
       renderProductCatalogGrid(globalDataBarang);
+    }
+
+    function syncMobilePosSearch(mobileInput) {
+      var mainInput = document.getElementById('searchPos');
+      var value = mobileInput ? mobileInput.value : '';
+      if (mainInput) mainInput.value = value;
+      handlePosInput();
     }
 
     function handlePosInput() {
@@ -4514,5 +4724,18 @@
     }
   </style>
 
+<script id="ASPOS-CLEAN-STRAY-TEXT">
+(function(){
+  function clean(){
+    try{
+      Array.prototype.slice.call(document.body.childNodes).forEach(function(node){
+        if(node.nodeType===3 && /^\\n\s*$/.test(String(node.nodeValue||''))) node.remove();
+      });
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',clean);
+  else clean();
+})();
+</script>
 </body>
 </html>
