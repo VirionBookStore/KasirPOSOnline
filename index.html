@@ -3091,7 +3091,7 @@
         body.innerHTML='';
         Object.keys(map).sort().forEach(function(k){body.innerHTML+= '<tr><td>'+k+'</td><td>'+map[k].qty+'</td><td>Rp '+map[k].rp.toLocaleString('id-ID')+'</td></tr>';});
         if(!Object.keys(map).length)body.innerHTML='<tr><td colspan="3" style="text-align:center">Tidak ada data pada periode tersebut.</td></tr>';
-      }).getPenjualanPerBarang(s,e,'Semua','Semua');
+      }).getLaporanPenjualanBarangAdvanced(s,e,'rekap');
     }
 
     function loadDashboardStats() {
