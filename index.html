@@ -1830,6 +1830,9 @@
         <div class="sidebar-section">Utama</div>
         <li><a href="#" onclick="switchMenu('dashboard', this)" class="active">📊 Dashboard</a></li>
         
+        <div class="sidebar-section">Laporan</div>
+        <li><a href="#" onclick="switchMenu('laporan', this)">📊 Laporan</a></li>
+
         <div class="sidebar-section">Database</div>
         <li><a href="#" onclick="switchMenu('masterBarang', this)">📚 Master Barang</a></li>
         <li><a href="#" onclick="switchMenu('supplier', this)">🏢 Supplier</a></li>
@@ -1915,6 +1918,42 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- LAPORAN -->
+        <div id="sec-laporan" class="page-section">
+          <div class="laporan-mobile-head">
+            <div class="laporan-title"><span>📊</span><b>LAPORAN</b></div>
+            <div class="laporan-update">↻ <span>Update :<br><b id="laporanUpdateTime">baru saja</b></span></div>
+          </div>
+
+          <div class="laporan-banner">
+            <div class="laporan-banner-icon">📈</div>
+            <div>
+              <div class="laporan-banner-title">Laporan Penjualan</div>
+              <div class="laporan-banner-sub">Ringkasan dan detail penjualan toko</div>
+            </div>
+            <button type="button" class="laporan-chevron" onclick="toggleLaporanMenu()" aria-label="Buka atau tutup laporan">⌃</button>
+          </div>
+
+          <div id="laporanMenuItems" class="laporan-menu-items">
+            <button type="button" onclick="bukaLaporanTransaksi()">Transaksi</button>
+            <button type="button" onclick="bukaLaporanBarang()">Penjualan Barang</button>
+            <button type="button" onclick="bukaLaporanKategori()">Penjualan Kategori</button>
+          </div>
+
+          <div id="laporanSummary" class="laporan-summary">
+            <div class="laporan-filter">
+              <div><label>Dari</label><input type="date" id="laporanDateStart"></div>
+              <div><label>Sampai</label><input type="date" id="laporanDateEnd"></div>
+              <button type="button" onclick="loadLaporanRingkas()">Tampilkan</button>
+            </div>
+            <div class="laporan-cards">
+              <div><span>Total Transaksi</span><b id="laporanTotalTrx">0</b></div>
+              <div><span>Total Penjualan</span><b id="laporanTotalRp">Rp 0</b></div>
+            </div>
+            <div class="laporan-hint">Pilih salah satu menu di atas untuk melihat laporan yang lebih detail.</div>
           </div>
         </div>
 
@@ -2978,6 +3017,7 @@
           if (menuId === 'riwayatPenjualan') loadRiwayat();
           if (menuId === 'riwayatPerBarang') initRiwayatPerBarang();
           if (menuId === 'dashboard') loadDashboardStats();
+          if (menuId === 'laporan') { setLaporanDates(); loadLaporanRingkas(); }
         } catch (e) {
           console.error('Gagal memuat menu ' + menuId + ':', e);
         }
@@ -3003,6 +3043,55 @@
       var month = String(d.getMonth() + 1).padStart(2, '0');
       var day = String(d.getDate()).padStart(2, '0');
       return year + '-' + month + '-' + day;
+    }
+
+    function toggleLaporanMenu() {
+      var box=document.getElementById('laporanMenuItems');
+      if(box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+    function setLaporanDates() {
+      var d=new Date(), iso=getLocalDateISO(d);
+      var s=document.getElementById('laporanDateStart'), e=document.getElementById('laporanDateEnd');
+      if(s&&!s.value)s.value=iso; if(e&&!e.value)e.value=iso;
+      var u=document.getElementById('laporanUpdateTime'); if(u)u.textContent='baru saja';
+    }
+    function bukaLaporanTransaksi(){ switchMenu('riwayatPenjualan'); }
+    function bukaLaporanBarang(){ switchMenu('riwayatPerBarang'); }
+    function bukaLaporanKategori(){
+      var sec=document.getElementById('sec-laporan');
+      if(!sec)return;
+      var old=document.getElementById('laporanKategoriPanel');
+      if(old)old.remove();
+      var panel=document.createElement('div'); panel.id='laporanKategoriPanel'; panel.className='card'; panel.style.marginTop='14px';
+      panel.innerHTML='<div class="card-header">Penjualan Kategori</div><div style="padding:14px"><div class="laporan-filter"><div><label>Dari</label><input type="date" id="kategoriDateStart"></div><div><label>Sampai</label><input type="date" id="kategoriDateEnd"></div><button type="button" onclick="loadLaporanKategori()">Tampilkan</button></div><div class="table-responsive" style="margin-top:14px"><table><thead><tr><th>Kategori</th><th>Total Qty</th><th>Total Penjualan</th></tr></thead><tbody id="bodyLaporanKategori"><tr><td colspan="3" style="text-align:center">Pilih periode lalu tekan Tampilkan.</td></tr></tbody></table></div></div>';
+      sec.appendChild(panel); setLaporanDates();
+      var s=document.getElementById('kategoriDateStart'),e=document.getElementById('kategoriDateEnd'); s.value=document.getElementById('laporanDateStart').value;e.value=document.getElementById('laporanDateEnd').value;
+    }
+    function loadLaporanRingkas(){
+      var s=document.getElementById('laporanDateStart').value,e=document.getElementById('laporanDateEnd').value;
+      if(!s||!e)return alert('Silakan pilih periode laporan.');
+      google.script.run.withSuccessHandler(function(d){
+        document.getElementById('laporanTotalTrx').textContent=(d.total_transaksi||0)+' Trx';
+        document.getElementById('laporanTotalRp').textContent='Rp '+Number(d.total_pendapatan||0).toLocaleString('id-ID');
+        var u=document.getElementById('laporanUpdateTime');if(u)u.textContent='baru saja';
+      }).getDashboardData(s,e);
+    }
+    function loadLaporanKategori(){
+      var s=document.getElementById('kategoriDateStart').value,e=document.getElementById('kategoriDateEnd').value,body=document.getElementById('bodyLaporanKategori');
+      if(!s||!e)return alert('Silakan pilih periode laporan.');
+      body.innerHTML='<tr><td colspan="3" style="text-align:center">Memuat...</td></tr>';
+      google.script.run.withSuccessHandler(function(rows){
+        var map={};
+        (rows||[]).forEach(function(x){
+          var b=(globalDataBarang||[]).find(function(z){return String(z.id_barang)===String(x.id_barang);});
+          var k=(b&&b.kategori)||'Tanpa Kategori';
+          if(!map[k])map[k]={qty:0,rp:0};
+          map[k].qty+=Number(x.qty||x.total_qty||0); map[k].rp+=Number(x.subtotal||x.total_pendapatan||0);
+        });
+        body.innerHTML='';
+        Object.keys(map).sort().forEach(function(k){body.innerHTML+= '<tr><td>'+k+'</td><td>'+map[k].qty+'</td><td>Rp '+map[k].rp.toLocaleString('id-ID')+'</td></tr>';});
+        if(!Object.keys(map).length)body.innerHTML='<tr><td colspan="3" style="text-align:center">Tidak ada data pada periode tersebut.</td></tr>';
+      }).getPenjualanPerBarang(s,e,'Semua','Semua');
     }
 
     function loadDashboardStats() {
@@ -5042,7 +5131,19 @@
       padding: 9px 24px !important;
       font-weight: 600 !important;
     }
-  </style>
+  <style id="laporan-mobile-style">
+.laporan-mobile-head{display:flex;justify-content:space-between;align-items:center;padding:4px 6px 14px}
+.laporan-title{display:flex;align-items:center;gap:12px;font-size:26px;color:#139b7b}
+.laporan-title span{font-size:26px}.laporan-update{display:flex;align-items:center;gap:7px;color:#139b7b;font-size:22px}.laporan-update span{font-size:12px;line-height:1.15;color:#666}.laporan-update b{color:#666;font-weight:500}
+.laporan-banner{display:flex;align-items:center;gap:16px;background:#b9eee2;padding:24px 20px;border-radius:0;min-height:72px}
+.laporan-banner-icon{font-size:34px}.laporan-banner-title{font-size:25px;font-weight:700;color:#222}.laporan-banner-sub{font-size:13px;color:#5b6b68;margin-top:3px}.laporan-chevron{margin-left:auto;border:0;background:transparent;font-size:32px;font-weight:700;cursor:pointer}
+.laporan-menu-items{background:#effbf8;border-bottom:1px solid #dceee9}
+.laporan-menu-items button{display:block;width:100%;border:0;border-bottom:1px solid #e0efec;background:transparent;text-align:left;padding:25px 20px 25px 145px;font-size:22px;color:#26302e;cursor:pointer}
+.laporan-menu-items button:active{background:#dff5ef}
+.laporan-summary{padding:18px 14px;background:#fff}.laporan-filter{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.laporan-filter label{display:block;font-size:12px;color:#6c757d;margin-bottom:4px}.laporan-filter input{padding:9px;border:1px solid #ced4da;border-radius:8px}.laporan-filter button{padding:10px 16px;border:0;border-radius:8px;background:#139b7b;color:#fff;font-weight:700}.laporan-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.laporan-cards div{background:#f5f9f8;border-radius:10px;padding:13px}.laporan-cards span{display:block;font-size:12px;color:#6c757d}.laporan-cards b{display:block;margin-top:5px;font-size:19px;color:#139b7b}.laporan-hint{font-size:12px;color:#777;margin-top:14px}
+@media(max-width:600px){.laporan-title{font-size:25px}.laporan-update{font-size:24px}.laporan-banner{padding:20px 16px}.laporan-banner-title{font-size:22px}.laporan-menu-items button{padding:24px 18px 24px 142px;font-size:20px}.laporan-summary{padding:14px 10px}.laporan-filter>div{flex:1;min-width:125px}.laporan-filter input{width:100%;box-sizing:border-box}.laporan-filter button{width:100%}}
+</style>
+</style>
 
 <script id="ASPOS-CLEAN-STRAY-TEXT">
 (function(){
