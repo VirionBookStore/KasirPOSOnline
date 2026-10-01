@@ -3932,7 +3932,7 @@
           <td>Rp ${Number(r.total_bayar).toLocaleString('id-ID')}</td>
           <td>${r.metode_pembayaran}</td>
           <td>${r.kasir || '-'}</td>
-          <td style="text-align: center;"><button class="badge-ubah" onclick="bukaStrukUlang('${safeNota}')" title="Cetak atau bagikan struk transaksi ini">Cetak / Share Struk</button></td>
+          <td style="text-align: center;"><button class="badge-ubah" onclick="bukaStrukUlang('${safeNota}')" title="Buka dan bagikan struk transaksi ini">🧾 Share Struk</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -5057,5 +5057,6 @@
   else clean();
 })();
 </script>
+<script id="RIWAYAT-NO-EDIT-GUARD">(function(){function bersihkanEditRiwayat(){var t=document.querySelector("#tabelRiwayat");if(!t)return;t.querySelectorAll("button").forEach(function(b){if((b.textContent||"").toLowerCase().includes("edit"))b.remove();});}document.addEventListener("DOMContentLoaded",bersihkanEditRiwayat);if(window.MutationObserver)new MutationObserver(bersihkanEditRiwayat).observe(document.body,{subtree:true,childList:true});})();</script>
 </body>
 </html>
