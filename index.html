@@ -1469,6 +1469,67 @@
   }
 }
 </style>
+
+<style id="ASPOS-FINAL-REQUESTED-UI">
+/* Permintaan tampilan POS mobile: qty hanya angka, tanpa kotak */
+@media screen and (max-width: 992px){
+  #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-qty,
+  #sec-posKasir.aspos-selection-mode .catalog-qty{
+    width:auto !important;
+    min-width:20px !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    border:0 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    font-size:18px !important;
+    line-height:1.1 !important;
+    font-weight:800 !important;
+    color:#0f5132 !important;
+  }
+  #sec-posKasir.aspos-selection-mode .catalog-qty:empty{
+    display:none !important;
+  }
+}
+
+/* Logout: ganti tombol merah bertuliskan Logout menjadi ikon kecil */
+.aspos-logout-btn{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:34px !important;
+  height:34px !important;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  color:#dc3545 !important;
+  cursor:pointer !important;
+  border-radius:50% !important;
+}
+.aspos-logout-btn:hover{
+  background:#fff1f2 !important;
+}
+.aspos-logout-btn svg{
+  width:22px !important;
+  height:22px !important;
+  display:block !important;
+}
+@media screen and (max-width:992px){
+  .aspos-logout-btn{
+    width:30px !important;
+    height:30px !important;
+  }
+  .aspos-logout-btn svg{
+    width:20px !important;
+    height:20px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -1551,7 +1612,7 @@
               <p class="user-role" id="userRole">-</p>
             </div>
           </div>
-          <button class="btn btn-danger btn-sm" onclick="logoutUser()">Logout</button>
+          <button class="aspos-logout-btn" onclick="logoutUser()" aria-label="Logout" title="Logout"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10M15 16l4-4-4-4M19 12H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         </div>
       </div>
 
