@@ -105,44 +105,6 @@
     .best-product-title { font-size: 11px; font-weight: 600; color: #333; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; line-height: 1.2; height: 26px; }
     .best-product-price { font-size: 11px; color: var(--primary-color); font-weight: bold; }
 
-    /* --- DASHBOARD BARU --- */
-    .dashboard-page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 20px;
-      margin-bottom: 18px;
-      padding: 2px 0;
-    }
-    .dashboard-page-header h1 { margin: 0 0 5px 0; font-size: 24px; color: #212529; }
-    .dashboard-page-header p { margin: 0; color: #6c757d; font-size: 13px; }
-    .dashboard-date-box { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; min-width: 290px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
-    .dashboard-date-box label { display:block; font-size:11px; font-weight:700; color:#6c757d; margin-bottom:5px; }
-    .dashboard-date-row { display:flex; gap:8px; align-items:center; }
-    .dashboard-date-row .form-control { width:170px; }
-    .dashboard-summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
-    .dashboard-summary-card { background:#fff; border:1px solid var(--border-color); border-radius:8px; padding:18px; display:flex; align-items:center; gap:14px; min-height:74px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
-    .summary-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; flex:0 0 48px; }
-    .summary-icon-green { color:#087f5b; background:#e6f7f1; }
-    .summary-icon-orange { color:#d97706; background:#fff4df; }
-    .summary-icon-teal { color:#087f8c; background:#e5f8fa; }
-    .summary-icon-blue { color:#0b7285; background:#e6f6f8; }
-    .summary-label { font-size:12px; color:#6c757d; margin-bottom:5px; }
-    .summary-value { font-size:21px; line-height:1.15; font-weight:800; color:#212529; }
-    .dashboard-detail-card { margin-bottom:14px; }
-    .dashboard-detail-header { padding:16px 20px; }
-    .dashboard-detail-title { font-size:16px; font-weight:800; color:#212529; }
-    .dashboard-detail-subtitle { margin-top:3px; font-size:12px; color:#6c757d; }
-    #tabelDashboardPenjualan th, #tabelDashboardPenjualan td { padding:10px 12px; font-size:12px; }
-    #tabelDashboardPenjualan th { background:#fff; color:#212529; border-bottom:2px solid #e9ecef; }
-    #tabelDashboardPenjualan td:nth-child(3), #tabelDashboardPenjualan td:nth-child(4), #tabelDashboardPenjualan td:nth-child(5), #tabelDashboardPenjualan td:nth-child(6) { white-space:nowrap; }
-    .dashboard-empty { text-align:center; padding:28px !important; color:#6c757d; }
-    .dashboard-table-footer { padding:10px 20px; border-top:1px solid var(--border-color); color:#6c757d; font-size:12px; }
-    .dashboard-secondary-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
-    .dashboard-mini-card { background:#fff; border:1px solid var(--border-color); border-radius:8px; padding:13px 16px; display:flex; justify-content:space-between; align-items:center; }
-    .dashboard-mini-card span { color:#6c757d; font-size:12px; }
-    .dashboard-mini-card strong { color:var(--primary-color); font-size:16px; }
-
     /* --- RESPONSIVE MOBILE CSS --- */
     #hamburger-btn {
       display: none;
@@ -185,18 +147,6 @@
       .pos-grid { display: flex !important; flex-direction: column !important; gap: 15px !important; }
       .pos-right-panel { order: 1; } /* Search & Cart Naik Ke Atas */
       .pos-left-panel { order: 2; }  /* Best Seller Turun Ke Bawah */
-      .dashboard-page-header { flex-direction:column; align-items:stretch; gap:10px; }
-      .dashboard-page-header h1 { font-size:20px; }
-      .dashboard-date-box { min-width:0; width:100%; box-sizing:border-box; }
-      .dashboard-date-row .form-control { flex:1; width:auto; min-width:0; }
-      .dashboard-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
-      .dashboard-summary-card { padding:12px; gap:9px; min-height:64px; }
-      .summary-icon { width:38px; height:38px; flex-basis:38px; border-radius:9px; font-size:14px; }
-      .summary-label { font-size:10px; }
-      .summary-value { font-size:15px; }
-      .dashboard-detail-header { padding:12px; }
-      #tabelDashboardPenjualan th, #tabelDashboardPenjualan td { padding:8px 9px; font-size:11px; }
-      .dashboard-secondary-stats { grid-template-columns:1fr 1fr; gap:9px; }
     }
   </style>
 </head>
@@ -252,7 +202,6 @@
 
         <div class="sidebar-section">Sistem</div>
         <li><a href="#" onclick="openLogoModal()">⚙️ Pengaturan Logo</a></li>
-        <li><a href="#" onclick="openBackupRestoreModal()">💾 Backup / Restore Data</a></li>
       </ul>
     </div>
 
@@ -283,89 +232,52 @@
         
         <!-- DASHBOARD -->
         <div id="sec-dashboard" class="page-section active">
-          <div class="dashboard-page-header">
-            <div>
-              <h1>Dashboard</h1>
-              <p id="dashboardPeriodLabel">Ringkasan penjualan</p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div class="card" style="padding: 20px; text-align: center;">
+              <h4 style="margin:0; color:#6c757d; font-size:12px;">TOTAL PRODUK</h4>
+              <p id="statTotalBarang" style="font-size:24px; font-weight:bold; color:var(--primary-color); margin:10px 0 0 0;">0</p>
             </div>
-            <div class="dashboard-date-box">
-              <label for="dashboardDate">Tanggal Penjualan</label>
-              <div class="dashboard-date-row">
-                <input type="date" id="dashboardDate" class="form-control">
-                <button class="btn btn-primary" onclick="loadDashboardByDate()" id="btnDashboardDate">Tampilkan</button>
-              </div>
+            <div class="card" style="padding: 20px; text-align: center;">
+              <h4 style="margin:0; color:#6c757d; font-size:12px;">TOTAL SUPPLIER</h4>
+              <p id="statTotalSupplier" style="font-size:24px; font-weight:bold; color:#0d6efd; margin:10px 0 0 0;">0</p>
             </div>
-          </div>
-
-          <div class="dashboard-summary-grid">
-            <div class="dashboard-summary-card">
-              <div class="summary-icon summary-icon-green">🛒</div>
-              <div>
-                <div class="summary-label">Jumlah Transaksi</div>
-                <div id="statTotalTransaksi" class="summary-value">0</div>
-              </div>
+            <div class="card" style="padding: 20px; text-align: center;">
+              <h4 style="margin:0; color:#6c757d; font-size:12px;">TRANSAKSI HARI INI</h4>
+              <p id="statTotalTransaksi" style="font-size:24px; font-weight:bold; color:#ffc107; margin:10px 0 0 0;">0</p>
             </div>
-            <div class="dashboard-summary-card">
-              <div class="summary-icon summary-icon-orange">Rp</div>
-              <div>
-                <div class="summary-label">Pendapatan</div>
-                <div id="statPendapatanHariIni" class="summary-value">Rp 0</div>
-              </div>
-            </div>
-            <div class="dashboard-summary-card">
-              <div class="summary-icon summary-icon-teal">📦</div>
-              <div>
-                <div class="summary-label">Barang Terjual</div>
-                <div id="statBarangTerjual" class="summary-value">0</div>
-              </div>
-            </div>
-            <div class="dashboard-summary-card">
-              <div class="summary-icon summary-icon-blue">$</div>
-              <div>
-                <div class="summary-label">Keuntungan</div>
-                <div id="statKeuntungan" class="summary-value">Rp 0</div>
-              </div>
+            <div class="card" style="padding: 20px; text-align: center;">
+              <h4 style="margin:0; color:#6c757d; font-size:12px;">PENDAPATAN HARI INI</h4>
+              <p id="statPendapatanHariIni" style="font-size:20px; font-weight:bold; color:#198754; margin:10px 0 0 0;">Rp 0</p>
             </div>
           </div>
-
-          <div class="card dashboard-detail-card">
-            <div class="card-header dashboard-detail-header">
-              <div>
-                <div class="dashboard-detail-title">Laporan Penjualan Barang</div>
-                <div id="dashboardDetailSubtitle" class="dashboard-detail-subtitle">Rincian barang terjual</div>
+          
+          <!-- Laporan Custom Date -->
+          <div class="card">
+            <div class="card-header">Laporan Pendapatan Kustom</div>
+            <div class="card-body">
+              <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap;">
+                <div>
+                  <label style="font-size: 12px; font-weight: bold; color: #6c757d;">Dari Tanggal</label>
+                  <input type="date" id="filterDateStart" class="form-control" style="width: auto;">
+                </div>
+                <div>
+                  <label style="font-size: 12px; font-weight: bold; color: #6c757d;">Sampai Tanggal</label>
+                  <input type="date" id="filterDateEnd" class="form-control" style="width: auto;">
+                </div>
+                <div>
+                  <button class="btn btn-primary" onclick="loadLaporanCustom()" id="btnFilterLaporan">Filter Laporan</button>
+                </div>
               </div>
-              <button class="btn btn-outline btn-sm" onclick="loadDashboardByDate()">↻ Muat Ulang</button>
-            </div>
-            <div class="table-responsive">
-              <table id="tabelDashboardPenjualan">
-                <thead>
-                  <tr>
-                    <th>Kode</th>
-                    <th>Nama</th>
-                    <th>Jumlah Barang</th>
-                    <th>Jumlah Transaksi</th>
-                    <th>Keuntungan (Rp)</th>
-                    <th>Pendapatan (Rp)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr><td colspan="6" class="dashboard-empty">Memuat data...</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="dashboard-table-footer">
-              <span id="dashboardTableInfo">-</span>
-            </div>
-          </div>
-
-          <div class="dashboard-secondary-stats">
-            <div class="dashboard-mini-card">
-              <span>Total Produk</span>
-              <strong id="statTotalBarang">0</strong>
-            </div>
-            <div class="dashboard-mini-card">
-              <span>Total Supplier</span>
-              <strong id="statTotalSupplier">0</strong>
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 20px;">
+                <div>
+                  <h4 style="margin:0 0 5px 0; color:#6c757d; font-size:13px;">TOTAL TRANSAKSI (Filter)</h4>
+                  <p id="laporanTransaksi" style="font-size:20px; font-weight:bold; color:#333; margin:0;">-</p>
+                </div>
+                <div>
+                  <h4 style="margin:0 0 5px 0; color:#6c757d; font-size:13px;">TOTAL PENDAPATAN (Filter)</h4>
+                  <p id="laporanPendapatan" style="font-size:20px; font-weight:bold; color:var(--primary-color); margin:0;">-</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -606,7 +518,7 @@
                   <tr>
                     <th>No Nota</th>
                     <th>Tanggal</th>
-                    <th>Potongan / Disc</th>
+                    <th>Supplier</th>
                     <th>Total Item</th>
                     <th>Total Bayar</th>
                     <th>Metode</th>
@@ -1128,7 +1040,7 @@
   <script>
     window.AS_POS_CONFIG = window.AS_POS_CONFIG || {
       // GANTI dengan URL deployment Web App GAS yang berakhiran /exec.
-      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycby3YZNpVW-3BCVKhLodd8aBNJV1nSoudAF1RINCFMxGtnHhzlaREvR79e0CIMgoZDLW/exec"
+      GAS_WEB_APP_URL: "PASTE_URL_WEB_APP_GAS_DI_SINI"
     };
 
     (function installGasBridge() {
@@ -1325,131 +1237,72 @@
       }).getPromoList();
     }
 
-    function setDashboardDateDefaults() {
-      var dateInput = document.getElementById('dashboardDate');
-      if (!dateInput || dateInput.value) return;
-      var now = new Date();
-      var localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split('T')[0];
-      dateInput.value = localDate;
-    }
-
-    function formatRupiahDashboard(value) {
-      return 'Rp ' + (Number(value) || 0).toLocaleString('id-ID');
-    }
-
-    function escapeDashboardHtml(value) {
-      return String(value == null ? '' : value)
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-    }
-
     function loadDashboardStats() {
-      setDashboardDateDefaults();
-      loadDashboardByDate();
+      var today = new Date().toISOString().split('T')[0];
+      google.script.run.withSuccessHandler(function(data) {
+        document.getElementById("statTotalBarang").innerText = data.total_barang;
+        document.getElementById("statTotalSupplier").innerText = data.total_supplier;
+        document.getElementById("statTotalTransaksi").innerText = data.total_transaksi;
+        document.getElementById("statPendapatanHariIni").innerText = "Rp " + data.total_pendapatan.toLocaleString('id-ID');
+      }).getDashboardData(today, today);
     }
 
-    function loadDashboardByDate() {
-      var dateInput = document.getElementById('dashboardDate');
-      var date = dateInput && dateInput.value ? dateInput.value : '';
-      var btn = document.getElementById('btnDashboardDate');
-      var tbody = document.querySelector('#tabelDashboardPenjualan tbody');
-      if (!date) return alert('Silakan pilih tanggal penjualan terlebih dahulu.');
-
-      if (btn) { btn.disabled = true; btn.innerText = 'Memuat...'; }
-      if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty">Memuat data...</td></tr>';
-
-      google.script.run
-        .withSuccessHandler(function(data) {
-          data = data || {};
-          document.getElementById('statTotalBarang').innerText = Number(data.total_barang || 0).toLocaleString('id-ID');
-          document.getElementById('statTotalSupplier').innerText = Number(data.total_supplier || 0).toLocaleString('id-ID');
-          document.getElementById('statTotalTransaksi').innerText = Number(data.total_transaksi || 0).toLocaleString('id-ID');
-          document.getElementById('statPendapatanHariIni').innerText = formatRupiahDashboard(data.total_pendapatan);
-          document.getElementById('statBarangTerjual').innerText = Number(data.total_barang_terjual || 0).toLocaleString('id-ID');
-          document.getElementById('statKeuntungan').innerText = formatRupiahDashboard(data.total_keuntungan);
-
-          var label = data.tanggal_label || date;
-          document.getElementById('dashboardPeriodLabel').innerText = 'Ringkasan penjualan • ' + label;
-          document.getElementById('dashboardDetailSubtitle').innerText = 'Rincian barang terjual pada ' + label;
-
-          var rows = Array.isArray(data.rincian_barang) ? data.rincian_barang : [];
-          if (tbody) {
-            if (!rows.length) {
-              tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty">Tidak ada penjualan pada tanggal ini.</td></tr>';
-            } else {
-              tbody.innerHTML = rows.map(function(item) {
-                return '<tr>' +
-                  '<td style="white-space:nowrap;"><b>' + escapeDashboardHtml(item.id_barang) + '</b></td>' +
-                  '<td style="min-width:220px;">' + escapeDashboardHtml(item.nama_barang) + '</td>' +
-                  '<td>' + Number(item.jumlah_barang || 0).toLocaleString('id-ID') + '</td>' +
-                  '<td>' + Number(item.jumlah_transaksi || 0).toLocaleString('id-ID') + '</td>' +
-                  '<td>' + Number(item.keuntungan || 0).toLocaleString('id-ID') + '</td>' +
-                  '<td>' + Number(item.pendapatan || 0).toLocaleString('id-ID') + '</td>' +
-                '</tr>';
-              }).join('');
-            }
-          }
-          document.getElementById('dashboardTableInfo').innerText = rows.length ? 'Menampilkan 1 sampai ' + rows.length + ' barang' : 'Tidak ada data';
-          if (btn) { btn.disabled = false; btn.innerText = 'Tampilkan'; }
-        })
-        .withFailureHandler(function(err) {
-          console.error(err);
-          if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty" style="color:#dc3545;">Gagal memuat dashboard: ' + escapeDashboardHtml(err && err.message ? err.message : err) + '</td></tr>';
-          if (btn) { btn.disabled = false; btn.innerText = 'Tampilkan'; }
-          alert('Gagal memuat Dashboard: ' + (err && err.message ? err.message : err));
-        })
-        .getDashboardData(date, date);
-    }
-
-    // Dipertahankan untuk kompatibilitas dengan kode/versi lama.
     function loadLaporanCustom() {
-      loadDashboardByDate();
+      var start = document.getElementById("filterDateStart").value;
+      var end = document.getElementById("filterDateEnd").value;
+      var btn = document.getElementById("btnFilterLaporan");
+      
+      if(!start || !end) return alert("Silakan pilih tanggal awal dan akhir terlebih dahulu.");
+
+      btn.innerText = "Memuat...";
+      btn.disabled = true;
+
+      google.script.run.withSuccessHandler(function(data) {
+        document.getElementById("laporanTransaksi").innerText = data.total_transaksi + " Trx";
+        document.getElementById("laporanPendapatan").innerText = "Rp " + data.total_pendapatan.toLocaleString('id-ID');
+        btn.innerText = "Filter Laporan";
+        btn.disabled = false;
+      }).getDashboardData(start, end);
     }
 
     function loadBarang() {
-    google.script.run.withSuccessHandler(function(data) {
-    globalDataBarang = data || [];
-    console.log("Total barang dimuat dari server: ", globalDataBarang.length);
-    renderTabelBarang(globalDataBarang);
-    }).getBarang();
+      google.script.run.withSuccessHandler(function(data) {
+        globalDataBarang = data;
+        renderTabelBarang(data);
+      }).getBarang();
     }
 
     function renderTabelBarang(data) {
-    var tbody = document.querySelector("#tabelBarang tbody");
-    tbody.innerHTML = "";
-  
-    // Menggunakan seluruh data asli tanpa pemotongan
-    var renderData = data || [];
-  
-    if (renderData.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;color:#6c757d;">Belum ada data barang.</td></tr>`;
-    return;
-    }
-  
-    renderData.forEach(function(item) {
-    var tr = document.createElement("tr");
-    var imgTag = item.gambar ? `<img src="${item.gambar}" class="img-thumb" onerror="this.onerror=null;this.src='https://via.placeholder.com/36?text=No+Img';">` : `<div class="img-thumb">No Img</div>`;
-    var safeId = String(item.id_barang || "").replace(/'/g, "\\'");
-    var isTidakAktif = item.status === 'Tidak Aktif';
-    var statusBadge = isTidakAktif ? '<span style="color:#dc3545;font-weight:bold;">Tidak Aktif</span>' : '<span style="color:#198754;font-weight:bold;">Aktif</span>';
-
-    tr.innerHTML = `
-      <td><input type="checkbox"></td>
-      <td>${imgTag}</td>
-      <td style="white-space: nowrap;"><b>${item.id_barang || ''}</b></td>
-      <td style="max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.supplier || ''}">${item.supplier || ''}</td>
-      <td style="min-width: 150px;">${item.nama_barang || ''}</td>
-      <td style="max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.kategori || '-'}">${item.kategori || '-'}</td>
-      <td style="white-space: nowrap;">Rp ${Number(item.harga_jual || 0).toLocaleString('id-ID')}</td>
-      <td style="white-space: nowrap;">Rp ${Number(item.harga_beli || 0).toLocaleString('id-ID')}</td>
-      <td><b>${item.stok || 0}</b></td>
-      <td style="white-space: nowrap;">${item.lokasi_rak || '-'}</td>
-      <td style="text-align: center;"><button class="badge-ubah" onclick="bukaModalEdit('${safeId}')">Ubah</button></td>
-      <td style="max-width: 90px;">${statusBadge}</td>
-      `;
-      tbody.appendChild(tr);
-      });
+      var tbody = document.querySelector("#tabelBarang tbody");
+      tbody.innerHTML = "";
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: #6c757d;">Belum ada data barang.</td></tr>`;
+        return;
       }
+      data.forEach(function(item) {
+        var tr = document.createElement("tr");
+        var imgTag = item.gambar ? `<img src="${item.gambar}" class="img-thumb" onerror="this.onerror=null;this.src='https://via.placeholder.com/36?text=No+Img';">` : `<div class="img-thumb">No Img</div>`;
+        var safeId = item.id_barang.replace(/'/g, "\\'");
+        var isTidakAktif = item.status === 'Tidak Aktif';
+        var statusBadge = isTidakAktif ? '<span style="color:#dc3545;font-weight:bold;">Tidak Aktif</span>' : '<span style="color:#198754;font-weight:bold;">Aktif</span>';
+
+        tr.innerHTML = `
+          <td><input type="checkbox"></td>
+          <td>${imgTag}</td>
+          <td style="white-space: nowrap;"><b>${item.id_barang}</b></td>
+          <td style="max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.supplier}">${item.supplier}</td>
+          <td style="min-width: 150px;">${item.nama_barang}</td>
+          <td style="max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.kategori || '-'}">${item.kategori || '-'}</td>
+          <td style="white-space: nowrap;">Rp ${Number(item.harga_jual).toLocaleString('id-ID')}</td>
+          <td style="white-space: nowrap;">Rp ${Number(item.harga_beli).toLocaleString('id-ID')}</td>
+          <td><b>${item.stok}</b></td>
+          <td style="white-space: nowrap;">${item.lokasi_rak || '-'}</td>
+          <td style="text-align: center;"><button class="badge-ubah" onclick="bukaModalEdit('${safeId}')">Ubah</button></td>
+          <td style="max-width: 90px;">${statusBadge}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
 
     function loadSupplier() {
       google.script.run.withSuccessHandler(function(data) {
@@ -1980,7 +1833,6 @@
       var payload = {
         supplier: keranjang[0].supplier || 'Umum',
         total_item: totalItem,
-        diskon_global: gDiscTotal,
         total_bayar: grandFinalBayar,
         metode_pembayaran: metode,
         kasir: lastTransaksi.kasir,
@@ -2094,7 +1946,7 @@
         tr.innerHTML = `
           <td><b>${r.no_nota}</b></td>
           <td>${r.tanggal}</td>
-          <td>Rp ${Number(r.potongan || 0).toLocaleString('id-ID')}</td>
+          <td>${r.supplier}</td>
           <td>${r.total_item}</td>
           <td>Rp ${Number(r.total_bayar).toLocaleString('id-ID')}</td>
           <td>${r.metode_pembayaran}</td>
@@ -2110,7 +1962,7 @@
       var filtered = globalRiwayatData.filter(r => 
         String(r.no_nota || "").toLowerCase().includes(keyword) || 
         String(r.kasir || "").toLowerCase().includes(keyword) || 
-        String(r.potongan || "").toLowerCase().includes(keyword)
+        String(r.supplier || "").toLowerCase().includes(keyword)
       );
       renderTabelRiwayat(filtered);
     }
@@ -3047,1138 +2899,5 @@
       };
     })();
   </script>
-
-  <!-- BACKUP / RESTORE DATABASE LOKAL -->
-  <div id="backupRestoreModal" class="modal">
-    <div class="modal-content" style="max-width:520px;">
-      <div class="modal-header" style="background:#0f5132;">
-        <h3 style="margin:0;font-size:16px;">💾 Backup / Restore Data</h3>
-        <button class="close-btn" onclick="closeBackupRestoreModal()">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="card" style="margin-bottom:12px;">
-          <div class="card-body">
-            <b>Database lokal</b>
-            <div id="backupDbStatus" style="font-size:12px;color:#6c757d;margin-top:6px;">Memeriksa...</div>
-          </div>
-        </div>
-        <div style="display:grid;gap:10px;">
-          <button class="btn btn-primary" style="justify-content:center;" onclick="backupLocalDatabase()" id="btnBackupLocal">💾 Backup Data Sekarang</button>
-          <label class="btn btn-outline" style="justify-content:center;box-sizing:border-box;">
-            ♻️ Restore Data
-            <input type="file" id="restoreLocalFile" accept=".json,application/json" style="display:none" onchange="restoreLocalDatabase(event)">
-          </label>
-        </div>
-        <div style="font-size:11px;color:#6c757d;margin-top:12px;line-height:1.5;">
-          Backup menyimpan data lokal aplikasi yang sudah tersinkron. File backup dapat dipindahkan ke HP/PC lain lalu di-restore melalui menu yang sama.
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- IndexedDB + Backup/Restore v1 -->
-  <script>
-  (function installLocalDatabase() {
-    'use strict';
-
-    const DB_NAME = 'KasirPOSOnlineLocalDB';
-    const DB_VERSION = 3;
-    const STORES = ['barang','supplier','kategori','transaksi_pending','sync_queue','app_settings'];
-    const INTERNAL_STORES = ['barang_sync_stage'];
-    let dbPromise = null;
-
-    function openLocalDB() {
-      if (dbPromise) return dbPromise;
-      dbPromise = new Promise(function(resolve, reject) {
-        if (!window.indexedDB) {
-          reject(new Error('Browser/WebView ini tidak mendukung IndexedDB.'));
-          return;
-        }
-        const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = function(e) {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains('barang')) {
-            const s = db.createObjectStore('barang', { keyPath: 'id_barang' });
-            s.createIndex('nama_barang','nama_barang',{unique:false});
-            s.createIndex('supplier','supplier',{unique:false});
-            s.createIndex('kategori','kategori',{unique:false});
-          }
-          if (!db.objectStoreNames.contains('supplier')) db.createObjectStore('supplier', { keyPath: 'id_supplier', autoIncrement: true });
-          if (!db.objectStoreNames.contains('kategori')) db.createObjectStore('kategori', { keyPath: 'id_kategori', autoIncrement: true });
-          if (!db.objectStoreNames.contains('transaksi_pending')) db.createObjectStore('transaksi_pending', { keyPath: 'id_local' });
-          if (!db.objectStoreNames.contains('sync_queue')) db.createObjectStore('sync_queue', { keyPath: 'id_queue', autoIncrement: true });
-          if (!db.objectStoreNames.contains('app_settings')) db.createObjectStore('app_settings', { keyPath: 'key' });
-          // Store sementara untuk sinkronisasi aman. Data barang lama tidak disentuh
-          // sampai seluruh batch dari server berhasil diterima.
-          if (!db.objectStoreNames.contains('barang_sync_stage')) {
-            const s2 = db.createObjectStore('barang_sync_stage', { keyPath: 'id_barang' });
-            s2.createIndex('nama_barang','nama_barang',{unique:false});
-            s2.createIndex('supplier','supplier',{unique:false});
-            s2.createIndex('kategori','kategori',{unique:false});
-          }
-          if (!db.objectStoreNames.contains('data_cache')) {
-            db.createObjectStore('data_cache', { keyPath: 'key' });
-          }
-        };
-        req.onsuccess = function() { resolve(req.result); };
-        req.onerror = function() { reject(req.error || new Error('Gagal membuka database lokal.')); };
-      });
-      return dbPromise;
-    }
-
-    function tx(storeNames, mode, fn) {
-      return openLocalDB().then(function(db) {
-        return new Promise(function(resolve, reject) {
-          const t = db.transaction(storeNames, mode);
-          const stores = {};
-          storeNames.forEach(function(n){ stores[n] = t.objectStore(n); });
-          let result;
-          try { result = fn(stores); } catch(e) { reject(e); return; }
-          t.oncomplete = function(){ resolve(result); };
-          t.onerror = function(){ reject(t.error || new Error('Transaksi database gagal.')); };
-          t.onabort = function(){ reject(t.error || new Error('Transaksi database dibatalkan.')); };
-        });
-      });
-    }
-
-    function putMany(storeName, rows) {
-      if (!Array.isArray(rows) || !rows.length) return Promise.resolve();
-      return openLocalDB().then(function(db) {
-        return new Promise(function(resolve,reject){
-          const t = db.transaction(storeName,'readwrite');
-          const s = t.objectStore(storeName);
-          rows.forEach(function(row){ s.put(row); });
-          t.oncomplete = resolve;
-          t.onerror = function(){ reject(t.error || new Error('Gagal menyimpan data lokal.')); };
-        });
-      });
-    }
-
-    function getAll(storeName) {
-      return openLocalDB().then(function(db) {
-        return new Promise(function(resolve,reject){
-          const t = db.transaction(storeName,'readonly');
-          const req = t.objectStore(storeName).getAll();
-          req.onsuccess = function(){ resolve(req.result || []); };
-          req.onerror = function(){ reject(req.error); };
-        });
-      });
-    }
-
-    function clearStore(storeName) {
-      return openLocalDB().then(function(db) {
-        return new Promise(function(resolve,reject){
-          const t = db.transaction(storeName,'readwrite');
-          t.objectStore(storeName).clear();
-          t.oncomplete = resolve;
-          t.onerror = function(){ reject(t.error); };
-        });
-      });
-    }
-
-    async function databaseSummary() {
-      const out = {};
-      for (const name of STORES) out[name] = (await getAll(name)).length;
-      return out;
-    }
-
-    async function updateBackupStatus() {
-      const el = document.getElementById('backupDbStatus');
-      if (!el) return;
-      try {
-        const s = await databaseSummary();
-        el.innerHTML = 'Barang: <b>' + s.barang.toLocaleString('id-ID') +
-          '</b> · Supplier: <b>' + s.supplier.toLocaleString('id-ID') +
-          '</b> · Antrian sync: <b>' + s.sync_queue.toLocaleString('id-ID') + '</b>';
-      } catch(e) {
-        el.textContent = e.message || String(e);
-      }
-    }
-
-    window.openBackupRestoreModal = function() {
-      const m = document.getElementById('backupRestoreModal');
-      if (m) m.style.display = 'flex';
-      updateBackupStatus();
-    };
-    window.closeBackupRestoreModal = function() {
-      const m = document.getElementById('backupRestoreModal');
-      if (m) m.style.display = 'none';
-    };
-
-    async function getStoreChunks(storeName, batchSize, onBatch) {
-      const size = batchSize || 500;
-      await openLocalDB();
-      return openLocalDB().then(function(db) {
-        return new Promise(function(resolve, reject) {
-          const t = db.transaction(storeName, 'readonly');
-          const req = t.objectStore(storeName).openCursor();
-          let batch = [];
-          req.onsuccess = function(e) {
-            const cursor = e.target.result;
-            if (!cursor) {
-              if (batch.length) {
-                Promise.resolve(onBatch(batch)).then(resolve).catch(reject);
-              } else {
-                resolve();
-              }
-              return;
-            }
-            batch.push(cursor.value);
-            if (batch.length >= size) {
-              const out = batch;
-              batch = [];
-              Promise.resolve(onBatch(out)).then(function(){ cursor.continue(); }).catch(reject);
-            } else {
-              cursor.continue();
-            }
-          };
-          req.onerror = function(){ reject(req.error || new Error('Gagal membaca database lokal.')); };
-        });
-      });
-    }
-
-    function replaceBarangFromStage() {
-      return openLocalDB().then(function(db) {
-        return new Promise(function(resolve, reject) {
-          const t = db.transaction(['barang','barang_sync_stage'], 'readwrite');
-          const target = t.objectStore('barang');
-          const stage = t.objectStore('barang_sync_stage');
-          const clearReq = target.clear();
-
-          clearReq.onerror = function(){ reject(clearReq.error || new Error('Gagal membersihkan snapshot barang lama.')); };
-          clearReq.onsuccess = function(){
-            const req = stage.openCursor();
-            req.onsuccess = function(e){
-              const cursor = e.target.result;
-              if (!cursor) return;
-              target.put(cursor.value);
-              cursor.continue();
-            };
-            req.onerror = function(){ reject(req.error || new Error('Gagal membaca snapshot barang baru.')); };
-          };
-          t.oncomplete = function(){ resolve(); };
-          t.onerror = function(){ reject(t.error || new Error('Gagal mengganti snapshot barang.')); };
-          t.onabort = function(){ reject(t.error || new Error('Penggantian snapshot barang dibatalkan.')); };
-        });
-      });
-    }
-
-    window.backupLocalDatabase = async function() {
-      const btn = document.getElementById('btnBackupLocal');
-      if (btn) { btn.disabled = true; btn.textContent = 'Menyiapkan backup...'; }
-      try {
-        await openLocalDB();
-        const parts = [];
-        parts.push('{');
-        parts.push('"backup_type":"KasirPOSOnline",');
-        parts.push('"backup_version":2,');
-        parts.push('"created_at":' + JSON.stringify(new Date().toISOString()) + ',');
-        parts.push('"stores":{');
-
-        let firstStore = true;
-        for (const name of STORES) {
-          if (!firstStore) parts.push(',');
-          firstStore = false;
-          parts.push(JSON.stringify(name) + ':[');
-          let firstRow = true;
-          await getStoreChunks(name, 500, async function(batch) {
-            for (const row of batch) {
-              if (!firstRow) parts.push(',');
-              firstRow = false;
-              parts.push(JSON.stringify(row));
-            }
-            return Promise.resolve();
-          });
-          parts.push(']');
-        }
-        parts.push('}}');
-
-        const blob = new Blob(parts, {type:'application/json;charset=utf-8'});
-        const stamp = new Date().toISOString().replace(/[:.]/g,'-');
-        const fileName = 'Backup_KasirPOS_' + stamp + '.json';
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = fileName;
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
-        alert('Backup berhasil dibuat.\\n\\nFile: ' + fileName + '\\n\\nBackup versi 2 sudah dibuat bertahap agar lebih aman untuk database besar.');
-        updateBackupStatus();
-      } catch(e) {
-        alert('Backup gagal: ' + (e.message || e));
-      } finally {
-        if (btn) { btn.disabled = false; btn.textContent = '💾 Backup Data Sekarang'; }
-      }
-    };
-
-    window.restoreLocalDatabase = async function(event) {
-      const file = event.target.files && event.target.files[0];
-      event.target.value = '';
-      if (!file) return;
-
-      try {
-        const text = await file.text();
-        const payload = JSON.parse(text);
-        if (payload.backup_type !== 'KasirPOSOnline' || !payload.stores) {
-          throw new Error('File backup tidak cocok untuk KasirPOSOnline.');
-        }
-        if (payload.backup_version !== 1 && payload.backup_version !== 2) {
-          throw new Error('Versi backup tidak didukung: ' + payload.backup_version);
-        }
-
-        await openLocalDB();
-        const currentPending = await getAll('transaksi_pending');
-        const currentQueue = await getAll('sync_queue');
-        const currentBarang = await getAll('barang');
-        const backupBarang = Array.isArray(payload.stores.barang) ? payload.stores.barang : [];
-
-        let message = 'Restore akan mengganti seluruh database lokal dengan isi file backup.';
-        message += '\\n\\nMaster Barang saat ini: ' + currentBarang.length.toLocaleString('id-ID') +
-          ' item. Isi backup: ' + backupBarang.length.toLocaleString('id-ID') + ' item.';
-        if (backupBarang.length < currentBarang.length) {
-          message += '\\n\\nPERINGATAN: backup lebih lama/kecil. Setelah restore, Master Barang akan sementara turun menjadi ' +
-            backupBarang.length.toLocaleString('id-ID') + ' item, lalu aplikasi akan mencoba sinkron ke server terbaru.';
-        }
-        if (currentPending.length || currentQueue.length) {
-          message += '\\n\\nPERINGATAN: saat ini ada ' +
-            currentPending.length.toLocaleString('id-ID') +
-            ' transaksi offline dan ' +
-            currentQueue.length.toLocaleString('id-ID') +
-            ' antrian sync yang akan ikut diganti oleh backup.';
-        }
-        message += '\\n\\nLanjutkan?';
-        if (!confirm(message)) return false;
-
-        // Restore tetap bertahap agar tidak membuat satu transaksi IndexedDB raksasa.
-        for (const name of STORES) {
-          await clearStore(name);
-          const rows = Array.isArray(payload.stores[name]) ? payload.stores[name] : [];
-          for (let i=0;i<rows.length;i+=500) {
-            await putMany(name, rows.slice(i,i+500));
-          }
-        }
-
-        await updateBackupStatus();
-        alert('Restore berhasil.\\n\\nDatabase lokal sudah dikembalikan dari backup. Aplikasi akan mencoba sinkronisasi server agar data terbaru kembali masuk bila koneksi tersedia.');
-        return true;
-      } catch(e) {
-        alert('Restore gagal: ' + (e.message || e));
-        return false;
-      }
-    };
-
-    async function getByKey(storeName, key) {
-      return openLocalDB().then(function(db) {
-        return new Promise(function(resolve, reject) {
-          const t = db.transaction(storeName, 'readonly');
-          const req = t.objectStore(storeName).get(key);
-          req.onsuccess = function(){ resolve(req.result || null); };
-          req.onerror = function(){ reject(req.error); };
-        });
-      });
-    }
-
-    // API internal untuk tahap sinkronisasi berikutnya.
-    window.KasirLocalDB = {
-      open: openLocalDB,
-      putMany: putMany,
-      getAll: getAll,
-      getByKey: getByKey,
-      clear: clearStore,
-      summary: databaseSummary
-    };
-
-    // =========================================================
-    // MASTER BARANG -> IndexedDB + GAS Batch Sync
-    // =========================================================
-    const BARANG_BATCH_SIZE = 500;
-    const BARANG_SYNC_INTERVAL = 10 * 60 * 1000;
-    let barangSyncRunning = false;
-    let barangSyncPromise = null;
-
-    function gasCallPromise(functionName, args) {
-      return new Promise(function(resolve, reject) {
-        try {
-          var runner = google.script.run
-            .withSuccessHandler(resolve)
-            .withFailureHandler(reject);
-          runner[functionName].apply(runner, args || []);
-        } catch (e) {
-          reject(e);
-        }
-      });
-    }
-
-    async function getLocalBarangAll() {
-      return await getAll('barang');
-    }
-
-    async function getLocalBarangById(idBarang) {
-      const id = String(idBarang || '').trim();
-      if (!id) return null;
-      return openLocalDB().then(function(db) {
-        return new Promise(function(resolve, reject) {
-          const t = db.transaction('barang', 'readonly');
-          const req = t.objectStore('barang').get(id);
-          req.onsuccess = function() { resolve(req.result || null); };
-          req.onerror = function() { reject(req.error); };
-        });
-      });
-    }
-
-    async function searchLocalBarang(keyword, maxResults) {
-      const kw = String(keyword || '').trim().toLowerCase();
-      const limit = maxResults || 30;
-      if (!kw) return [];
-
-      // Exact barcode/ID diprioritaskan.
-      const exact = await getLocalBarangById(kw);
-      if (exact && exact.status !== 'Tidak Aktif') return [exact];
-
-      const keywords = kw.split(/\s+/).filter(function(k) { return k.length > 0; });
-      const results = [];
-
-      return openLocalDB().then(function(db) {
-        return new Promise(function(resolve, reject) {
-          const t = db.transaction('barang', 'readonly');
-          const req = t.objectStore('barang').openCursor();
-          req.onsuccess = function(e) {
-            const cursor = e.target.result;
-            if (!cursor || results.length >= limit) {
-              resolve(results);
-              return;
-            }
-            const item = cursor.value;
-            if (item && item.status !== 'Tidak Aktif') {
-              const nama = String(item.nama_barang || '').toLowerCase();
-              const id = String(item.id_barang || '').toLowerCase();
-              if (keywords.every(function(k) { return nama.includes(k) || id.includes(k); })) {
-                results.push(item);
-              }
-            }
-            cursor.continue();
-          };
-          req.onerror = function() { reject(req.error); };
-        });
-      });
-    }
-
-    async function syncBarangFromServer(force) {
-      if (barangSyncRunning && barangSyncPromise) return barangSyncPromise;
-
-      barangSyncRunning = true;
-      barangSyncPromise = (async function() {
-        try {
-          const total = Number(await gasCallPromise('getBarangTotalCount', [])) || 0;
-          if (!total) {
-            await clearStore('barang_sync_stage');
-            await clearStore('barang');
-            await putMany('app_settings', [{key:'barang_sync_at', value:Date.now(), total:0}]);
-            globalDataBarang = [];
-            if (typeof renderTabelBarang === 'function') renderTabelBarang([]);
-            return {total:0};
-          }
-
-          // Ambil ke store sementara. Data lokal lama dipertahankan bila
-          // salah satu batch gagal di tengah jalan.
-          await clearStore('barang_sync_stage');
-
-          for (let offset = 0; offset < total; offset += BARANG_BATCH_SIZE) {
-            const result = await gasCallPromise('getBarangBatch', [offset, BARANG_BATCH_SIZE]);
-            const items = result && Array.isArray(result.items) ? result.items : [];
-            if (items.length) await putMany('barang_sync_stage', items);
-
-            const progress = Math.min(total, offset + (result && result.limit ? Number(result.limit) : items.length));
-            const statusEl = document.getElementById('cashierNameDisplay');
-            if (statusEl) statusEl.title = 'Sinkronisasi barang: ' + progress.toLocaleString('id-ID') + ' / ' + total.toLocaleString('id-ID');
-
-            if (!items.length && !(result && result.hasMore)) break;
-          }
-
-          // Semua batch berhasil: sekarang ganti snapshot barang lama secara atomik
-          // dalam satu transaksi IndexedDB. Jika batch sebelumnya gagal, data lama tetap aman.
-          await replaceBarangFromStage();
-          await clearStore('barang_sync_stage');
-
-          await putMany('app_settings', [{
-            key:'barang_sync_at',
-            value:Date.now(),
-            total:total
-          }]);
-
-          const all = await getLocalBarangAll();
-          globalDataBarang = all;
-          return {total:total, local:all.length};
-        } finally {
-          barangSyncRunning = false;
-          barangSyncPromise = null;
-        }
-      })();
-
-      return barangSyncPromise;
-    }
-
-    async function loadBarangFromLocalThenSync() {
-      try {
-        const local = await getLocalBarangAll();
-        globalDataBarang = local;
-
-        // Data lokal langsung dipakai agar POS tetap cepat.
-        if (typeof renderTabelBarang === 'function') renderTabelBarang(local);
-
-        let setting = null;
-        try {
-          const settings = await getAll('app_settings');
-          setting = settings.find(function(x) { return x && x.key === 'barang_sync_at'; }) || null;
-        } catch(e) {}
-
-        const lastSync = setting ? Number(setting.value || 0) : 0;
-        const needSync = !local.length || !lastSync || (Date.now() - lastSync > BARANG_SYNC_INTERVAL);
-
-        if (needSync) {
-          syncBarangFromServer(true).then(function() {
-            if (typeof renderTabelBarang === 'function') renderTabelBarang(globalDataBarang);
-          }).catch(function(err) {
-            console.warn('Sinkronisasi Master Barang:', err);
-            if (!local.length) {
-              alert('Data barang belum tersedia di database lokal dan sinkronisasi gagal.\\n\\n' + (err.message || err));
-            }
-          });
-        }
-      } catch(e) {
-        console.warn('IndexedDB loadBarang:', e);
-        // Fallback ke GAS lama jika IndexedDB gagal.
-        if (typeof originalLoadBarangLegacy === 'function') originalLoadBarangLegacy();
-      }
-    }
-
-    // Simpan fungsi GAS lama sebagai fallback.
-    const originalLoadBarangLegacy = window.loadBarang;
-
-    // Ganti loadBarang agar sumber utama Master Barang adalah IndexedDB.
-    window.loadBarang = function() {
-      return loadBarangFromLocalThenSync();
-    };
-
-    // POS: cari langsung di IndexedDB, bukan menyaring 100 ribu data di DOM/memori.
-    const originalHandlePosInput = window.handlePosInput;
-    let posSearchTimer = null;
-    window.handlePosInput = function() {
-      const inputEl = document.getElementById('searchPos');
-      const suggestionBox = document.getElementById('suggestionBox');
-      if (!inputEl || !suggestionBox) return;
-
-      const keyword = inputEl.value.trim();
-      if (!keyword) {
-        suggestionBox.style.display = 'none';
-        return;
-      }
-
-      clearTimeout(posSearchTimer);
-      posSearchTimer = setTimeout(async function() {
-        try {
-          const exact = await getLocalBarangById(keyword);
-          if (exact && exact.status !== 'Tidak Aktif') {
-            tambahKeKeranjang(exact);
-            inputEl.value = '';
-            suggestionBox.style.display = 'none';
-            return;
-          }
-
-          const filtered = await searchLocalBarang(keyword, 30);
-          if (filtered.length > 0) {
-            suggestionBox.innerHTML = '';
-            filtered.forEach(function(item) {
-              const div = document.createElement('div');
-              div.style.cssText = 'padding:10px 15px;border-bottom:1px solid #eee;cursor:pointer;display:flex;justify-content:space-between;align-items:center;';
-              div.onmouseover = function() { this.style.background = '#f8f9fa'; };
-              div.onmouseout = function() { this.style.background = 'white'; };
-              div.onclick = function() {
-                tambahKeKeranjang(item);
-                inputEl.value = '';
-                suggestionBox.style.display = 'none';
-                inputEl.focus();
-              };
-              div.innerHTML = '<div><div style="font-weight:600;font-size:13px;color:#333;">' +
-                item.nama_barang + '</div><div style="font-size:11px;color:#6c757d;">ID: ' +
-                item.id_barang + ' | Stok: <b>' + item.stok + '</b></div></div>' +
-                '<div style="font-weight:bold;color:var(--primary-color);font-size:13px;">Rp ' +
-                Number(item.harga_jual).toLocaleString('id-ID') + '</div>';
-              suggestionBox.appendChild(div);
-            });
-            suggestionBox.style.display = 'block';
-          } else {
-            suggestionBox.innerHTML = '<div style="padding:10px;text-align:center;color:#dc3545;font-size:12px;">Barang tidak ditemukan atau tidak aktif</div>';
-            suggestionBox.style.display = 'block';
-          }
-        } catch(e) {
-          console.warn('Pencarian lokal gagal:', e);
-          if (typeof originalHandlePosInput === 'function') originalHandlePosInput();
-        }
-      }, 120);
-    };
-
-    // Scanner POS sekarang otomatis memakai pencarian lokal di atas.
-    // Barcode yang terbaca akan langsung menemukan barang dan masuk keranjang.
-
-    // Jangan menunggu menu Master Barang untuk melakukan sinkronisasi pertama.
-    // Jika user sudah login, initApp() akan memanggil loadBarang().
-    openLocalDB().catch(function(e){ console.warn('IndexedDB:', e); });
-  })();
-  </script>
-
-  <script id="AS_POS_GLOBAL_SYNC_V1">
-  (function installGlobalLocalFirstSync() {
-    'use strict';
-
-    const CACHE_STORE = 'data_cache';
-    const GLOBAL_SYNC_INTERVAL = 10 * 60 * 1000;
-    let globalSyncRunning = false;
-    let globalSyncPromise = null;
-
-    function syncStatus(text, type) {
-      const el = document.getElementById('globalSyncStatus');
-      if (el) {
-        el.textContent = text || '';
-        el.style.color = type === 'error' ? '#dc3545' : (type === 'ok' ? '#198754' : '#d97706');
-      }
-      const btn = document.getElementById('btnGlobalSync');
-      if (btn && type !== 'busy') {
-        btn.title = text || 'Sinkronisasi data';
-      }
-    }
-
-    async function cacheGet(key) {
-      try {
-        if (window.KasirLocalDB && window.KasirLocalDB.getByKey) {
-          const row = await window.KasirLocalDB.getByKey(CACHE_STORE, key);
-          return row ? row.value : null;
-        }
-        const rows = await window.KasirLocalDB.getAll(CACHE_STORE);
-        const row = rows.find(x => x && x.key === key);
-        return row ? row.value : null;
-      } catch (e) {
-        console.warn('Cache get gagal', key, e);
-        return null;
-      }
-    }
-
-    async function cachePut(key, value) {
-      return window.KasirLocalDB.putMany(CACHE_STORE, [{
-        key: key,
-        value: value,
-        updated_at: Date.now()
-      }]);
-    }
-
-    async function cacheTime(key) {
-      try {
-        const row = await window.KasirLocalDB.getByKey(CACHE_STORE, key);
-        return row ? Number(row.updated_at || 0) : 0;
-      } catch(e) { return 0; }
-    }
-
-    function cacheKey(type, suffix) {
-      return 'cache:' + type + (suffix ? ':' + suffix : '');
-    }
-
-    function dateKey(date) {
-      return String(date || '').replace(/[^0-9-]/g, '');
-    }
-
-    function getDashboardDateValue() {
-      const el = document.getElementById('dashboardDate');
-      if (el && el.value) return el.value;
-      const now = new Date();
-      return new Date(now.getTime() - now.getTimezoneOffset()*60000).toISOString().split('T')[0];
-    }
-
-    function applyDashboardDataLocal(data, date) {
-      data = data || {};
-      const set = function(id, value) {
-        const el = document.getElementById(id);
-        if (el) el.innerText = value;
-      };
-      set('statTotalBarang', Number(data.total_barang || 0).toLocaleString('id-ID'));
-      set('statTotalSupplier', Number(data.total_supplier || 0).toLocaleString('id-ID'));
-      set('statTotalTransaksi', Number(data.total_transaksi || 0).toLocaleString('id-ID'));
-      set('statPendapatanHariIni', formatRupiahDashboard(data.total_pendapatan));
-      set('statBarangTerjual', Number(data.total_barang_terjual || 0).toLocaleString('id-ID'));
-      set('statKeuntungan', formatRupiahDashboard(data.total_keuntungan));
-
-      const label = data.tanggal_label || date;
-      set('dashboardPeriodLabel', 'Ringkasan penjualan • ' + label);
-      set('dashboardDetailSubtitle', 'Rincian barang terjual pada ' + label);
-
-      const tbody = document.querySelector('#tabelDashboardPenjualan tbody');
-      const rows = Array.isArray(data.rincian_barang) ? data.rincian_barang : [];
-      if (tbody) {
-        if (!rows.length) {
-          tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty">Tidak ada penjualan pada tanggal ini.</td></tr>';
-        } else {
-          tbody.innerHTML = rows.map(function(item) {
-            return '<tr>' +
-              '<td style="white-space:nowrap;"><b>' + escapeDashboardHtml(item.id_barang) + '</b></td>' +
-              '<td style="min-width:220px;">' + escapeDashboardHtml(item.nama_barang) + '</td>' +
-              '<td>' + Number(item.jumlah_barang || 0).toLocaleString('id-ID') + '</td>' +
-              '<td>' + Number(item.jumlah_transaksi || 0).toLocaleString('id-ID') + '</td>' +
-              '<td>' + Number(item.keuntungan || 0).toLocaleString('id-ID') + '</td>' +
-              '<td>' + Number(item.pendapatan || 0).toLocaleString('id-ID') + '</td>' +
-            '</tr>';
-          }).join('');
-        }
-      }
-      set('dashboardTableInfo', rows.length ? 'Menampilkan 1 sampai ' + rows.length + ' barang' : 'Tidak ada data');
-    }
-
-    function applyCachedSupplier(data) {
-      if (!Array.isArray(data)) return;
-      globalDataSupplier = data;
-      const tbody = document.querySelector('#tabelSupplier tbody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      const selectSupplier = document.getElementById('filterPilihSupplier');
-      if (selectSupplier) {
-        selectSupplier.innerHTML = '<option value="">-- Semua Supplier --</option>';
-        data.forEach(function(s) {
-          const opt = document.createElement('option');
-          opt.value = s.id_supplier + '|||' + s.nama_supplier;
-          opt.innerText = s.nama_supplier + ' (' + s.id_supplier + ')';
-          selectSupplier.appendChild(opt);
-        });
-      }
-      if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada data supplier.</td></tr>';
-        return;
-      }
-      data.forEach(function(s) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = '<td><b>' + s.id_supplier + '</b></td><td>' + s.nama_supplier + '</td><td>' + (s.kontak || '-') + '</td><td>' + (s.alamat || '-') + '</td>';
-        tbody.appendChild(tr);
-      });
-    }
-
-    function applyCachedPromo(data) {
-      if (!Array.isArray(data)) return;
-      globalPromoData = data;
-      const tbody = document.querySelector('#tabelPromo tbody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada aturan promo. Silahkan import data promo.</td></tr>';
-        return;
-      }
-      data.forEach(function(p) {
-        const f = (globalDataBarang || []).find(function(b){ return b.id_barang === p.id_barang; });
-        const nmBarang = f ? f.nama_barang : '-';
-        const tipe = p.tipe_promo == 1 ? 'Diskon (%)' : (p.tipe_promo == 2 ? 'Potongan Nominal' : 'Harga Bundling');
-        const tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td><b>' + p.id_barang + '</b></td>' +
-          '<td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="' + nmBarang + '">' + nmBarang + '</td>' +
-          '<td><span style="background:#0d6efd;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;">' + tipe + '</span></td>' +
-          '<td><b>' + p.min_qty + '</b> pcs</td>' +
-          '<td>' + (p.tipe_promo == 1 ? p.besaran_promo + '%' : (p.tipe_promo == 2 ? 'Rp ' + Number(p.besaran_promo || 0).toLocaleString('id-ID') : '-')) + '</td>' +
-          '<td>' + (p.tipe_promo == 3 ? 'Rp ' + Number(p.harga_bundling || 0).toLocaleString('id-ID') : '-') + '</td>' +
-          '<td><b style="color:' + (p.status === 'Aktif' ? '#198754' : '#dc3545') + ';">' + p.status + '</b></td>';
-        tbody.appendChild(tr);
-      });
-    }
-
-    function applyCachedRiwayat(data) {
-      if (!Array.isArray(data)) return;
-      globalRiwayatData = data;
-      if (typeof renderTabelRiwayat === 'function') renderTabelRiwayat(data);
-    }
-
-    function applyCachedStokMasuk(data) {
-      if (!Array.isArray(data)) return;
-      globalStokMasukData = data;
-      if (typeof renderTabelStokMasuk === 'function') renderTabelStokMasuk(data);
-    }
-
-    function applyCachedRetur(data) {
-      if (!Array.isArray(data)) return;
-      globalReturData = data;
-      if (typeof renderTabelRetur === 'function') renderTabelRetur(data);
-    }
-
-    function applyCachedBest(data) {
-      if (!Array.isArray(data)) return;
-      if (typeof renderProductBestGrid === 'function') renderProductBestGrid(data);
-    }
-
-    async function loadCacheFirst(cacheName, applyFn) {
-      const data = await cacheGet(cacheKey(cacheName));
-      if (data !== null && data !== undefined) applyFn(data);
-      return data;
-    }
-
-    async function refreshCacheFromServer(cacheName, fnName, args, applyFn) {
-      try {
-        const data = await gasCallPromise(fnName, args || []);
-        await cachePut(cacheKey(cacheName), data || []);
-        applyFn(data || []);
-        return {ok:true, data:data || []};
-      } catch (err) {
-        return {ok:false, error:err};
-      }
-    }
-
-    // Dashboard: tampilkan cache seketika, server hanya untuk refresh.
-    window.loadDashboardByDate = async function() {
-      setDashboardDateDefaults();
-      const date = getDashboardDateValue();
-      const btn = document.getElementById('btnDashboardDate');
-      if (!date) return;
-      if (btn) { btn.disabled = true; btn.innerText = 'Memuat lokal...'; }
-
-      const key = cacheKey('dashboard', dateKey(date));
-      const cached = await cacheGet(key);
-      if (cached) applyDashboardDataLocal(cached, date);
-
-      if (btn) btn.innerText = cached ? 'Memuat...' : 'Mengambil...';
-      try {
-        const fresh = await gasCallPromise('getDashboardData', [date, date]);
-        await cachePut(key, fresh || {});
-        applyDashboardDataLocal(fresh || {}, date);
-        if (btn) { btn.disabled = false; btn.innerText = 'Tampilkan'; }
-      } catch(err) {
-        console.warn('Dashboard server:', err);
-        if (btn) { btn.disabled = false; btn.innerText = 'Tampilkan'; }
-        if (!cached) {
-          const tbody = document.querySelector('#tabelDashboardPenjualan tbody');
-          if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty" style="color:#dc3545;">Data dashboard belum tersedia di lokal.</td></tr>';
-          syncStatus('Server gagal — belum ada cache dashboard', 'error');
-        } else {
-          syncStatus('Dashboard memakai data lokal terakhir', 'ok');
-        }
-      }
-    };
-
-    window.loadSupplier = async function() {
-      const cached = await loadCacheFirst('supplier', applyCachedSupplier);
-      const res = await refreshCacheFromServer('supplier', 'getSupplier', [], applyCachedSupplier);
-      if (!res.ok && cached === null) syncStatus('Supplier belum ada di lokal', 'error');
-    };
-
-    window.loadPromoManajemen = async function() {
-      const cached = await loadCacheFirst('promo', applyCachedPromo);
-      const res = await refreshCacheFromServer('promo', 'getPromoList', [], applyCachedPromo);
-      if (!res.ok && cached === null) syncStatus('Promo belum ada di lokal', 'error');
-    };
-
-    window.loadStokMasuk = async function() {
-      const cached = await loadCacheFirst('stok_masuk', applyCachedStokMasuk);
-      const res = await refreshCacheFromServer('stok_masuk', 'getStokMasuk', [], applyCachedStokMasuk);
-      if (!res.ok && cached === null) syncStatus('Barang Masuk belum ada di lokal', 'error');
-    };
-
-    window.loadReturBarang = async function() {
-      const cached = await loadCacheFirst('retur', applyCachedRetur);
-      const res = await refreshCacheFromServer('retur', 'getReturBarang', [], applyCachedRetur);
-      if (!res.ok && cached === null) syncStatus('Retur belum ada di lokal', 'error');
-    };
-
-    window.loadRiwayat = async function() {
-      const cached = await loadCacheFirst('riwayat', applyCachedRiwayat);
-      const res = await refreshCacheFromServer('riwayat', 'getPenjualan', [], applyCachedRiwayat);
-      if (!res.ok && cached === null) syncStatus('Riwayat belum ada di lokal', 'error');
-    };
-
-    window.loadPosKatalog = async function() {
-      const local = await getLocalBarangAll();
-      globalDataBarang = local || [];
-      const search = document.getElementById('searchPos');
-      const suggestion = document.getElementById('suggestionBox');
-      if (search) search.value = '';
-      if (suggestion) suggestion.style.display = 'none';
-      await loadCacheFirst('best', applyCachedBest);
-      refreshCacheFromServer('best', 'getProductBest', [], applyCachedBest);
-      if (!local.length) syncBarangFromServer(true).catch(function(e){ console.warn(e); });
-    };
-
-    // Detail nota juga local-first: setelah pertama kali dibuka, detail disimpan di IndexedDB.
-    window.bukaStrukUlang = async function(noNota) {
-      const nota = String(noNota || '').trim();
-      const header = (globalRiwayatData || []).find(function(r){ return String(r.no_nota).trim() === nota; });
-      const key = cacheKey('detail_nota', nota);
-      let detail = await cacheGet(key);
-
-      if (Array.isArray(detail) && detail.length) {
-        const transObj = {
-          no_nota: nota,
-          tanggal: header ? header.tanggal : new Date().toLocaleString('id-ID'),
-          kasir: header ? (header.kasir || 'Admin') : (detail[0].kasir || 'Admin'),
-          metode_pembayaran: header ? (header.metode_pembayaran || 'Tunai') : (detail[0].metode_pembayaran || 'Tunai'),
-          total_bayar: header ? Number(header.total_bayar) : detail.reduce(function(s,i){ return s + Number(i.subtotal || 0); }, 0),
-          items: detail.map(function(d){
-            return {
-              id_barang: d.id_barang,
-              nama_barang: d.nama_barang || d.id_barang,
-              harga_jual: Number(d.harga_satuan) || 0,
-              qty: Number(d.qty) || 0,
-              subtotal: Number(d.subtotal) || 0,
-              disc_val: 0,
-              disc_type: 'Rp'
-            };
-          })
-        };
-        tampilkanStruk(transObj);
-      }
-
-      try {
-        const fresh = await gasCallPromise('getDetailPenjualanByNota', [nota]);
-        if (!Array.isArray(fresh) || !fresh.length) {
-          if (!detail || !detail.length) alert('Detail transaksi tidak ditemukan!');
-          return;
-        }
-        await cachePut(key, fresh);
-        if (!detail || JSON.stringify(detail) !== JSON.stringify(fresh)) {
-          const transObj = {
-            no_nota: nota,
-            tanggal: header ? header.tanggal : new Date().toLocaleString('id-ID'),
-            kasir: header ? (header.kasir || 'Admin') : (fresh[0].kasir || 'Admin'),
-            metode_pembayaran: header ? (header.metode_pembayaran || 'Tunai') : (fresh[0].metode_pembayaran || 'Tunai'),
-            total_bayar: header ? Number(header.total_bayar) : fresh.reduce(function(s,i){ return s + Number(i.subtotal || 0); }, 0),
-            items: fresh.map(function(d){
-              return {
-                id_barang: d.id_barang,
-                nama_barang: d.nama_barang || d.id_barang,
-                harga_jual: Number(d.harga_satuan) || 0,
-                qty: Number(d.qty) || 0,
-                subtotal: Number(d.subtotal) || 0,
-                disc_val: 0,
-                disc_type: 'Rp'
-              };
-            })
-          };
-          tampilkanStruk(transObj);
-        }
-      } catch(err) {
-        if (!detail || !detail.length) alert('Gagal mengambil detail transaksi dan belum ada cache lokal.');
-      }
-    };
-
-    // Laporan per barang: cache berdasarkan tanggal + mode, sehingga buka ulang langsung cepat.
-    function reportCacheKey(start,end,mode){ return cacheKey('laporan', [start,end,mode].join('|')); }
-    function renderLaporanPerBarangLocal(resData, mode, selectedKasir, selectedSupplierRaw) {
-      const thead = document.getElementById('headerRekapBarang');
-      const tbody = document.getElementById('bodyRekapBarang');
-      if (!thead || !tbody) return;
-      const suppTokens = selectedSupplierRaw ? selectedSupplierRaw.split('|||') : [];
-      thead.innerHTML = '';
-      tbody.innerHTML = '';
-      if (!Array.isArray(resData) || !resData.length) {
-        thead.innerHTML = '<tr><th>Informasi</th></tr>';
-        tbody.innerHTML = '<tr><td style="text-align:center;padding:20px;">Tidak ada data penjualan pada periode tersebut.</td></tr>';
-        return;
-      }
-      if (mode === 'transaksi' || mode === 'kasir') {
-        thead.innerHTML = '<tr><th>No Nota</th><th>Kasir</th><th>ID Barang</th><th>Nama Barang</th><th>Supplier</th><th>Harga Barang</th><th>Qty Terjual</th><th>Total Pendapatan (Bruto)</th></tr>';
-        let count = 0;
-        resData.forEach(function(item){
-          if (mode === 'kasir' && selectedKasir && selectedKasir !== 'Semua' && String(item.kasir).toLowerCase() !== String(selectedKasir).toLowerCase()) return;
-          count++;
-          const tr=document.createElement('tr');
-          tr.innerHTML='<td><b>'+item.no_nota+'</b></td><td>'+(item.kasir||'-')+'</td><td><b>'+item.id_barang+'</b></td><td>'+item.nama_barang+'</td><td>'+item.supplier+'</td><td>Rp '+Number(item.harga_satuan||0).toLocaleString('id-ID')+'</td><td><b>'+item.qty+'</b></td><td><b>Rp '+Number(item.subtotal||0).toLocaleString('id-ID')+'</b></td>';
-          tbody.appendChild(tr);
-        });
-        if(!count) tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;">Tidak ada data untuk filter kasir tersebut.</td></tr>';
-      } else if (mode === 'rekap') {
-        thead.innerHTML='<tr><th>ID Barang</th><th>Nama Barang</th><th>Supplier</th><th>Harga Barang</th><th>Total Qty Terjual</th><th>Total Pendapatan (Bruto)</th></tr>';
-        resData.forEach(function(item){
-          const tr=document.createElement('tr');
-          tr.innerHTML='<td><b>'+item.id_barang+'</b></td><td>'+item.nama_barang+'</td><td>'+item.supplier+'</td><td>Rp '+Number(item.harga_satuan||0).toLocaleString('id-ID')+'</td><td><b>'+item.total_qty+'</b></td><td><b>Rp '+Number(item.total_pendapatan||0).toLocaleString('id-ID')+'</b></td>';
-          tbody.appendChild(tr);
-        });
-      } else if (mode === 'supplier') {
-        thead.innerHTML='<tr><th>No Nota</th><th>ID Barang</th><th>Nama Barang</th><th>Supplier</th><th>Harga Barang</th><th>Qty Terjual</th><th>Subtotal</th></tr>';
-        let count=0;
-        resData.forEach(function(item){
-          let match=false;
-          if(suppTokens.length===2){
-            const s=String(item.supplier||'').trim().toLowerCase();
-            match=s===suppTokens[0].trim().toLowerCase() || s===suppTokens[1].trim().toLowerCase();
-          } else if(!selectedSupplierRaw) match=true;
-          if(!match) return;
-          count++;
-          const tr=document.createElement('tr');
-          tr.innerHTML='<td><b>'+item.no_nota+'</b></td><td><b>'+item.id_barang+'</b></td><td>'+item.nama_barang+'</td><td><b>'+item.supplier+'</b></td><td>Rp '+Number(item.harga_satuan||0).toLocaleString('id-ID')+'</td><td><b>'+item.qty+'</b></td><td><b>Rp '+Number(item.subtotal||0).toLocaleString('id-ID')+'</b></td>';
-          tbody.appendChild(tr);
-        });
-        if(!count) tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;">Tidak ada penjualan untuk supplier tersebut pada rentang tanggal terpilih.</td></tr>';
-      }
-    }
-
-    window.loadPenjualanPerBarang = async function() {
-      const mode = document.getElementById('filterModeBarang').value;
-      const start = document.getElementById('filterBarangStart').value;
-      const end = document.getElementById('filterBarangEnd').value;
-      const selectedSupplierRaw = document.getElementById('filterPilihSupplier').value;
-      const selectedKasir = document.getElementById('filterPilihKasir') ? document.getElementById('filterPilihKasir').value : '';
-      const key = reportCacheKey(start,end,mode);
-      const cached = await cacheGet(key);
-      if (cached) renderLaporanPerBarangLocal(cached, mode, selectedKasir, selectedSupplierRaw);
-
-      try {
-        const fresh = await gasCallPromise('getLaporanPenjualanBarangAdvanced', [start,end,mode === 'supplier' ? 'transaksi' : mode]);
-        await cachePut(key, fresh || []);
-        renderLaporanPerBarangLocal(fresh || [], mode, selectedKasir, selectedSupplierRaw);
-      } catch(err) {
-        if (!cached) {
-          const tbody=document.getElementById('bodyRekapBarang');
-          if(tbody) tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#dc3545;padding:20px;">Gagal mengambil data dan belum ada cache lokal.</td></tr>';
-        } else {
-          syncStatus('Laporan memakai cache lokal terakhir', 'ok');
-        }
-      }
-    };
-
-    async function syncAllDataManual() {
-      if (globalSyncRunning && globalSyncPromise) return globalSyncPromise;
-      globalSyncRunning = true;
-      syncStatus('⟳ Sinkronisasi semua data...', 'busy');
-      const btn = document.getElementById('btnGlobalSync');
-      if (btn) { btn.disabled = true; btn.textContent = '⟳ Sinkron...'; }
-
-      globalSyncPromise = (async function(){
-        const results = [];
-        try {
-          // Master barang diproses batch dan atomik.
-          try {
-            await syncBarangFromServer(true);
-            results.push('Master Barang');
-          } catch(e) {
-            results.push('Master Barang gagal');
-          }
-
-          const jobs = [
-            ['Supplier','supplier','getSupplier',[],applyCachedSupplier],
-            ['Promo','promo','getPromoList',[],applyCachedPromo],
-            ['Barang Masuk','stok_masuk','getStokMasuk',[],applyCachedStokMasuk],
-            ['Retur','retur','getReturBarang',[],applyCachedRetur],
-            ['Riwayat Penjualan','riwayat','getPenjualan',[],applyCachedRiwayat],
-            ['Produk Unggulan','best','getProductBest',[],applyCachedBest]
-          ];
-
-          await Promise.all(jobs.map(async function(job){
-            try {
-              const data = await gasCallPromise(job[2], job[3]);
-              await cachePut(cacheKey(job[1]), data || []);
-              job[4](data || []);
-              results.push(job[0]);
-            } catch(e) {
-              results.push(job[0] + ' gagal');
-            }
-          }));
-
-          // Dashboard tanggal aktif juga ikut disimpan.
-          const date = getDashboardDateValue();
-          try {
-            const dash = await gasCallPromise('getDashboardData',[date,date]);
-            await cachePut(cacheKey('dashboard',dateKey(date)),dash || {});
-            applyDashboardDataLocal(dash || {},date);
-            results.push('Dashboard');
-          } catch(e) {
-            results.push('Dashboard gagal');
-          }
-
-          await window.KasirLocalDB.putMany('app_settings',[{
-            key:'all_sync_at', value:Date.now()
-          }]);
-
-          const failed = results.filter(x => /gagal/.test(x));
-          if (failed.length) {
-            syncStatus('Sebagian gagal: ' + failed.join(', '), 'error');
-          } else {
-            syncStatus('✓ Sinkron selesai ' + new Date().toLocaleTimeString('id-ID'), 'ok');
-          }
-          return {ok: failed.length === 0, results:results};
-        } finally {
-          globalSyncRunning = false;
-          globalSyncPromise = null;
-          if (btn) { btn.disabled = false; btn.textContent = '🔄 Sinkronisasi Data'; }
-        }
-      })();
-      return globalSyncPromise;
-    }
-
-    window.syncAllDataManual = syncAllDataManual;
-
-    async function syncAllDataIfNeeded() {
-      try {
-        const rows = await window.KasirLocalDB.getAll('app_settings');
-        const row = rows.find(x => x && x.key === 'all_sync_at');
-        const last = row ? Number(row.value || 0) : 0;
-        if (!last || Date.now() - last > GLOBAL_SYNC_INTERVAL) {
-          syncAllDataManual().catch(function(e){ console.warn('Auto sync semua data:',e); });
-        } else {
-          syncStatus('✓ Data lokal aktif', 'ok');
-        }
-      } catch(e) {
-        console.warn('Cek sinkronisasi lokal:',e);
-      }
-    }
-
-    function installSyncMenu() {
-      if (document.getElementById('btnGlobalSync')) return;
-      const menu = document.querySelector('.sidebar-menu');
-      if (menu) {
-        const li=document.createElement('li');
-        li.innerHTML='<a href="#" id="btnGlobalSync" onclick="syncAllDataManual();return false;" style="font-weight:700;">🔄 Sinkronisasi Data</a>';
-        const backupLink = Array.from(menu.querySelectorAll('a')).find(function(a){ return (a.textContent||'').indexOf('Backup / Restore') !== -1; });
-        const backupLi = backupLink ? backupLink.parentElement : null;
-        if (backupLi) menu.insertBefore(li,backupLi); else menu.appendChild(li);
-      }
-
-      const cashier = document.getElementById('cashierNameDisplay');
-      if (cashier && !document.getElementById('globalSyncStatus')) {
-        const s=document.createElement('span');
-        s.id='globalSyncStatus';
-        s.textContent='● Lokal';
-        s.style.cssText='font-size:10px;margin-left:8px;color:#198754;font-weight:700;';
-        cashier.parentElement.appendChild(s);
-      }
-    }
-
-    // Restore sekarang tidak membuat data baru diam-diam hilang:
-    // setelah restore, coba sinkron server di background agar Master Barang kembali
-    // ke versi server terbaru bila perangkat sedang online.
-    const oldRestore = window.restoreLocalDatabase;
-    if (typeof oldRestore === 'function') {
-      window.restoreLocalDatabase = async function(event) {
-        const restored = await oldRestore(event);
-        installSyncMenu();
-        if (restored === true && typeof syncAllDataManual === 'function') {
-          setTimeout(function(){
-            syncAllDataManual().catch(function(e){ console.warn('Sync setelah restore:',e); });
-          }, 500);
-        }
-      };
-    }
-
-    // Pasang override init agar semua menu memakai cache lebih dulu.
-    const oldInitApp = window.initApp;
-    window.initApp = function() {
-      oldInitApp();
-      installSyncMenu();
-      setTimeout(function(){ syncAllDataIfNeeded(); }, 250);
-    };
-
-    // Backup status ikut menampilkan jumlah cache, tanpa memasukkannya ke file backup.
-    const oldOpenBackup = window.openBackupRestoreModal;
-    window.openBackupRestoreModal = function() {
-      oldOpenBackup();
-      setTimeout(function(){
-        const status=document.getElementById('globalSyncStatus');
-        if(status) status.title='Database lokal + cache. Klik Sinkronisasi Data untuk refresh server.';
-      },100);
-    };
-
-    installSyncMenu();
-  })();
-  </script>
-
 </body>
 </html>
