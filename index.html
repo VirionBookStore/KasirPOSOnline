@@ -1128,7 +1128,7 @@
   <script>
     window.AS_POS_CONFIG = window.AS_POS_CONFIG || {
       // GANTI dengan URL deployment Web App GAS yang berakhiran /exec.
-      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwpLMsSiogctOFVIB2xcOfOiVCtL90d6Ss4KGkRq2JJAE295NTc2KFZXhZeCqfvU-oX/exec"
+      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbxvlXRCtFPIBLmTmwKlWOS58ftRUWaEo4WS8etrSWubKRH3nK9yNj8FgXo5ArxguLZK/exec"
     };
 
     (function installGasBridge() {
@@ -3080,7 +3080,7 @@
     'use strict';
 
     const DB_NAME = 'KasirPOSOnlineLocalDB';
-    const DB_VERSION = 2;
+    const DB_VERSION = 3;
     const STORES = ['barang','supplier','kategori','transaksi_pending','sync_queue','app_settings'];
     const INTERNAL_STORES = ['barang_sync_stage'];
     let dbPromise = null;
@@ -3113,6 +3113,9 @@
             s2.createIndex('nama_barang','nama_barang',{unique:false});
             s2.createIndex('supplier','supplier',{unique:false});
             s2.createIndex('kategori','kategori',{unique:false});
+          if (!db.objectStoreNames.contains('data_cache')) {
+            db.createObjectStore('data_cache', { keyPath: 'key' });
+          }
           }
         };
         req.onsuccess = function() { resolve(req.result); };
@@ -3351,11 +3354,23 @@
       }
     };
 
+    async function getByKey(storeName, key) {
+      return openLocalDB().then(function(db) {
+        return new Promise(function(resolve, reject) {
+          const t = db.transaction(storeName, 'readonly');
+          const req = t.objectStore(storeName).get(key);
+          req.onsuccess = function(){ resolve(req.result || null); };
+          req.onerror = function(){ reject(req.error); };
+        });
+      });
+    }
+
     // API internal untuk tahap sinkronisasi berikutnya.
     window.KasirLocalDB = {
       open: openLocalDB,
       putMany: putMany,
       getAll: getAll,
+      getByKey: getByKey,
       clear: clearStore,
       summary: databaseSummary
     };
@@ -3596,6 +3611,497 @@
     // Jangan menunggu menu Master Barang untuk melakukan sinkronisasi pertama.
     // Jika user sudah login, initApp() akan memanggil loadBarang().
     openLocalDB().catch(function(e){ console.warn('IndexedDB:', e); });
+  })();
+  </script>
+
+  <script id="AS_POS_GLOBAL_SYNC_V1">
+  (function installGlobalLocalFirstSync() {
+    'use strict';
+
+    const CACHE_STORE = 'data_cache';
+    const GLOBAL_SYNC_INTERVAL = 10 * 60 * 1000;
+    let globalSyncRunning = false;
+    let globalSyncPromise = null;
+
+    function syncStatus(text, type) {
+      const el = document.getElementById('globalSyncStatus');
+      if (el) {
+        el.textContent = text || '';
+        el.style.color = type === 'error' ? '#dc3545' : (type === 'ok' ? '#198754' : '#d97706');
+      }
+      const btn = document.getElementById('btnGlobalSync');
+      if (btn && type !== 'busy') {
+        btn.title = text || 'Sinkronisasi data';
+      }
+    }
+
+    async function cacheGet(key) {
+      try {
+        if (window.KasirLocalDB && window.KasirLocalDB.getByKey) {
+          const row = await window.KasirLocalDB.getByKey(CACHE_STORE, key);
+          return row ? row.value : null;
+        }
+        const rows = await window.KasirLocalDB.getAll(CACHE_STORE);
+        const row = rows.find(x => x && x.key === key);
+        return row ? row.value : null;
+      } catch (e) {
+        console.warn('Cache get gagal', key, e);
+        return null;
+      }
+    }
+
+    async function cachePut(key, value) {
+      return window.KasirLocalDB.putMany(CACHE_STORE, [{
+        key: key,
+        value: value,
+        updated_at: Date.now()
+      }]);
+    }
+
+    async function cacheTime(key) {
+      try {
+        const row = await window.KasirLocalDB.getByKey(CACHE_STORE, key);
+        return row ? Number(row.updated_at || 0) : 0;
+      } catch(e) { return 0; }
+    }
+
+    function cacheKey(type, suffix) {
+      return 'cache:' + type + (suffix ? ':' + suffix : '');
+    }
+
+    function dateKey(date) {
+      return String(date || '').replace(/[^0-9-]/g, '');
+    }
+
+    function getDashboardDateValue() {
+      const el = document.getElementById('dashboardDate');
+      if (el && el.value) return el.value;
+      const now = new Date();
+      return new Date(now.getTime() - now.getTimezoneOffset()*60000).toISOString().split('T')[0];
+    }
+
+    function applyDashboardDataLocal(data, date) {
+      data = data || {};
+      const set = function(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = value;
+      };
+      set('statTotalBarang', Number(data.total_barang || 0).toLocaleString('id-ID'));
+      set('statTotalSupplier', Number(data.total_supplier || 0).toLocaleString('id-ID'));
+      set('statTotalTransaksi', Number(data.total_transaksi || 0).toLocaleString('id-ID'));
+      set('statPendapatanHariIni', formatRupiahDashboard(data.total_pendapatan));
+      set('statBarangTerjual', Number(data.total_barang_terjual || 0).toLocaleString('id-ID'));
+      set('statKeuntungan', formatRupiahDashboard(data.total_keuntungan));
+
+      const label = data.tanggal_label || date;
+      set('dashboardPeriodLabel', 'Ringkasan penjualan • ' + label);
+      set('dashboardDetailSubtitle', 'Rincian barang terjual pada ' + label);
+
+      const tbody = document.querySelector('#tabelDashboardPenjualan tbody');
+      const rows = Array.isArray(data.rincian_barang) ? data.rincian_barang : [];
+      if (tbody) {
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty">Tidak ada penjualan pada tanggal ini.</td></tr>';
+        } else {
+          tbody.innerHTML = rows.map(function(item) {
+            return '<tr>' +
+              '<td style="white-space:nowrap;"><b>' + escapeDashboardHtml(item.id_barang) + '</b></td>' +
+              '<td style="min-width:220px;">' + escapeDashboardHtml(item.nama_barang) + '</td>' +
+              '<td>' + Number(item.jumlah_barang || 0).toLocaleString('id-ID') + '</td>' +
+              '<td>' + Number(item.jumlah_transaksi || 0).toLocaleString('id-ID') + '</td>' +
+              '<td>' + Number(item.keuntungan || 0).toLocaleString('id-ID') + '</td>' +
+              '<td>' + Number(item.pendapatan || 0).toLocaleString('id-ID') + '</td>' +
+            '</tr>';
+          }).join('');
+        }
+      }
+      set('dashboardTableInfo', rows.length ? 'Menampilkan 1 sampai ' + rows.length + ' barang' : 'Tidak ada data');
+    }
+
+    function applyCachedSupplier(data) {
+      if (!Array.isArray(data)) return;
+      globalDataSupplier = data;
+      const tbody = document.querySelector('#tabelSupplier tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const selectSupplier = document.getElementById('filterPilihSupplier');
+      if (selectSupplier) {
+        selectSupplier.innerHTML = '<option value="">-- Semua Supplier --</option>';
+        data.forEach(function(s) {
+          const opt = document.createElement('option');
+          opt.value = s.id_supplier + '|||' + s.nama_supplier;
+          opt.innerText = s.nama_supplier + ' (' + s.id_supplier + ')';
+          selectSupplier.appendChild(opt);
+        });
+      }
+      if (!data.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada data supplier.</td></tr>';
+        return;
+      }
+      data.forEach(function(s) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td><b>' + s.id_supplier + '</b></td><td>' + s.nama_supplier + '</td><td>' + (s.kontak || '-') + '</td><td>' + (s.alamat || '-') + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyCachedPromo(data) {
+      if (!Array.isArray(data)) return;
+      globalPromoData = data;
+      const tbody = document.querySelector('#tabelPromo tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (!data.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada aturan promo. Silahkan import data promo.</td></tr>';
+        return;
+      }
+      data.forEach(function(p) {
+        const f = (globalDataBarang || []).find(function(b){ return b.id_barang === p.id_barang; });
+        const nmBarang = f ? f.nama_barang : '-';
+        const tipe = p.tipe_promo == 1 ? 'Diskon (%)' : (p.tipe_promo == 2 ? 'Potongan Nominal' : 'Harga Bundling');
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td><b>' + p.id_barang + '</b></td>' +
+          '<td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="' + nmBarang + '">' + nmBarang + '</td>' +
+          '<td><span style="background:#0d6efd;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;">' + tipe + '</span></td>' +
+          '<td><b>' + p.min_qty + '</b> pcs</td>' +
+          '<td>' + (p.tipe_promo == 1 ? p.besaran_promo + '%' : (p.tipe_promo == 2 ? 'Rp ' + Number(p.besaran_promo || 0).toLocaleString('id-ID') : '-')) + '</td>' +
+          '<td>' + (p.tipe_promo == 3 ? 'Rp ' + Number(p.harga_bundling || 0).toLocaleString('id-ID') : '-') + '</td>' +
+          '<td><b style="color:' + (p.status === 'Aktif' ? '#198754' : '#dc3545') + ';">' + p.status + '</b></td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyCachedRiwayat(data) {
+      if (!Array.isArray(data)) return;
+      globalRiwayatData = data;
+      if (typeof renderTabelRiwayat === 'function') renderTabelRiwayat(data);
+    }
+
+    function applyCachedStokMasuk(data) {
+      if (!Array.isArray(data)) return;
+      globalStokMasukData = data;
+      if (typeof renderTabelStokMasuk === 'function') renderTabelStokMasuk(data);
+    }
+
+    function applyCachedRetur(data) {
+      if (!Array.isArray(data)) return;
+      globalReturData = data;
+      if (typeof renderTabelRetur === 'function') renderTabelRetur(data);
+    }
+
+    function applyCachedBest(data) {
+      if (!Array.isArray(data)) return;
+      if (typeof renderProductBestGrid === 'function') renderProductBestGrid(data);
+    }
+
+    async function loadCacheFirst(cacheName, applyFn) {
+      const data = await cacheGet(cacheKey(cacheName));
+      if (data !== null && data !== undefined) applyFn(data);
+      return data;
+    }
+
+    async function refreshCacheFromServer(cacheName, fnName, args, applyFn) {
+      try {
+        const data = await gasCallPromise(fnName, args || []);
+        await cachePut(cacheKey(cacheName), data || []);
+        applyFn(data || []);
+        return {ok:true, data:data || []};
+      } catch (err) {
+        return {ok:false, error:err};
+      }
+    }
+
+    // Dashboard: tampilkan cache seketika, server hanya untuk refresh.
+    window.loadDashboardByDate = async function() {
+      setDashboardDateDefaults();
+      const date = getDashboardDateValue();
+      const btn = document.getElementById('btnDashboardDate');
+      if (!date) return;
+      if (btn) { btn.disabled = true; btn.innerText = 'Memuat lokal...'; }
+
+      const key = cacheKey('dashboard', dateKey(date));
+      const cached = await cacheGet(key);
+      if (cached) applyDashboardDataLocal(cached, date);
+
+      if (btn) btn.innerText = cached ? 'Memuat...' : 'Mengambil...';
+      try {
+        const fresh = await gasCallPromise('getDashboardData', [date, date]);
+        await cachePut(key, fresh || {});
+        applyDashboardDataLocal(fresh || {}, date);
+        if (btn) { btn.disabled = false; btn.innerText = 'Tampilkan'; }
+      } catch(err) {
+        console.warn('Dashboard server:', err);
+        if (btn) { btn.disabled = false; btn.innerText = 'Tampilkan'; }
+        if (!cached) {
+          const tbody = document.querySelector('#tabelDashboardPenjualan tbody');
+          if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty" style="color:#dc3545;">Data dashboard belum tersedia di lokal.</td></tr>';
+          syncStatus('Server gagal — belum ada cache dashboard', 'error');
+        } else {
+          syncStatus('Dashboard memakai data lokal terakhir', 'ok');
+        }
+      }
+    };
+
+    window.loadSupplier = async function() {
+      const cached = await loadCacheFirst('supplier', applyCachedSupplier);
+      const res = await refreshCacheFromServer('supplier', 'getSupplier', [], applyCachedSupplier);
+      if (!res.ok && cached === null) syncStatus('Supplier belum ada di lokal', 'error');
+    };
+
+    window.loadPromoManajemen = async function() {
+      const cached = await loadCacheFirst('promo', applyCachedPromo);
+      const res = await refreshCacheFromServer('promo', 'getPromoList', [], applyCachedPromo);
+      if (!res.ok && cached === null) syncStatus('Promo belum ada di lokal', 'error');
+    };
+
+    window.loadStokMasuk = async function() {
+      const cached = await loadCacheFirst('stok_masuk', applyCachedStokMasuk);
+      const res = await refreshCacheFromServer('stok_masuk', 'getStokMasuk', [], applyCachedStokMasuk);
+      if (!res.ok && cached === null) syncStatus('Barang Masuk belum ada di lokal', 'error');
+    };
+
+    window.loadReturBarang = async function() {
+      const cached = await loadCacheFirst('retur', applyCachedRetur);
+      const res = await refreshCacheFromServer('retur', 'getReturBarang', [], applyCachedRetur);
+      if (!res.ok && cached === null) syncStatus('Retur belum ada di lokal', 'error');
+    };
+
+    window.loadRiwayat = async function() {
+      const cached = await loadCacheFirst('riwayat', applyCachedRiwayat);
+      const res = await refreshCacheFromServer('riwayat', 'getPenjualan', [], applyCachedRiwayat);
+      if (!res.ok && cached === null) syncStatus('Riwayat belum ada di lokal', 'error');
+    };
+
+    window.loadPosKatalog = async function() {
+      const local = await getLocalBarangAll();
+      globalDataBarang = local || [];
+      const search = document.getElementById('searchPos');
+      const suggestion = document.getElementById('suggestionBox');
+      if (search) search.value = '';
+      if (suggestion) suggestion.style.display = 'none';
+      await loadCacheFirst('best', applyCachedBest);
+      refreshCacheFromServer('best', 'getProductBest', [], applyCachedBest);
+      if (!local.length) syncBarangFromServer(true).catch(function(e){ console.warn(e); });
+    };
+
+    // Laporan per barang: cache berdasarkan tanggal + mode, sehingga buka ulang langsung cepat.
+    function reportCacheKey(start,end,mode){ return cacheKey('laporan', [start,end,mode].join('|')); }
+    function renderLaporanPerBarangLocal(resData, mode, selectedKasir, selectedSupplierRaw) {
+      const thead = document.getElementById('headerRekapBarang');
+      const tbody = document.getElementById('bodyRekapBarang');
+      if (!thead || !tbody) return;
+      const suppTokens = selectedSupplierRaw ? selectedSupplierRaw.split('|||') : [];
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
+      if (!Array.isArray(resData) || !resData.length) {
+        thead.innerHTML = '<tr><th>Informasi</th></tr>';
+        tbody.innerHTML = '<tr><td style="text-align:center;padding:20px;">Tidak ada data penjualan pada periode tersebut.</td></tr>';
+        return;
+      }
+      if (mode === 'transaksi' || mode === 'kasir') {
+        thead.innerHTML = '<tr><th>No Nota</th><th>Kasir</th><th>ID Barang</th><th>Nama Barang</th><th>Supplier</th><th>Harga Barang</th><th>Qty Terjual</th><th>Total Pendapatan (Bruto)</th></tr>';
+        let count = 0;
+        resData.forEach(function(item){
+          if (mode === 'kasir' && selectedKasir && selectedKasir !== 'Semua' && String(item.kasir).toLowerCase() !== String(selectedKasir).toLowerCase()) return;
+          count++;
+          const tr=document.createElement('tr');
+          tr.innerHTML='<td><b>'+item.no_nota+'</b></td><td>'+(item.kasir||'-')+'</td><td><b>'+item.id_barang+'</b></td><td>'+item.nama_barang+'</td><td>'+item.supplier+'</td><td>Rp '+Number(item.harga_satuan||0).toLocaleString('id-ID')+'</td><td><b>'+item.qty+'</b></td><td><b>Rp '+Number(item.subtotal||0).toLocaleString('id-ID')+'</b></td>';
+          tbody.appendChild(tr);
+        });
+        if(!count) tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;">Tidak ada data untuk filter kasir tersebut.</td></tr>';
+      } else if (mode === 'rekap') {
+        thead.innerHTML='<tr><th>ID Barang</th><th>Nama Barang</th><th>Supplier</th><th>Harga Barang</th><th>Total Qty Terjual</th><th>Total Pendapatan (Bruto)</th></tr>';
+        resData.forEach(function(item){
+          const tr=document.createElement('tr');
+          tr.innerHTML='<td><b>'+item.id_barang+'</b></td><td>'+item.nama_barang+'</td><td>'+item.supplier+'</td><td>Rp '+Number(item.harga_satuan||0).toLocaleString('id-ID')+'</td><td><b>'+item.total_qty+'</b></td><td><b>Rp '+Number(item.total_pendapatan||0).toLocaleString('id-ID')+'</b></td>';
+          tbody.appendChild(tr);
+        });
+      } else if (mode === 'supplier') {
+        thead.innerHTML='<tr><th>No Nota</th><th>ID Barang</th><th>Nama Barang</th><th>Supplier</th><th>Harga Barang</th><th>Qty Terjual</th><th>Subtotal</th></tr>';
+        let count=0;
+        resData.forEach(function(item){
+          let match=false;
+          if(suppTokens.length===2){
+            const s=String(item.supplier||'').trim().toLowerCase();
+            match=s===suppTokens[0].trim().toLowerCase() || s===suppTokens[1].trim().toLowerCase();
+          } else if(!selectedSupplierRaw) match=true;
+          if(!match) return;
+          count++;
+          const tr=document.createElement('tr');
+          tr.innerHTML='<td><b>'+item.no_nota+'</b></td><td><b>'+item.id_barang+'</b></td><td>'+item.nama_barang+'</td><td><b>'+item.supplier+'</b></td><td>Rp '+Number(item.harga_satuan||0).toLocaleString('id-ID')+'</td><td><b>'+item.qty+'</b></td><td><b>Rp '+Number(item.subtotal||0).toLocaleString('id-ID')+'</b></td>';
+          tbody.appendChild(tr);
+        });
+        if(!count) tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;">Tidak ada penjualan untuk supplier tersebut pada rentang tanggal terpilih.</td></tr>';
+      }
+    }
+
+    window.loadPenjualanPerBarang = async function() {
+      const mode = document.getElementById('filterModeBarang').value;
+      const start = document.getElementById('filterBarangStart').value;
+      const end = document.getElementById('filterBarangEnd').value;
+      const selectedSupplierRaw = document.getElementById('filterPilihSupplier').value;
+      const selectedKasir = document.getElementById('filterPilihKasir') ? document.getElementById('filterPilihKasir').value : '';
+      const key = reportCacheKey(start,end,mode);
+      const cached = await cacheGet(key);
+      if (cached) renderLaporanPerBarangLocal(cached, mode, selectedKasir, selectedSupplierRaw);
+
+      try {
+        const fresh = await gasCallPromise('getLaporanPenjualanBarangAdvanced', [start,end,mode === 'supplier' ? 'transaksi' : mode]);
+        await cachePut(key, fresh || []);
+        renderLaporanPerBarangLocal(fresh || [], mode, selectedKasir, selectedSupplierRaw);
+      } catch(err) {
+        if (!cached) {
+          const tbody=document.getElementById('bodyRekapBarang');
+          if(tbody) tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#dc3545;padding:20px;">Gagal mengambil data dan belum ada cache lokal.</td></tr>';
+        } else {
+          syncStatus('Laporan memakai cache lokal terakhir', 'ok');
+        }
+      }
+    };
+
+    async function syncAllDataManual() {
+      if (globalSyncRunning && globalSyncPromise) return globalSyncPromise;
+      globalSyncRunning = true;
+      syncStatus('⟳ Sinkronisasi semua data...', 'busy');
+      const btn = document.getElementById('btnGlobalSync');
+      if (btn) { btn.disabled = true; btn.textContent = '⟳ Sinkron...'; }
+
+      globalSyncPromise = (async function(){
+        const results = [];
+        try {
+          // Master barang diproses batch dan atomik.
+          try {
+            await syncBarangFromServer(true);
+            results.push('Master Barang');
+          } catch(e) {
+            results.push('Master Barang gagal');
+          }
+
+          const jobs = [
+            ['Supplier','supplier','getSupplier',[],applyCachedSupplier],
+            ['Promo','promo','getPromoList',[],applyCachedPromo],
+            ['Barang Masuk','stok_masuk','getStokMasuk',[],applyCachedStokMasuk],
+            ['Retur','retur','getReturBarang',[],applyCachedRetur],
+            ['Riwayat Penjualan','riwayat','getPenjualan',[],applyCachedRiwayat],
+            ['Produk Unggulan','best','getProductBest',[],applyCachedBest]
+          ];
+
+          await Promise.all(jobs.map(async function(job){
+            try {
+              const data = await gasCallPromise(job[2], job[3]);
+              await cachePut(cacheKey(job[1]), data || []);
+              job[4](data || []);
+              results.push(job[0]);
+            } catch(e) {
+              results.push(job[0] + ' gagal');
+            }
+          }));
+
+          // Dashboard tanggal aktif juga ikut disimpan.
+          const date = getDashboardDateValue();
+          try {
+            const dash = await gasCallPromise('getDashboardData',[date,date]);
+            await cachePut(cacheKey('dashboard',dateKey(date)),dash || {});
+            applyDashboardDataLocal(dash || {},date);
+            results.push('Dashboard');
+          } catch(e) {
+            results.push('Dashboard gagal');
+          }
+
+          await window.KasirLocalDB.putMany('app_settings',[{
+            key:'all_sync_at', value:Date.now()
+          }]);
+
+          const failed = results.filter(x => /gagal/.test(x));
+          if (failed.length) {
+            syncStatus('Sebagian gagal: ' + failed.join(', '), 'error');
+          } else {
+            syncStatus('✓ Sinkron selesai ' + new Date().toLocaleTimeString('id-ID'), 'ok');
+          }
+          return {ok: failed.length === 0, results:results};
+        } finally {
+          globalSyncRunning = false;
+          globalSyncPromise = null;
+          if (btn) { btn.disabled = false; btn.textContent = '🔄 Sinkronisasi Data'; }
+        }
+      })();
+      return globalSyncPromise;
+    }
+
+    window.syncAllDataManual = syncAllDataManual;
+
+    async function syncAllDataIfNeeded() {
+      try {
+        const rows = await window.KasirLocalDB.getAll('app_settings');
+        const row = rows.find(x => x && x.key === 'all_sync_at');
+        const last = row ? Number(row.value || 0) : 0;
+        if (!last || Date.now() - last > GLOBAL_SYNC_INTERVAL) {
+          syncAllDataManual().catch(function(e){ console.warn('Auto sync semua data:',e); });
+        } else {
+          syncStatus('✓ Data lokal aktif', 'ok');
+        }
+      } catch(e) {
+        console.warn('Cek sinkronisasi lokal:',e);
+      }
+    }
+
+    function installSyncMenu() {
+      if (document.getElementById('btnGlobalSync')) return;
+      const menu = document.querySelector('.sidebar-menu');
+      if (menu) {
+        const li=document.createElement('li');
+        li.innerHTML='<a href="#" id="btnGlobalSync" onclick="syncAllDataManual();return false;" style="font-weight:700;">🔄 Sinkronisasi Data</a>';
+        const backupLink = Array.from(menu.querySelectorAll('a')).find(function(a){ return (a.textContent||'').indexOf('Backup / Restore') !== -1; });
+        const backupLi = backupLink ? backupLink.parentElement : null;
+        if (backupLi) menu.insertBefore(li,backupLi); else menu.appendChild(li);
+      }
+
+      const cashier = document.getElementById('cashierNameDisplay');
+      if (cashier && !document.getElementById('globalSyncStatus')) {
+        const s=document.createElement('span');
+        s.id='globalSyncStatus';
+        s.textContent='● Lokal';
+        s.style.cssText='font-size:10px;margin-left:8px;color:#198754;font-weight:700;';
+        cashier.parentElement.appendChild(s);
+      }
+    }
+
+    // Restore sekarang tidak membuat data baru diam-diam hilang:
+    // setelah restore, coba sinkron server di background agar Master Barang kembali
+    // ke versi server terbaru bila perangkat sedang online.
+    const oldRestore = window.restoreLocalDatabase;
+    if (typeof oldRestore === 'function') {
+      window.restoreLocalDatabase = async function(event) {
+        await oldRestore(event);
+        installSyncMenu();
+        if (typeof syncAllDataManual === 'function') {
+          setTimeout(function(){
+            syncAllDataManual().catch(function(e){ console.warn('Sync setelah restore:',e); });
+          }, 500);
+        }
+      };
+    }
+
+    // Pasang override init agar semua menu memakai cache lebih dulu.
+    const oldInitApp = window.initApp;
+    window.initApp = function() {
+      oldInitApp();
+      installSyncMenu();
+      setTimeout(function(){ syncAllDataIfNeeded(); }, 250);
+    };
+
+    // Backup status ikut menampilkan jumlah cache, tanpa memasukkannya ke file backup.
+    const oldOpenBackup = window.openBackupRestoreModal;
+    window.openBackupRestoreModal = function() {
+      oldOpenBackup();
+      setTimeout(function(){
+        const status=document.getElementById('globalSyncStatus');
+        if(status) status.title='Database lokal + cache. Klik Sinkronisasi Data untuk refresh server.';
+      },100);
+    };
+
+    installSyncMenu();
   })();
   </script>
 
