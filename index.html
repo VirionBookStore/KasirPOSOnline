@@ -1128,7 +1128,7 @@
   <script>
     window.AS_POS_CONFIG = window.AS_POS_CONFIG || {
       // GANTI dengan URL deployment Web App GAS yang berakhiran /exec.
-      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwpLMsSiogctOFVIB2xcOfOiVCtL90d6Ss4KGkRq2JJAE295NTc2KFZXhZeCqfvU-oX/exec"
+      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycby3YZNpVW-3BCVKhLodd8aBNJV1nSoudAF1RINCFMxGtnHhzlaREvR79e0CIMgoZDLW/exec"
     };
 
     (function installGasBridge() {
@@ -1407,46 +1407,49 @@
     }
 
     function loadBarang() {
-      google.script.run.withSuccessHandler(function(data) {
-        globalDataBarang = data;
-        renderTabelBarang(data);
-      }).getBarang();
+    google.script.run.withSuccessHandler(function(data) {
+    globalDataBarang = data || [];
+    console.log("Total barang dimuat dari server: ", globalDataBarang.length);
+    renderTabelBarang(globalDataBarang);
+    }).getBarang();
     }
 
     function renderTabelBarang(data) {
-      var tbody = document.querySelector("#tabelBarang tbody");
-      tbody.innerHTML = "";
-      // Data lengkap tetap berada di globalDataBarang/IndexedDB, tetapi DOM dibatasi
-      // agar Master Barang tidak membeku saat jumlah data sangat besar.
-      var renderData = Array.isArray(data) && data.length > 500 ? data.slice(0, 500) : (data || []);
-      if (renderData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;color:#6c757d;">Belum ada data barang.</td></tr>`;
-        return;
-      }
-      renderData.forEach(function(item) {
-        var tr = document.createElement("tr");
-        var imgTag = item.gambar ? `<img src="${item.gambar}" class="img-thumb" onerror="this.onerror=null;this.src='https://via.placeholder.com/36?text=No+Img';">` : `<div class="img-thumb">No Img</div>`;
-        var safeId = item.id_barang.replace(/'/g, "\\'");
-        var isTidakAktif = item.status === 'Tidak Aktif';
-        var statusBadge = isTidakAktif ? '<span style="color:#dc3545;font-weight:bold;">Tidak Aktif</span>' : '<span style="color:#198754;font-weight:bold;">Aktif</span>';
-
-        tr.innerHTML = `
-          <td><input type="checkbox"></td>
-          <td>${imgTag}</td>
-          <td style="white-space: nowrap;"><b>${item.id_barang}</b></td>
-          <td style="max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.supplier}">${item.supplier}</td>
-          <td style="min-width: 150px;">${item.nama_barang}</td>
-          <td style="max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.kategori || '-'}">${item.kategori || '-'}</td>
-          <td style="white-space: nowrap;">Rp ${Number(item.harga_jual).toLocaleString('id-ID')}</td>
-          <td style="white-space: nowrap;">Rp ${Number(item.harga_beli).toLocaleString('id-ID')}</td>
-          <td><b>${item.stok}</b></td>
-          <td style="white-space: nowrap;">${item.lokasi_rak || '-'}</td>
-          <td style="text-align: center;"><button class="badge-ubah" onclick="bukaModalEdit('${safeId}')">Ubah</button></td>
-          <td style="max-width: 90px;">${statusBadge}</td>
-        `;
-        tbody.appendChild(tr);
-      });
+    var tbody = document.querySelector("#tabelBarang tbody");
+    tbody.innerHTML = "";
+  
+    // Menggunakan seluruh data asli tanpa pemotongan
+    var renderData = data || [];
+  
+    if (renderData.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;color:#6c757d;">Belum ada data barang.</td></tr>`;
+    return;
     }
+  
+    renderData.forEach(function(item) {
+    var tr = document.createElement("tr");
+    var imgTag = item.gambar ? `<img src="${item.gambar}" class="img-thumb" onerror="this.onerror=null;this.src='https://via.placeholder.com/36?text=No+Img';">` : `<div class="img-thumb">No Img</div>`;
+    var safeId = String(item.id_barang || "").replace(/'/g, "\\'");
+    var isTidakAktif = item.status === 'Tidak Aktif';
+    var statusBadge = isTidakAktif ? '<span style="color:#dc3545;font-weight:bold;">Tidak Aktif</span>' : '<span style="color:#198754;font-weight:bold;">Aktif</span>';
+
+    tr.innerHTML = `
+      <td><input type="checkbox"></td>
+      <td>${imgTag}</td>
+      <td style="white-space: nowrap;"><b>${item.id_barang || ''}</b></td>
+      <td style="max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.supplier || ''}">${item.supplier || ''}</td>
+      <td style="min-width: 150px;">${item.nama_barang || ''}</td>
+      <td style="max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.kategori || '-'}">${item.kategori || '-'}</td>
+      <td style="white-space: nowrap;">Rp ${Number(item.harga_jual || 0).toLocaleString('id-ID')}</td>
+      <td style="white-space: nowrap;">Rp ${Number(item.harga_beli || 0).toLocaleString('id-ID')}</td>
+      <td><b>${item.stok || 0}</b></td>
+      <td style="white-space: nowrap;">${item.lokasi_rak || '-'}</td>
+      <td style="text-align: center;"><button class="badge-ubah" onclick="bukaModalEdit('${safeId}')">Ubah</button></td>
+      <td style="max-width: 90px;">${statusBadge}</td>
+      `;
+      tbody.appendChild(tr);
+      });
+      }
 
     function loadSupplier() {
       google.script.run.withSuccessHandler(function(data) {
