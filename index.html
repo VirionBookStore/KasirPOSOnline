@@ -1127,7 +1127,7 @@
   <script>
     window.AS_POS_CONFIG = window.AS_POS_CONFIG || {
       // GANTI dengan URL deployment Web App GAS yang berakhiran /exec.
-      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwpLMsSiogctOFVIB2xcOfOiVCtL90d6Ss4KGkRq2JJAE295NTc2KFZXhZeCqfvU-oX/exec"
+      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycby3YZNpVW-3BCVKhLodd8aBNJV1nSoudAF1RINCFMxGtnHhzlaREvR79e0CIMgoZDLW/exec"
     };
 
     (function installGasBridge() {
@@ -2198,7 +2198,8 @@
               <th>Supplier</th>
               <th>Harga Barang</th>
               <th>Qty Terjual</th>
-              <th>Total Pendapatan (Bruto)</th>
+              <th>Potongan Harga</th>
+              <th>Total Pembayaran</th>
             </tr>
           `;
           let countFiltered = 0;
@@ -2216,11 +2217,12 @@
               <td>${item.supplier}</td>
               <td>Rp ${Number(item.harga_satuan).toLocaleString('id-ID')}</td>
               <td><b>${item.qty}</b></td>
+              <td style="color:#dc3545;"><b>Rp ${Number(item.diskon || 0).toLocaleString('id-ID')}</b></td>
               <td><b>Rp ${Number(item.subtotal).toLocaleString('id-ID')}</b></td>
             `;
             tbody.appendChild(tr);
           });
-          if(countFiltered === 0) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px;">Tidak ada data untuk filter kasir tersebut.</td></tr>`;
+          if(countFiltered === 0) tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 20px;">Tidak ada data untuk filter kasir tersebut.</td></tr>`;
           
         } else if (mode === 'rekap') {
           thead.innerHTML = `
@@ -2230,7 +2232,8 @@
               <th>Supplier</th>
               <th>Harga Barang</th>
               <th>Total Qty Terjual</th>
-              <th>Total Pendapatan (Bruto)</th>
+              <th>Potongan Harga</th>
+              <th>Total Pembayaran</th>
             </tr>
           `;
           resData.forEach(item => {
@@ -2241,6 +2244,7 @@
               <td>${item.supplier}</td>
               <td>Rp ${Number(item.harga_satuan || 0).toLocaleString('id-ID')}</td>
               <td><b>${item.total_qty}</b></td>
+              <td style="color:#dc3545;"><b>Rp ${Number(item.total_diskon || 0).toLocaleString('id-ID')}</b></td>
               <td><b>Rp ${Number(item.total_pendapatan).toLocaleString('id-ID')}</b></td>
             `;
             tbody.appendChild(tr);
@@ -2254,7 +2258,8 @@
               <th>Supplier</th>
               <th>Harga Barang</th>
               <th>Qty Terjual</th>
-              <th>Subtotal</th>
+              <th>Potongan Harga</th>
+              <th>Total Pembayaran</th>
             </tr>
           `;
           let countFiltered = 0;
@@ -2280,12 +2285,13 @@
               <td><b>${item.supplier}</b></td>
               <td>Rp ${Number(item.harga_satuan || 0).toLocaleString('id-ID')}</td>
               <td><b>${item.qty}</b></td>
+              <td style="color:#dc3545;"><b>Rp ${Number(item.diskon || 0).toLocaleString('id-ID')}</b></td>
               <td><b>Rp ${Number(item.subtotal || 0).toLocaleString('id-ID')}</b></td>
             `;
             tbody.appendChild(tr);
           });
           if(countFiltered === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px;">Tidak ada penjualan untuk supplier tersebut pada rentang tanggal terpilih.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px;">Tidak ada penjualan untuk supplier tersebut pada rentang tanggal terpilih.</td></tr>`;
           }
         }
       }).getLaporanPenjualanBarangAdvanced(start, end, mode === 'supplier' ? 'transaksi' : mode);
@@ -2305,15 +2311,15 @@
         var exportRows = [];
         
         if (mode === 'transaksi' || mode === 'kasir') {
-          exportRows.push(["No Nota", "Kasir", "ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Qty Terjual", "Total Pendapatan (Bruto)"]);
+          exportRows.push(["No Nota", "Kasir", "ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Qty Terjual", "Potongan Harga", "Total Pembayaran"]);
           resData.forEach(item => {
             if (mode === 'kasir' && selectedKasir && selectedKasir !== "Semua") {
               if (String(item.kasir).toLowerCase() !== String(selectedKasir).toLowerCase()) return;
             }
-            exportRows.push([item.no_nota, item.kasir, item.id_barang, item.nama_barang, item.supplier, item.harga_satuan, item.qty, item.subtotal]);
+            exportRows.push([item.no_nota, item.kasir, item.id_barang, item.nama_barang, item.supplier, item.harga_satuan, item.qty, item.diskon || 0, item.subtotal]);
           });
         } else if (mode === 'supplier') {
-          exportRows.push(["No Nota", "ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Qty Terjual", "Subtotal"]);
+          exportRows.push(["No Nota", "ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Qty Terjual", "Potongan Harga", "Total Pembayaran"]);
           resData.forEach(item => {
             let matchSupp = false;
             if (suppTokens.length === 2) {
@@ -2325,12 +2331,12 @@
               matchSupp = true;
             }
             if (!matchSupp) return;
-            exportRows.push([item.no_nota, item.id_barang, item.nama_barang, item.supplier, item.harga_satuan, item.qty, item.subtotal]);
+            exportRows.push([item.no_nota, item.id_barang, item.nama_barang, item.supplier, item.harga_satuan, item.qty, item.diskon || 0, item.subtotal]);
           });
         } else {
-          exportRows.push(["ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Total Qty Terjual", "Total Pendapatan (Bruto)"]);
+          exportRows.push(["ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Total Qty Terjual", "Potongan Harga", "Total Pembayaran"]);
           resData.forEach(item => {
-            exportRows.push([item.id_barang, item.nama_barang, item.supplier, item.harga_satuan || 0, item.total_qty, item.total_pendapatan]);
+            exportRows.push([item.id_barang, item.nama_barang, item.supplier, item.harga_satuan || 0, item.total_qty, item.total_diskon || 0, item.total_pendapatan]);
           });
         }
 
