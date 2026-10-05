@@ -105,6 +105,44 @@
     .best-product-title { font-size: 11px; font-weight: 600; color: #333; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; line-height: 1.2; height: 26px; }
     .best-product-price { font-size: 11px; color: var(--primary-color); font-weight: bold; }
 
+    /* --- DASHBOARD BARU --- */
+    .dashboard-page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      margin-bottom: 18px;
+      padding: 2px 0;
+    }
+    .dashboard-page-header h1 { margin: 0 0 5px 0; font-size: 24px; color: #212529; }
+    .dashboard-page-header p { margin: 0; color: #6c757d; font-size: 13px; }
+    .dashboard-date-box { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; min-width: 290px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+    .dashboard-date-box label { display:block; font-size:11px; font-weight:700; color:#6c757d; margin-bottom:5px; }
+    .dashboard-date-row { display:flex; gap:8px; align-items:center; }
+    .dashboard-date-row .form-control { width:170px; }
+    .dashboard-summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
+    .dashboard-summary-card { background:#fff; border:1px solid var(--border-color); border-radius:8px; padding:18px; display:flex; align-items:center; gap:14px; min-height:74px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+    .summary-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; flex:0 0 48px; }
+    .summary-icon-green { color:#087f5b; background:#e6f7f1; }
+    .summary-icon-orange { color:#d97706; background:#fff4df; }
+    .summary-icon-teal { color:#087f8c; background:#e5f8fa; }
+    .summary-icon-blue { color:#0b7285; background:#e6f6f8; }
+    .summary-label { font-size:12px; color:#6c757d; margin-bottom:5px; }
+    .summary-value { font-size:21px; line-height:1.15; font-weight:800; color:#212529; }
+    .dashboard-detail-card { margin-bottom:14px; }
+    .dashboard-detail-header { padding:16px 20px; }
+    .dashboard-detail-title { font-size:16px; font-weight:800; color:#212529; }
+    .dashboard-detail-subtitle { margin-top:3px; font-size:12px; color:#6c757d; }
+    #tabelDashboardPenjualan th, #tabelDashboardPenjualan td { padding:10px 12px; font-size:12px; }
+    #tabelDashboardPenjualan th { background:#fff; color:#212529; border-bottom:2px solid #e9ecef; }
+    #tabelDashboardPenjualan td:nth-child(3), #tabelDashboardPenjualan td:nth-child(4), #tabelDashboardPenjualan td:nth-child(5), #tabelDashboardPenjualan td:nth-child(6) { white-space:nowrap; }
+    .dashboard-empty { text-align:center; padding:28px !important; color:#6c757d; }
+    .dashboard-table-footer { padding:10px 20px; border-top:1px solid var(--border-color); color:#6c757d; font-size:12px; }
+    .dashboard-secondary-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .dashboard-mini-card { background:#fff; border:1px solid var(--border-color); border-radius:8px; padding:13px 16px; display:flex; justify-content:space-between; align-items:center; }
+    .dashboard-mini-card span { color:#6c757d; font-size:12px; }
+    .dashboard-mini-card strong { color:var(--primary-color); font-size:16px; }
+
     /* --- RESPONSIVE MOBILE CSS --- */
     #hamburger-btn {
       display: none;
@@ -147,1653 +185,20 @@
       .pos-grid { display: flex !important; flex-direction: column !important; gap: 15px !important; }
       .pos-right-panel { order: 1; } /* Search & Cart Naik Ke Atas */
       .pos-left-panel { order: 2; }  /* Best Seller Turun Ke Bawah */
+      .dashboard-page-header { flex-direction:column; align-items:stretch; gap:10px; }
+      .dashboard-page-header h1 { font-size:20px; }
+      .dashboard-date-box { min-width:0; width:100%; box-sizing:border-box; }
+      .dashboard-date-row .form-control { flex:1; width:auto; min-width:0; }
+      .dashboard-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+      .dashboard-summary-card { padding:12px; gap:9px; min-height:64px; }
+      .summary-icon { width:38px; height:38px; flex-basis:38px; border-radius:9px; font-size:14px; }
+      .summary-label { font-size:10px; }
+      .summary-value { font-size:15px; }
+      .dashboard-detail-header { padding:12px; }
+      #tabelDashboardPenjualan th, #tabelDashboardPenjualan td { padding:8px 9px; font-size:11px; }
+      .dashboard-secondary-stats { grid-template-columns:1fr 1fr; gap:9px; }
     }
-    /* AS-POS MOBILE REDESIGN */
-    .aspos-mobile-pos-header,.aspos-mobile-tools,.aspos-mobile-cart-heading,.aspos-payment-keypad,.aspos-quick-pay{display:none;}
-    @media screen and (max-width:992px){
-      body{background:#f7f9fa}.content-body{padding:0 0 100px!important;background:#f7f9fa}
-      #sec-posKasir{padding:0 12px 110px!important}.aspos-mobile-pos-header{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;background:#fff;margin:0 -12px;border-bottom:1px solid #e8ecef}
-      .aspos-pos-title{font-size:25px;font-weight:800}.aspos-pos-subtitle{font-size:12px;color:#7b8581;margin-top:3px}.aspos-cart-badge{min-width:58px;height:44px;border-radius:24px;background:#10ad86;color:#fff;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:800}
-      .aspos-mobile-tools{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:#fff;margin:0 -12px 8px;padding:7px 8px;border-bottom:1px solid #e8ecef}.aspos-mobile-tools button{border:0;background:#fff;color:#09886b;font-weight:700;min-height:52px;border-radius:12px;font-size:21px}.aspos-mobile-tools span{display:block;font-size:9px;color:#68746f}
-      .pos-grid{display:flex!important;flex-direction:column!important;gap:8px!important}.pos-right-panel{order:1!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}.pos-left-panel{display:block!important;order:2!important;padding:12px!important;background:#fff!important;border:0!important;border-radius:16px!important;box-shadow:0 2px 10px rgba(0,0,0,.05)!important}.pos-left-panel .best-product-container{max-height:480px!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding-right:2px!important}.pos-left-panel .best-product-card{min-height:145px!important;padding:9px!important;border-radius:12px!important}.pos-left-panel .best-product-img{width:62px!important;height:62px!important}.pos-left-panel .best-product-title{font-size:11px!important}
-      .pos-right-panel>div:first-child{background:#fff;border:0!important;border-radius:16px;padding:10px!important;margin-bottom:8px!important;box-shadow:0 2px 10px rgba(0,0,0,.05)}.pos-right-panel>div:first-child h3{display:none}
-      #searchPos{height:48px!important;border:1px solid #d9e1de!important;border-radius:14px!important;background:#f1f5f4;padding:10px 14px!important;font-size:15px!important;box-shadow:none!important}
-      .pos-right-panel>div:nth-child(2){background:#fff;border-radius:16px;padding:14px!important;box-shadow:0 2px 10px rgba(0,0,0,.05)}
-      .aspos-mobile-cart-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:18px}.aspos-mobile-cart-heading span{font-size:11px;color:#77837e;margin-left:8px}.aspos-mobile-cart-heading #asposCartTotalMini{color:#079b77;font-size:14px;margin:0;font-weight:800}
-      #tabelKeranjang{display:block!important;width:100%;border:0!important}#tabelKeranjang thead{display:none}#tabelKeranjang tbody{display:block}#tabelKeranjang tr{display:grid;grid-template-columns:1fr 52px 86px;gap:6px;align-items:center;padding:12px 0;border-bottom:1px solid #edf0ef}#tabelKeranjang td{display:block!important;border:0!important;padding:2px 0!important}#tabelKeranjang td:nth-child(1){grid-column:1;grid-row:1}#tabelKeranjang td:nth-child(2){grid-column:2;grid-row:1}#tabelKeranjang td:nth-child(3){grid-column:3;grid-row:1;text-align:right}#tabelKeranjang td:nth-child(4){grid-column:1/span 3;grid-row:2;text-align:left!important}#tabelKeranjang td:nth-child(1) div:first-child{font-size:14px!important;font-weight:800!important;line-height:1.25}#tabelKeranjang td:nth-child(1) div:nth-child(2){font-size:11px!important;color:#7a8581!important}#tabelKeranjang input[type=number]{width:46px!important;text-align:center;border-radius:9px;border:1px solid #d5dfdb}
-      .pos-right-panel>div:last-child{position:sticky;bottom:4px;z-index:20;background:#fff;padding:12px!important;border-radius:18px;box-shadow:0 -4px 18px rgba(0,0,0,.1);border:1px solid #e7ecea!important}#posTotalBayar{font-size:21px!important}.pos-right-panel>div:last-child .btn-primary{height:52px!important;border-radius:28px!important;font-size:16px!important;font-weight:800}
-      #modalPembayaran{padding:0!important;align-items:stretch!important}#modalPembayaran .modal-content{width:100%!important;max-width:none!important;height:100dvh!important;max-height:none!important;border-radius:0!important;margin:0!important;display:flex!important;flex-direction:column!important;background:#fff}#modalPembayaran .modal-header{background:#fff!important;color:#18211e!important;border-bottom:1px solid #e7ecea;padding:15px 16px!important}#modalPembayaran .modal-header h3{color:#18211e!important;font-size:19px!important}#modalPembayaran .modal-body{overflow-y:auto;padding:12px 16px 18px!important}
-      #modalPembayaran .modal-body>div:first-child{background:#eaf9f4!important;border:1px solid #c9eee1;border-radius:18px!important;padding:14px!important;font-size:14px!important}#payTotal{font-size:34px!important;font-weight:900!important}#payNominal{height:54px!important;text-align:center;font-size:24px!important;font-weight:900!important;border:2px solid #10ad86!important;border-radius:14px!important}
-      .aspos-payment-keypad{display:grid!important;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}.aspos-payment-keypad button{height:58px;border:1px solid #e0e6e4;background:#fff;border-radius:10px;font-size:21px;font-weight:800}.aspos-payment-keypad .key-clear{color:#b51f1f;background:#fff4f4}.aspos-payment-keypad .key-back{color:#087e65}.aspos-payment-keypad .key-auto{background:#e5fff4;color:#087e65;border-color:#69d8bb;font-size:14px}
-      .aspos-quick-pay{display:grid!important;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px}.aspos-quick-pay button{min-height:38px;border:1px solid #dce5e1;background:#fff;border-radius:9px;font-size:10px;font-weight:800;color:#087e65}
-      #modalPembayaran .modal-footer{margin:0!important;padding:10px 16px 14px!important;background:#fff;border-top:1px solid #e7ecea}#btnKonfirmasiBayar{width:100%;height:52px;border-radius:28px;font-size:16px;font-weight:800}
-    }
-    @media screen and (max-width:992px){
-      #sec-masterBarang .table-responsive{overflow-x:auto!important;-webkit-overflow-scrolling:touch;background:#fff;border-radius:14px}
-      #sec-masterBarang .toolbar{padding:10px!important;background:#fff;border-radius:14px;margin-bottom:10px}
-      #sec-masterBarang .toolbar-left{display:grid!important;grid-template-columns:1fr 1fr;gap:7px}
-      #sec-masterBarang .toolbar-left .btn{min-height:44px;border-radius:12px!important}
-      #sec-masterBarang #searchInput{height:44px!important;border-radius:12px!important;margin-top:8px}
-      #sec-masterBarang #tabelBarang{min-width:980px!important}
-    }
-  
-    /* =========================================================
-       AS-POS MOBILE CLEAN UI + FULLSCREEN BARCODE SCANNER
-       ========================================================= */
-    .aspos-mobile-pos-header { display:none; }
-    #asposScanOverlay {
-      display:none;
-      position:fixed !important;
-      inset:0 !important;
-      width:100vw !important;
-      height:100dvh !important;
-      z-index:999999 !important;
-      background:#000 !important;
-      color:#fff !important;
-      overflow:hidden !important;
-      margin:0 !important;
-      padding:0 !important;
-    }
-      #bestProductGrid {
-        min-height:120px !important;
-      }
-      .pos-left-panel {
-        margin:8px 10px 20px !important;
-        padding:12px !important;
-        background:#fff !important;
-        border-radius:16px !important;
-        box-shadow:0 2px 10px rgba(0,0,0,.06) !important;
-      }
-      .pos-left-panel .best-product-container {
-        display:grid !important;
-        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-        gap:8px !important;
-        max-height:520px !important;
-        overflow-y:auto !important;
-      }
-      .pos-left-panel .best-product-card {
-        display:flex !important;
-        min-height:150px !important;
-        padding:9px !important;
-        border-radius:12px !important;
-        background:#fff !important;
-      }
-    /* POS MOBILE: pilih barang -> lanjut -> transaksi */
-    @media screen and (max-width:992px){
-      #sec-posKasir.aspos-selection-mode .pos-right-panel{display:none!important;}
-      #sec-posKasir.aspos-selection-mode .pos-left-panel{
-        display:block!important;
-        margin:8px 12px 88px!important;
-        padding:12px!important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel > div:first-child{
-        font-size:18px!important;
-        color:#333!important;
-        margin:2px 2px 12px!important;
-      }
-      #sec-posKasir.aspos-selection-mode .best-product-container{
-        display:flex!important;
-        flex-direction:column!important;
-        gap:6px!important;
-        max-height:none!important;
-        overflow:visible!important;
-      }
-      #sec-posKasir.aspos-selection-mode .best-product-card{
-        display:grid!important;
-        grid-template-columns:72px 1fr auto!important;
-        grid-template-rows:auto auto auto!important;
-        column-gap:14px!important;
-        align-items:center!important;
-        min-height:92px!important;
-        padding:9px!important;
-        text-align:left!important;
-        border:0!important;
-        border-bottom:1px solid #edf0f2!important;
-        border-radius:0!important;
-        box-shadow:none!important;
-      }
-      #sec-posKasir.aspos-selection-mode .best-product-img{
-        grid-row:1 / 4!important;
-        width:72px!important;height:72px!important;
-        margin:0!important;
-        border-radius:8px!important;
-      }
-      #sec-posKasir.aspos-selection-mode .best-product-title{
-        height:auto!important;
-        margin:0!important;
-        font-size:15px!important;
-        line-height:1.25!important;
-        -webkit-line-clamp:2!important;
-        color:#222!important;
-      }
-      #sec-posKasir.aspos-selection-mode .best-product-card .best-product-price{
-        font-size:14px!important;
-        color:#0f5132!important;
-        text-align:left!important;
-      }
-      #sec-posKasir.aspos-selection-mode .best-product-card .catalog-stock{
-        font-size:12px!important;
-        color:#6c757d!important;
-      }
-      #sec-posKasir.aspos-selection-mode .best-product-card .catalog-qty{
-        grid-column:3!important;
-        grid-row:1 / 4!important;
-        min-width:34px!important;
-        height:34px!important;
-        border:1px solid #0f5132!important;
-        border-radius:8px!important;
-        display:flex!important;
-        align-items:center!important;
-        justify-content:center!important;
-        color:#0f5132!important;
-        font-weight:800!important;
-        font-size:15px!important;
-      }
-      #sec-posKasir.aspos-checkout-mode .pos-left-panel{display:none!important;}
-      #sec-posKasir.aspos-checkout-mode .pos-right-panel{display:block!important;}
-      #sec-posKasir.aspos-checkout-mode .aspos-mobile-pos-header{display:flex!important;}
-      #sec-posKasir.aspos-checkout-mode .aspos-mobile-pos-header .aspos-back-menu{display:flex!important;}
-      .aspos-selection-bar{
-        display:none;
-      }
-      #sec-posKasir.aspos-selection-mode .aspos-selection-bar{
-        display:flex!important;
-        position:fixed!important;
-        left:12px!important;
-        right:12px!important;
-        bottom:10px!important;
-        z-index:99990!important;
-        height:62px!important;
-        background:#10ad86!important;
-        border-radius:32px!important;
-        box-shadow:0 8px 25px rgba(0,0,0,.2)!important;
-        overflow:hidden!important;
-        align-items:center!important;
-      }
-      .aspos-selection-count{
-        flex:1!important;
-        color:#fff!important;
-        padding-left:24px!important;
-        font-size:18px!important;
-      }
-      .aspos-selection-count strong{font-size:30px!important;}
-      .aspos-selection-bar button{
-        height:100%!important;
-        min-width:145px!important;
-        border:0!important;
-        background:transparent!important;
-        color:#fff!important;
-        font-size:18px!important;
-        font-weight:800!important;
-      }
-      .aspos-selection-bar button span{font-size:32px!important;vertical-align:-3px!important;}
-    }
-
-    #asposScanOverlay.active { display:block !important; }
-    #asposScanOverlay .aspos-camera-head {
-      position:absolute !important;
-      top:0 !important; left:0 !important; right:0 !important;
-      height:76px !important;
-      padding:12px 14px !important;
-      box-sizing:border-box !important;
-      display:flex !important;
-      align-items:center !important;
-      justify-content:space-between !important;
-      z-index:10 !important;
-      background:linear-gradient(rgba(0,0,0,.75),rgba(0,0,0,0)) !important;
-    }
-    #asposScanOverlay .aspos-camera-title {
-      font-size:20px !important;
-      font-weight:800 !important;
-      color:#fff !important;
-    }
-    #asposScanOverlay .aspos-camera-close {
-      width:44px !important;
-      height:44px !important;
-      border:0 !important;
-      border-radius:50% !important;
-      background:rgba(0,0,0,.55) !important;
-      color:#fff !important;
-      font-size:30px !important;
-      line-height:44px !important;
-      padding:0 !important;
-    }
-    #asposScanMount {
-      position:absolute !important;
-      inset:0 !important;
-      width:100vw !important;
-      height:100dvh !important;
-      overflow:hidden !important;
-    }
-    #asposScanMount #readerPos,
-    #asposScanOverlay #readerPos {
-      position:absolute !important;
-      inset:0 !important;
-      width:100vw !important;
-      height:100dvh !important;
-      margin:0 !important;
-      padding:0 !important;
-      display:block !important;
-      border:0 !important;
-      background:#000 !important;
-    }
-    #asposScanMount{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;background:#edf3f1!important}#asposScanMount video, #asposScanMount #readerPos video,
-    #asposScanOverlay #readerPos video {
-      position:absolute !important;
-      inset:0 !important;
-      width:100% !important;
-      height:100% !important;
-      object-fit:cover !important;
-      margin:0 !important;
-    }
-    #asposScanOverlay .aspos-scan-guide {
-      position:absolute !important;
-      left:8% !important;
-      right:8% !important;
-      top:34% !important;
-      height:30% !important;
-      border:2px solid rgba(255,255,255,.95) !important;
-      border-radius:18px !important;
-      box-shadow:0 0 0 9999px rgba(0,0,0,.28) !important;
-      z-index:8 !important;
-      pointer-events:none !important;
-    }
-    #asposScanOverlay .aspos-scan-line {
-      position:absolute !important;
-      left:3% !important;
-      right:3% !important;
-      top:50% !important;
-      height:2px !important;
-      background:#9dff32 !important;
-      box-shadow:0 0 9px #9dff32 !important;
-    }
-    #asposScanOverlay .aspos-scan-hint {
-      position:absolute !important;
-      left:18px !important;
-      right:18px !important;
-      bottom:24px !important;
-      padding:13px 16px !important;
-      border-radius:16px !important;
-      background:rgba(0,0,0,.62) !important;
-      color:#fff !important;
-      text-align:center !important;
-      font-size:14px !important;
-      z-index:10 !important;
-    }
-
-    @media screen and (max-width:992px) {
-      body { background:#f6f8f8 !important; }
-      .content-body {
-        padding:0 0 90px !important;
-        background:#f6f8f8 !important;
-      }
-
-      #sec-posKasir {
-        padding:0 0 100px !important;
-        width:100% !important;
-        box-sizing:border-box !important;
-      }
-
-      .aspos-mobile-pos-header {
-        display:flex !important;
-        align-items:center !important;
-        justify-content:space-between !important;
-        width:100% !important;
-        height:60px !important;
-        box-sizing:border-box !important;
-        padding:0 10px !important;
-        background:#fff !important;
-        border-bottom:1px solid #e6ebe9 !important;
-        position:relative !important;
-        z-index:20 !important;
-      }
-      .aspos-back-menu {
-        border:0 !important;
-        background:transparent !important;
-        color:#087d62 !important;
-        font-size:28px !important;
-        width:48px !important;
-        height:48px !important;
-      }
-      .aspos-mobile-icons {
-        display:flex !important;
-        align-items:center !important;
-        gap:2px !important;
-      }
-      .aspos-mobile-icons button {
-        position:relative !important;
-        border:0 !important;
-        background:transparent !important;
-        color:#087d62 !important;
-        font-size:27px !important;
-        width:48px !important;
-        height:48px !important;
-        border-radius:12px !important;
-      }
-      .aspos-mobile-icons b {
-        position:absolute !important;
-        right:0 !important;
-        top:1px !important;
-        min-width:17px !important;
-        height:17px !important;
-        line-height:17px !important;
-        border-radius:20px !important;
-        background:#f3aa17 !important;
-        color:#fff !important;
-        font-size:10px !important;
-      }
-
-      /* Pada HP hanya ikon; area input lama disembunyikan */
-      .aspos-desktop-search-area { display:none !important; }
-      .aspos-desktop-search-area.aspos-mobile-search-open {
-        display:block !important;
-        background:#fff !important;
-        border-radius:16px !important;
-        padding:10px !important;
-        margin:8px 10px !important;
-        box-shadow:0 2px 10px rgba(0,0,0,.06) !important;
-      }
-      .aspos-desktop-search-area.aspos-mobile-search-open h3,
-      .aspos-desktop-search-area.aspos-mobile-search-open button {
-        display:none !important;
-      }
-
-      .pos-grid {
-        display:flex !important;
-        flex-direction:column !important;
-        width:100% !important;
-        gap:8px !important;
-      }
-      .pos-left-panel { display:block !important; order:2 !important; }
-      .pos-right-panel {
-        order:1 !important;
-        width:100% !important;
-        box-sizing:border-box !important;
-        padding:8px 10px 0 !important;
-        background:transparent !important;
-        border:0 !important;
-        box-shadow:none !important;
-      }
-      .pos-right-panel > div:nth-child(2) {
-        background:#fff !important;
-        border-radius:18px !important;
-        padding:14px !important;
-        box-shadow:0 2px 10px rgba(0,0,0,.06) !important;
-      }
-      .aspos-mobile-cart-heading { display:flex !important; }
-
-      #tabelKeranjang {
-        display:block !important;
-        width:100% !important;
-        border:0 !important;
-      }
-      #tabelKeranjang thead { display:none !important; }
-      #tabelKeranjang tbody { display:block !important; }
-      #tabelKeranjang tr {
-        display:grid !important;
-        grid-template-columns:1fr 52px 82px !important;
-        gap:6px !important;
-        align-items:center !important;
-        padding:12px 0 !important;
-        border-bottom:1px solid #edf0ef !important;
-      }
-      #tabelKeranjang td {
-        display:block !important;
-        border:0 !important;
-        padding:2px 0 !important;
-      }
-      #tabelKeranjang td:nth-child(1){grid-column:1;grid-row:1}
-      #tabelKeranjang td:nth-child(2){grid-column:2;grid-row:1}
-      #tabelKeranjang td:nth-child(3){grid-column:3;grid-row:1;text-align:right}
-      #tabelKeranjang td:nth-child(4){grid-column:1/span 3;grid-row:2}
-
-      .pos-right-panel > div:last-child {
-        position:sticky !important;
-        bottom:4px !important;
-        z-index:30 !important;
-        background:#fff !important;
-        padding:14px !important;
-        border-radius:20px !important;
-        box-shadow:0 -5px 18px rgba(0,0,0,.12) !important;
-      }
-      #posTotalBayar { font-size:24px !important; }
-
-      /* Master Barang */
-      #sec-masterBarang { padding:10px !important; box-sizing:border-box !important; }
-      #sec-masterBarang .toolbar {
-        display:block !important;
-        padding:10px !important;
-        background:#fff !important;
-        border-radius:14px !important;
-      }
-      #sec-masterBarang .toolbar-left {
-        display:grid !important;
-        grid-template-columns:1fr 1fr !important;
-        gap:7px !important;
-      }
-      #sec-masterBarang .toolbar-left .btn {
-        min-height:44px !important;
-        border-radius:11px !important;
-        justify-content:center !important;
-        font-size:12px !important;
-      }
-      #sec-masterBarang .search-box {
-        width:100% !important;
-        box-sizing:border-box !important;
-        height:44px !important;
-        margin-top:8px !important;
-      }
-      #sec-masterBarang .table-responsive {
-        overflow-x:auto !important;
-        -webkit-overflow-scrolling:touch !important;
-        background:#fff !important;
-        border-radius:14px !important;
-      }
-      #sec-masterBarang #tabelBarang { min-width:980px !important; }
-
-      /* Jangan tampilkan checkout saat kamera aktif */
-      body.aspos-scanning .main-wrapper { visibility:hidden !important; }
-    }
-
-    @media screen and (min-width:993px) {
-      .aspos-mobile-pos-header { display:none !important; }
-    }
-
-
-    /* =========================================================
-       FINAL POS MOBILE POLISH
-       ========================================================= */
-    @media screen and (max-width:992px) {
-      #appWrapper.aspos-pos-active #hamburger-btn { display:none !important; }
-      #appWrapper.aspos-pos-active .header-title-wrapper { flex:1 !important; justify-content:flex-start !important; }
-
-      #sec-posKasir.aspos-selection-mode .pos-left-panel > div:first-child { display:none !important; }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel {
-        margin:4px 0 88px !important; padding:8px 12px !important;
-        border-radius:0 !important; box-shadow:none !important; background:#fff !important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-container {
-        display:flex !important; flex-direction:column !important; gap:0 !important;
-        height:calc(100dvh - 330px) !important; min-height:760px !important;
-        max-height:none !important; overflow-y:auto !important; padding:0 !important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-card {
-        display:grid !important; grid-template-columns:72px minmax(0,1fr) 42px !important;
-        grid-template-rows:auto auto auto !important; column-gap:14px !important;
-        align-items:center !important; flex:0 0 98px !important; min-height:98px !important;
-        box-sizing:border-box !important; padding:8px 4px !important; margin:0 !important;
-        text-align:left !important; border:0 !important; border-bottom:1px solid #e7ecea !important;
-        border-radius:0 !important; box-shadow:none !important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-img {
-        grid-column:1 !important; grid-row:1 / 4 !important; width:68px !important; height:82px !important;
-        object-fit:cover !important; margin:0 !important; border-radius:8px !important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-title {
-        grid-column:2 !important; grid-row:1 !important; height:auto !important; margin:0 !important;
-        font-size:15px !important; line-height:1.18 !important; font-weight:800 !important; color:#222 !important;
-        -webkit-line-clamp:2 !important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-stock {
-        grid-column:2 !important; grid-row:2 !important; font-size:12px !important;
-        line-height:1.2 !important; color:#6c757d !important; margin-top:2px !important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-price {
-        grid-column:2 !important; grid-row:3 !important; font-size:15px !important;
-        line-height:1.2 !important; color:#0f5132 !important; text-align:left !important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-qty {
-        grid-column:3 !important; grid-row:1 / 4 !important; min-width:38px !important; width:38px !important;
-        height:38px !important; border:1.5px solid #0f5132 !important; border-radius:9px !important;
-        display:flex !important; align-items:center !important; justify-content:center !important;
-        color:#0f5132 !important; font-weight:800 !important; font-size:16px !important; box-sizing:border-box !important;
-      }
-
-      #sec-posKasir.aspos-search-open .pos-right-panel {
-        display:block !important; width:100% !important; padding:8px 10px 0 !important; box-sizing:border-box !important;
-      }
-      #sec-posKasir.aspos-search-open .pos-right-panel > div:first-child {
-        display:block !important; background:#fff !important; border-radius:16px !important;
-        padding:10px !important; margin:0 !important; box-shadow:0 2px 10px rgba(0,0,0,.06) !important;
-      }
-      #sec-posKasir.aspos-search-open .pos-right-panel > div:nth-child(2),
-      #sec-posKasir.aspos-search-open .pos-right-panel > div:last-child { display:none !important; }
-      #sec-posKasir.aspos-search-open .aspos-desktop-search-area { display:block !important; }
-      #sec-posKasir.aspos-search-open #searchPos {
-        display:block !important; width:100% !important; height:50px !important; box-sizing:border-box !important;
-        border:2px solid #0f5132 !important; border-radius:13px !important; font-size:16px !important; background:#fff !important;
-      }
-      #sec-posKasir.aspos-search-open .pos-left-panel { margin-top:8px !important; }
-
-      #tabelKeranjang .aspos-remove-cart {
-        min-height:36px !important; padding:5px 9px !important; border-radius:9px !important;
-        font-size:11px !important; font-weight:800 !important; white-space:nowrap !important;
-      }
-    }
-
-    /* COMPACT POS CATALOG: target 9-10 visible rows on phone */
-    @media screen and (max-width:992px) {
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-container {
-        height:calc(100dvh - 330px) !important;
-        min-height:0 !important;
-        overflow-y:auto !important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-card {
-        grid-template-columns:58px minmax(0,1fr) 38px !important;
-        grid-template-rows:auto auto !important;
-        column-gap:10px !important;
-        flex:0 0 74px !important;
-        min-height:74px !important;
-        height:74px !important;
-        padding:6px 4px !important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-img {
-        width:52px !important;
-        height:62px !important;
-        max-width:52px !important;
-        max-height:62px !important;
-        border-radius:7px !important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-title {
-        font-size:13.5px !important;
-        line-height:1.12 !important;
-        -webkit-line-clamp:2 !important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-meta {
-        grid-column:2 !important;
-        grid-row:2 !important;
-        font-size:11.5px !important;
-        line-height:1.1 !important;
-        margin-top:2px !important;
-        white-space:nowrap !important;
-      }
-      #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-qty {
-        grid-column:3 !important;
-        grid-row:1 / 3 !important;
-        width:34px !important;
-        min-width:34px !important;
-        height:34px !important;
-        border-radius:8px !important;
-        font-size:14px !important;
-      }
-    }
-
-    /* FINAL MOBILE FIX: drawer/menu, safe top area, and touch targets */
-    @media screen and (max-width: 992px) {
-      html, body {
-        width: 100%;
-        min-height: 100%;
-        margin: 0;
-      }
-
-      body {
-        height: 100dvh !important;
-        min-height: 100dvh !important;
-        overflow: hidden !important;
-        padding-top: env(safe-area-inset-top, 0px) !important;
-        box-sizing: border-box !important;
-      }
-
-      #appWrapper {
-        height: 100dvh !important;
-        min-height: 100dvh !important;
-      }
-
-      .main-wrapper {
-        min-width: 0 !important;
-        height: 100% !important;
-      }
-
-      /* Jangan biarkan header aplikasi terpotong di bagian atas HP. */
-      .header-container {
-        flex: 0 0 auto !important;
-        min-height: 62px !important;
-        box-sizing: border-box !important;
-        padding-top: 10px !important;
-        padding-bottom: 10px !important;
-        position: relative !important;
-        z-index: 100 !important;
-      }
-
-      #hamburger-btn {
-        min-width: 52px !important;
-        min-height: 44px !important;
-        padding: 7px 10px !important;
-        font-size: 0 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-
-      #hamburger-btn::after {
-        content: "☰" !important;
-        font-size: 25px !important;
-        line-height: 1 !important;
-      }
-
-      .header-title-wrapper {
-        min-width: 0 !important;
-        gap: 8px !important;
-      }
-
-      .header-title-wrapper .store-logo {
-        width: 34px !important;
-        height: 34px !important;
-      }
-
-      .header-title-wrapper > div {
-        min-width: 0 !important;
-      }
-
-      .header-title-wrapper h2 {
-        font-size: 15px !important;
-        white-space: nowrap !important;
-      }
-
-      #cashierNameDisplay {
-        font-size: 11px !important;
-        white-space: nowrap !important;
-      }
-
-      .header-right-wrapper {
-        gap: 4px !important;
-      }
-
-      .header-right-wrapper .btn {
-        min-height: 40px !important;
-        padding: 7px 9px !important;
-      }
-
-      .sidebar {
-        top: 0 !important;
-        bottom: 0 !important;
-        height: 100dvh !important;
-        z-index: 1000000 !important;
-        padding-top: env(safe-area-inset-top, 0px) !important;
-        box-sizing: border-box !important;
-        touch-action: pan-y !important;
-      }
-
-      .sidebar-overlay {
-        z-index: 999998 !important;
-      }
-
-      .sidebar-menu li a {
-        min-height: 48px !important;
-        box-sizing: border-box !important;
-        display: flex !important;
-        align-items: center !important;
-        font-size: 14px !important;
-      }
-
-      .content-body {
-        min-height: 0 !important;
-        -webkit-overflow-scrolling: touch !important;
-      }
-
-      /* Tombol menu di header POS harus benar-benar bisa disentuh. */
-      .aspos-mobile-pos-header {
-        position: relative !important;
-        z-index: 200 !important;
-      }
-
-      .aspos-mobile-pos-header .aspos-back-menu {
-        min-width: 48px !important;
-        min-height: 48px !important;
-        touch-action: manipulation !important;
-      }
-
-      /* Saat menu Master dibuka, pastikan judul dan toolbar tidak tertutup. */
-      #sec-masterBarang.active {
-        display: block !important;
-        padding-top: 8px !important;
-      }
-    }
-
-<style id="laporan-transaksi-style">
-.laporan-transaksi-panel{margin-top:12px;background:#fff;border:1px solid #e4e8e7;border-radius:12px;overflow:hidden}
-.laporan-detail-head{display:flex;align-items:center;gap:16px;padding:14px 16px;border-bottom:1px solid #e7ecea;font-size:20px}
-.laporan-detail-head button{border:0;background:transparent;color:#139b7b;font-weight:700;font-size:16px}
-.hari-row{border-bottom:1px solid #e7ecea}.hari-btn{width:100%;display:flex;justify-content:space-between;align-items:center;border:0;background:#effbf8;padding:16px;text-align:left;font-size:18px}.hari-btn small,.nota-list small{display:block;color:#777;font-size:12px;margin-top:4px}.nota-list{display:none;background:#fff}.nota-list.open{display:block}.nota-list button{width:100%;display:flex;justify-content:space-between;align-items:center;padding:13px 16px 13px 30px;border:0;border-bottom:1px solid #eee;background:#fff;text-align:left}.nota-list button b{font-size:14px}.nota-list strong{font-size:14px;color:#139b7b}.laporan-empty,.laporan-loading{padding:25px;text-align:center;color:#777}
-.struk-menu3{position:absolute;right:12px;top:10px}.struk-menu3 button{border:0;background:transparent;font-size:28px;color:#139b7b;padding:4px 10px}.struk-edit-menu{position:absolute;right:12px;top:48px;background:#fff;border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 18px #0002;z-index:20;display:none;min-width:190px}.struk-edit-menu button{display:block;width:100%;padding:12px 14px;border:0;background:#fff;text-align:left;font-size:14px}.struk-edit-menu button+button{border-top:1px solid #eee}
-.koreksi-box{padding:12px}.koreksi-item{border:1px solid #ddd;border-radius:9px;padding:10px;margin-bottom:8px}.koreksi-item input{width:80px;padding:6px;margin-left:5px}.koreksi-item button{float:right;border:0;background:#fee;color:#c33;border-radius:6px;padding:6px 8px}.koreksi-actions{display:flex;gap:8px}.koreksi-actions button{flex:1;padding:10px;border-radius:8px;border:0;font-weight:700}.koreksi-save{background:#139b7b;color:#fff}.koreksi-cancel{background:#eee}
-</style>
-</style>
-<style>
-/* POS 3 tahap mobile */
-.aspos-scan-loading,.aspos-scan-error{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;box-sizing:border-box;color:#52605a;font-weight:800;background:#edf3f1;z-index:3}.aspos-scan-error{color:#b4232c}
-.catalog-meta{font-size:11px;color:#737d79;display:flex;gap:5px;align-items:center}
-@media screen and (max-width:992px){
-#sec-posKasir.aspos-selection-mode .pos-right-panel{display:none!important}
-#sec-posKasir.aspos-selection-mode .pos-left-panel{display:block!important;margin:0!important;padding:8px 10px 95px!important;background:#fff!important;border-radius:0!important;box-shadow:none!important}
-#sec-posKasir.aspos-selection-mode .pos-left-panel>div:first-child{display:none!important}
-#sec-posKasir.aspos-selection-mode .best-product-container{display:flex!important;flex-direction:column!important;gap:0!important;max-height:none!important;overflow-y:auto!important;padding:0!important}
-#sec-posKasir.aspos-selection-mode .best-product-card{display:grid!important;grid-template-columns:78px 1fr 44px!important;grid-template-rows:auto auto!important;align-items:center!important;column-gap:10px!important;min-height:78px!important;height:78px!important;padding:7px 4px!important;border:0!important;border-bottom:1px solid #edf1ef!important;border-radius:0!important;box-shadow:none!important;text-align:left!important}
-#sec-posKasir.aspos-selection-mode .best-product-img{grid-column:1;grid-row:1/3;width:66px!important;height:66px!important;border-radius:10px!important;margin:0!important;background:#eef2f4!important}
-#sec-posKasir.aspos-selection-mode .best-product-title{grid-column:2;grid-row:1;font-size:15px!important;font-weight:700!important;height:auto!important;line-height:1.18!important;margin:0!important;color:#202522!important}
-#sec-posKasir.aspos-selection-mode .catalog-stock{grid-column:2;grid-row:2;font-size:11px!important;color:#737d79!important;margin-top:3px!important}
-#sec-posKasir.aspos-selection-mode .best-product-price{grid-column:2;grid-row:2;font-size:11px!important;color:#737d79!important;text-align:right!important;margin-right:54px!important;font-weight:700!important}
-#sec-posKasir.aspos-selection-mode .catalog-qty{grid-column:3;grid-row:1/3;justify-self:center;min-width:28px;height:28px;line-height:28px;text-align:center;border:2px solid #68706d;border-radius:7px;font-size:16px;font-weight:800;color:#202522}
-#sec-posKasir.aspos-selection-mode .catalog-qty:empty{border-color:transparent}
-.aspos-checkout-header{display:none}
-#sec-posKasir.aspos-checkout-mode .aspos-mobile-pos-header{display:none!important}
-#sec-posKasir.aspos-checkout-mode .aspos-checkout-header{display:grid!important;grid-template-columns:52px 1fr auto;align-items:center;height:66px;background:#fff;border-bottom:1px solid #e5ebe8;position:sticky;top:0;z-index:80;margin:0 -12px;padding:0 10px}
-#sec-posKasir.aspos-checkout-mode .aspos-detail-back{border:0;background:#fff;color:#0aa681;font-size:48px;line-height:1;height:52px}
-#sec-posKasir.aspos-checkout-mode .aspos-detail-total-top{text-align:center;font-size:22px;font-weight:900;color:#151a18}
-#sec-posKasir.aspos-checkout-mode .aspos-detail-pay-top{border:0;background:#0caf86;color:#fff;border-radius:25px;padding:12px 18px;font-size:15px;font-weight:800}
-#sec-posKasir.aspos-checkout-mode .pos-left-panel{display:none!important}
-#sec-posKasir.aspos-checkout-mode .pos-right-panel{display:flex!important;order:1!important;padding:0!important;margin:0 -12px!important;background:#fff!important;border:0!important;border-radius:0!important;box-shadow:none!important;min-height:calc(100dvh - 66px)}
-#sec-posKasir.aspos-checkout-mode .aspos-desktop-search-area,#sec-posKasir.aspos-checkout-mode .aspos-mobile-cart-heading,#sec-posKasir.aspos-checkout-mode .aspos-desktop-payment-method{display:none!important}
-#sec-posKasir.aspos-checkout-mode .pos-right-panel>div:nth-child(2){display:flex!important;flex-direction:column!important;padding:0!important;background:#fff!important;border-radius:0!important;box-shadow:none!important;width:100%!important}
-#sec-posKasir.aspos-checkout-mode .pos-right-panel>div:nth-child(2)>h3{display:none!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang tbody{display:block!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang tr{display:grid!important;grid-template-columns:34px 56px 1fr 44px!important;gap:8px!important;align-items:center!important;padding:14px 18px!important;border-bottom:1px solid #eef2f0!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td{display:block!important;border:0!important;padding:0!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1){grid-column:3;grid-row:1/3}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(2){grid-column:2;grid-row:1/3}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(3){grid-column:3;grid-row:2;text-align:left!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4){grid-column:4;grid-row:1/3;text-align:right!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang input[type=number]{width:50px!important;border:0!important;background:#eef3f1!important;border-radius:50%!important;height:50px!important;text-align:center!important;font-size:16px!important;font-weight:800!important}
-#sec-posKasir.aspos-checkout-mode .aspos-cart-item-title{font-size:16px!important;font-weight:800!important;line-height:1.2!important;cursor:pointer!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(3) b{font-size:12px!important;color:#707a76!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4)>div{display:block!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4) select,#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4) input{display:none!important}
-#sec-posKasir.aspos-checkout-mode .aspos-remove-cart{width:36px!important;height:42px!important;padding:0!important;border:0!important;background:transparent!important;color:#c52d36!important;font-size:0!important}
-#sec-posKasir.aspos-checkout-mode .aspos-remove-cart:before{content:"🗑";font-size:23px}
-#sec-posKasir.aspos-checkout-mode .aspos-checkout-action{margin-top:auto!important;padding:12px 16px 18px!important;border-top:1px solid #e4eae7!important;background:#fff!important;box-shadow:0 -5px 18px rgba(0,0,0,.06)!important}
-#sec-posKasir.aspos-checkout-mode .aspos-detail-total{display:flex!important;justify-content:space-between!important;align-items:center!important;font-size:15px!important;margin-bottom:10px!important}
-#sec-posKasir.aspos-checkout-mode .aspos-detail-total strong{font-size:21px!important;color:#079f7b!important}
-#sec-posKasir.aspos-checkout-mode .aspos-pay-detail-btn{width:100%!important;height:54px!important;border-radius:28px!important;font-size:17px!important;font-weight:900!important}
-.aspos-item-edit-modal{z-index:200000!important;background:rgba(0,0,0,.58)!important;padding:12px!important}
-.aspos-item-edit-content{max-width:590px!important;width:100%!important;border-radius:18px!important;overflow:hidden!important}
-.aspos-item-edit-head{display:flex;align-items:center;justify-content:space-between;padding:18px;border-bottom:1px solid #e7ecea}
-.aspos-item-edit-product{display:flex;align-items:center;gap:12px;min-width:0}
-.aspos-item-edit-thumb{width:64px;height:64px;border-radius:50%;background:#eef3f5;color:#cbd1d4;display:flex;align-items:center;justify-content:center;font-size:27px;font-weight:900;flex:none}
-.aspos-item-edit-name{font-size:18px;font-weight:900;line-height:1.15}.aspos-item-edit-id{font-size:12px;color:#6e7773;margin-top:4px}.aspos-item-edit-price{font-size:13px;color:#68726e;font-weight:700}
-.aspos-item-edit-qty{display:grid;grid-template-columns:1fr 90px 1fr;align-items:center;padding:22px 18px;border-bottom:1px solid #e7ecea}
-.aspos-item-edit-qty button{justify-self:center;width:62px;height:62px;border:0;border-radius:12px;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.12);font-size:42px;line-height:1}.aspos-item-edit-qty strong{text-align:center;font-size:30px}
-.aspos-item-edit-fields{padding:16px 18px;display:grid;gap:12px}.aspos-edit-field label{display:block;font-size:12px;color:#68726e;font-weight:700;margin-bottom:6px}.aspos-edit-field input,.aspos-edit-field select{height:48px;border:1px solid #d7e0dc;border-radius:12px;padding:0 12px;font-size:16px;box-sizing:border-box;width:100%}.aspos-disc-row{display:grid;grid-template-columns:86px 1fr;gap:8px}
-.aspos-item-edit-preview{margin:0 18px 14px;padding:13px 15px;background:#f1f6f4;border-radius:12px;display:flex;justify-content:space-between;font-size:13px}.aspos-item-edit-preview strong{color:#079f7b;font-size:16px}
-.aspos-item-edit-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 18px 18px}.aspos-item-edit-actions button{height:52px;border-radius:27px;font-size:16px;font-weight:900}.aspos-edit-delete{border:1px solid #d4dadd;background:#f2f5f6;color:#222}.aspos-edit-save{border:0;background:#0caf86;color:#fff}
-}
-</style>
-<style>
-    /* FINAL POS MOBILE: 9-10 produk memenuhi area layar */
-    @media screen and (max-width:992px){
-      #sec-posKasir.aspos-selection-mode{
-        padding:0 0 72px !important;
-        margin:0 !important;
-        height:calc(100dvh - 0px) !important;
-        box-sizing:border-box !important;
-        overflow:hidden !important;
-      }
-
-      #sec-posKasir.aspos-selection-mode .aspos-mobile-pos-header{
-        height:60px !important;
-        min-height:60px !important;
-        flex:0 0 60px !important;
-      }
-
-      #sec-posKasir.aspos-selection-mode .pos-left-panel{
-        margin:0 !important;
-        padding:0 18px !important;
-        height:calc(100dvh - 350px) !important;
-        min-height:0 !important;
-        box-sizing:border-box !important;
-        overflow:hidden !important;
-        border-radius:0 !important;
-        box-shadow:none !important;
-        background:#fff !important;
-      }
-
-      #sec-posKasir.aspos-selection-mode .pos-left-panel > div:first-child{
-        display:none !important;
-      }
-
-      #sec-posKasir.aspos-selection-mode .best-product-container{
-        display:flex !important;
-        flex-direction:column !important;
-        gap:0 !important;
-        height:100% !important;
-        min-height:0 !important;
-        max-height:none !important;
-        overflow-y:auto !important;
-        overflow-x:hidden !important;
-        padding:0 0 8px !important;
-        margin:0 !important;
-        -webkit-overflow-scrolling:touch !important;
-        scrollbar-width:none !important;
-      }
-      #sec-posKasir.aspos-selection-mode .best-product-container::-webkit-scrollbar{
-        display:none !important;
-      }
-
-      #sec-posKasir.aspos-selection-mode .best-product-card{
-        flex:0 0 104px !important;
-        width:100% !important;
-        min-height:104px !important;
-        height:104px !important;
-        box-sizing:border-box !important;
-        display:grid !important;
-        grid-template-columns:62px minmax(0,1fr) 38px !important;
-        grid-template-rows:auto auto !important;
-        column-gap:10px !important;
-        align-items:center !important;
-        padding:7px 0 !important;
-        margin:0 !important;
-        border:0 !important;
-        border-bottom:1px solid #e7ecea !important;
-        border-radius:0 !important;
-        box-shadow:none !important;
-        background:#fff !important;
-      }
-
-      #sec-posKasir.aspos-selection-mode .best-product-img{
-        grid-column:1 !important;
-        grid-row:1 / 3 !important;
-        width:58px !important;
-        height:72px !important;
-        max-width:58px !important;
-        max-height:72px !important;
-        margin:0 !important;
-        border-radius:7px !important;
-        object-fit:cover !important;
-      }
-
-      #sec-posKasir.aspos-selection-mode .best-product-title{
-        grid-column:2 !important;
-        grid-row:1 !important;
-        align-self:end !important;
-        margin:0 !important;
-        font-size:14px !important;
-        line-height:1.16 !important;
-        height:auto !important;
-        max-height:34px !important;
-        -webkit-line-clamp:2 !important;
-        overflow:hidden !important;
-      }
-
-      #sec-posKasir.aspos-selection-mode .catalog-meta,
-      #sec-posKasir.aspos-selection-mode .best-product-card .catalog-stock{
-        grid-column:2 !important;
-        grid-row:2 !important;
-        align-self:start !important;
-        margin:2px 0 0 !important;
-        font-size:11.5px !important;
-        line-height:1.15 !important;
-        white-space:nowrap !important;
-      }
-
-      #sec-posKasir.aspos-selection-mode .best-product-card .best-product-price{
-        font-size:11.5px !important;
-      }
-
-      #sec-posKasir.aspos-selection-mode .best-product-card .catalog-qty{
-        grid-column:3 !important;
-        grid-row:1 / 3 !important;
-        width:34px !important;
-        min-width:34px !important;
-        height:34px !important;
-        margin:0 !important;
-        border:2px solid #0f5132 !important;
-        border-radius:8px !important;
-        font-size:14px !important;
-      }
-
-      #sec-posKasir.aspos-selection-mode .aspos-selection-bar{
-        left:24px !important;
-        right:24px !important;
-        bottom:16px !important;
-        height:58px !important;
-        border-radius:30px !important;
-      }
-
-      #sec-posKasir.aspos-selection-mode .aspos-selection-count{
-        padding-left:18px !important;
-        font-size:16px !important;
-      }
-      #sec-posKasir.aspos-selection-mode .aspos-selection-count strong{
-        font-size:26px !important;
-      }
-      #sec-posKasir.aspos-selection-mode .aspos-selection-bar button{
-        min-width:125px !important;
-        font-size:16px !important;
-      }
-      #sec-posKasir.aspos-selection-mode .aspos-selection-bar button span{
-        font-size:25px !important;
-      }
-    }
-</style>
-<style id="HIDE POS CART ICON">@media screen and (max-width:992px){#sec-posKasir .aspos-mobile-icons button[aria-label="Keranjang"]{display:none!important}}</style>
-<style id="POS SEARCH FIX">
-@media screen and (max-width:992px){
-  #sec-posKasir.aspos-search-open .aspos-desktop-search-area,
-  #sec-posKasir .aspos-desktop-search-area.aspos-mobile-search-open{
-    display:block!important;
-    position:relative!important;
-    z-index:100!important;
-    margin:0 8px 8px!important;
-    padding:8px!important;
-    background:#fff!important;
-    border-radius:12px!important;
-    box-shadow:0 2px 10px rgba(0,0,0,.08)!important;
-  }
-  #sec-posKasir.aspos-search-open .aspos-desktop-search-area h3,
-  #sec-posKasir.aspos-search-open .aspos-desktop-search-area button{
-    display:none!important;
-  }
-  #sec-posKasir.aspos-search-open .aspos-desktop-search-area input#searchPos{
-    display:block!important;
-    width:100%!important;
-    height:42px!important;
-    font-size:15px!important;
-    box-sizing:border-box!important;
-  }
-
-  /* 9-ish compact rows in the initial catalog */
-  #sec-posKasir.aspos-selection-mode .pos-left-panel{
-    height:calc(100dvh - 230px)!important;
-    overflow:hidden!important;
-  }
-  #sec-posKasir.aspos-selection-mode .best-product-container{
-    height:100%!important;
-    max-height:none!important;
-    overflow-y:auto!important;
-    padding:0!important;
-    margin:0!important;
-    gap:0!important;
-  }
-  #sec-posKasir.aspos-selection-mode .best-product-card{
-    flex:0 0 68px!important;
-    min-height:68px!important;
-    height:68px!important;
-    grid-template-columns:52px minmax(0,1fr) 34px!important;
-    column-gap:9px!important;
-    padding:4px 0!important;
-  }
-  #sec-posKasir.aspos-selection-mode .best-product-img{
-    width:48px!important;
-    height:58px!important;
-    max-width:48px!important;
-    max-height:58px!important;
-    border-radius:6px!important;
-  }
-  #sec-posKasir.aspos-selection-mode .best-product-title{
-    font-size:13px!important;
-    line-height:1.1!important;
-    max-height:29px!important;
-    margin:0!important;
-  }
-  #sec-posKasir.aspos-selection-mode .catalog-meta{
-    font-size:10.5px!important;
-    margin-top:1px!important;
-  }
-  #sec-posKasir.aspos-selection-mode .catalog-qty{
-    width:32px!important;
-    min-width:32px!important;
-    height:32px!important;
-    border-radius:7px!important;
-  }
-
-  /* Bottom action bar: smaller and cleaner */
-  #sec-posKasir.aspos-selection-mode .aspos-selection-bar{
-    left:46px!important;
-    right:46px!important;
-    bottom:12px!important;
-    height:54px!important;
-    border-radius:28px!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-selection-count{
-    padding-left:16px!important;
-    font-size:14px!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-selection-count strong{
-    font-size:24px!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-selection-bar button{
-    min-width:112px!important;
-    font-size:15px!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-selection-bar button span{
-    font-size:22px!important;
-  }
-}
-</style>
-<style id="POS FINAL MOBILE V2">
-@media screen and (max-width:992px){
-  /* Never show the old cart/trolley action in the POS toolbar. */
-  #sec-posKasir .aspos-mobile-icons button[aria-label*="Keranjang"],
-  #sec-posKasir .aspos-mobile-icons button[aria-label*="keranjang"],
-  #sec-posKasir .aspos-mobile-icons .cart,
-  #sec-posKasir .aspos-mobile-icons .cart-button,
-  #sec-posKasir .aspos-mobile-icons button[data-cart],
-  #sec-posKasir .aspos-mobile-icons button:nth-child(3){
-    display:none!important;
-  }
-
-  /* The catalog occupies all remaining vertical space. */
-  #sec-posKasir.aspos-selection-mode .pos-left-panel{
-    height:auto!important;
-    min-height:0!important;
-    margin:0 0 72px!important;
-    padding:0 10px!important;
-    overflow:hidden!important;
-    background:#fff!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-container{
-    display:flex!important;
-    flex-direction:column!important;
-    gap:0!important;
-    height:calc(100dvh - 300px)!important;
-    min-height:0!important;
-    max-height:none!important;
-    overflow-y:auto!important;
-    -webkit-overflow-scrolling:touch!important;
-    padding:0!important;
-    margin:0!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-card{
-    display:grid!important;
-    flex:0 0 70px!important;
-    height:70px!important;
-    min-height:70px!important;
-    box-sizing:border-box!important;
-    grid-template-columns:50px minmax(0,1fr) 34px!important;
-    grid-template-rows:auto auto!important;
-    column-gap:9px!important;
-    align-items:center!important;
-    padding:4px 0!important;
-    margin:0!important;
-    border:0!important;
-    border-bottom:1px solid #e8edeb!important;
-    border-radius:0!important;
-    box-shadow:none!important;
-    background:#fff!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-img{
-    width:46px!important;height:58px!important;
-    max-width:46px!important;max-height:58px!important;
-    grid-row:1 / 3!important;
-    margin:0!important;
-    border-radius:6px!important;
-    object-fit:cover!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-title{
-    grid-column:2!important;grid-row:1!important;
-    font-size:13px!important;line-height:1.1!important;
-    max-height:29px!important;overflow:hidden!important;
-    margin:0!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-meta{
-    grid-column:2!important;grid-row:2!important;
-    font-size:10.5px!important;line-height:1.05!important;
-    white-space:nowrap!important;margin:1px 0 0!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-qty{
-    grid-column:3!important;grid-row:1 / 3!important;
-    width:32px!important;height:32px!important;min-width:32px!important;
-    border:2px solid #0f5132!important;border-radius:8px!important;
-    font-size:14px!important;
-  }
-
-  #sec-posKasir.aspos-selection-mode .aspos-selection-bar{
-    left:22px!important;right:22px!important;bottom:10px!important;
-    height:56px!important;border-radius:30px!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-selection-count{
-    padding-left:16px!important;font-size:15px!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-selection-count strong{font-size:25px!important;}
-  #sec-posKasir.aspos-selection-mode .aspos-selection-bar button{
-    min-width:118px!important;font-size:15px!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-selection-bar button span{font-size:22px!important;}
-}
-</style>
-<style id="POS MOBILE FINAL CATALOG CART FIX">
-@media screen and (max-width:992px){
-#sec-posKasir.aspos-selection-mode{height:100dvh!important;min-height:100dvh!important;padding:0 0 72px!important;box-sizing:border-box!important;overflow:hidden!important}
-#sec-posKasir.aspos-selection-mode .pos-left-panel{height:calc(100dvh - 250px)!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0 12px!important;box-sizing:border-box!important;overflow:hidden!important;background:#fff!important}
-#sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-container{height:100%!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;padding:0 0 4px!important;margin:0!important;gap:0!important}
-#sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-card{flex:0 0 62px!important;width:100%!important;min-height:62px!important;height:62px!important;grid-template-columns:50px minmax(0,1fr) 34px!important;grid-template-rows:auto auto!important;column-gap:9px!important;padding:4px 0!important;box-sizing:border-box!important}
-#sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-img{width:44px!important;height:54px!important;max-width:44px!important;max-height:54px!important;border-radius:6px!important}
-#sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-title{font-size:12.5px!important;line-height:1.08!important;max-height:27px!important;height:27px!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;line-clamp:2!important;overflow:hidden!important;margin:0!important}
-#sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-meta{font-size:10.5px!important;line-height:1.05!important;white-space:nowrap!important;margin:1px 0 0!important}
-#sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-qty{width:32px!important;min-width:32px!important;height:32px!important;border-radius:7px!important;font-size:14px!important}
-#sec-posKasir.aspos-selection-mode .aspos-selection-bar{left:22px!important;right:22px!important;bottom:8px!important;height:52px!important;border-radius:27px!important}
-#sec-posKasir.aspos-selection-mode .aspos-selection-count{padding-left:14px!important;font-size:13px!important}
-#sec-posKasir.aspos-selection-mode .aspos-selection-count strong{font-size:23px!important}
-#sec-posKasir.aspos-selection-mode .aspos-selection-bar button{min-width:108px!important;font-size:14px!important}
-#sec-posKasir.aspos-selection-mode .aspos-selection-bar button span{font-size:20px!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang tr{grid-template-columns:34px 50px minmax(0,1fr) 42px!important;column-gap:8px!important;padding:12px 16px!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1){grid-column:3!important;grid-row:1!important;min-width:0!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(2){grid-column:2!important;grid-row:1 / 3!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(3){grid-column:3!important;grid-row:2!important;min-width:0!important;text-align:left!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4){grid-column:4!important;grid-row:1 / 3!important;min-width:42px!important}
-#sec-posKasir.aspos-checkout-mode .aspos-cart-item-title{display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;line-clamp:2!important;overflow:hidden!important;max-height:38px!important;height:38px!important;line-height:19px!important;min-width:0!important;max-width:100%!important;word-break:normal!important;overflow-wrap:anywhere!important}
-#sec-posKasir.aspos-checkout-mode .aspos-cart-item-title.aspos-title-scroll{display:block!important;white-space:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;text-overflow:clip!important;-webkit-line-clamp:unset!important;line-clamp:none!important;height:38px!important;line-height:38px!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-x:contain!important}
-#sec-posKasir.aspos-checkout-mode .aspos-cart-item-title.aspos-title-scroll::-webkit-scrollbar{display:none!important}
-#sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(3) b{display:block!important;margin-top:1px!important;font-size:11px!important;line-height:16px!important;color:#707a76!important;white-space:nowrap!important}
-}
-</style>\n<style id="ASPOS-MOBILE-SEARCH-FULL-CATALOG-FIX">
-@media screen and (max-width:992px){
-  /* Kolom pencarian selalu terlihat di POS mobile, bukan lagi ikon pencarian. */
-  #sec-posKasir.aspos-selection-mode .aspos-mobile-pos-header{
-    display:flex!important;
-    height:64px!important;
-    min-height:64px!important;
-    box-sizing:border-box!important;
-    padding:8px 12px!important;
-    margin:0!important;
-    gap:8px!important;
-    background:#fff!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-mobile-search-wrap{
-    display:block!important;
-    flex:1 1 auto!important;
-    min-width:0!important;
-    position:relative!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-mobile-search-input{
-    display:block!important;
-    width:100%!important;
-    height:46px!important;
-    box-sizing:border-box!important;
-    border:1.5px solid #cbd8d3!important;
-    border-radius:13px!important;
-    background:#f4f7f6!important;
-    color:#1d2925!important;
-    padding:0 14px!important;
-    outline:none!important;
-    font-size:15px!important;
-    font-weight:500!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-mobile-search-input:focus{
-    border-color:#0f8b6d!important;
-    background:#fff!important;
-    box-shadow:0 0 0 3px rgba(15,139,109,.10)!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-back-menu,
-  #sec-posKasir.aspos-selection-mode .aspos-mobile-scan-btn{
-    flex:0 0 46px!important;
-    width:46px!important;
-    height:46px!important;
-    min-width:46px!important;
-    border:0!important;
-    border-radius:12px!important;
-    background:#fff!important;
-    color:#0f8066!important;
-    font-size:27px!important;
-    font-weight:800!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-  }
-  #sec-posKasir.aspos-checkout-mode .aspos-mobile-search-wrap,
-  #sec-posKasir.aspos-checkout-mode .aspos-mobile-scan-btn{
-    display:none!important;
-  }
-
-  /* Katalog memakai seluruh ruang sampai ke area tombol LANJUT.
-     Tombol LANJUT tetap fixed di atas katalog sehingga tidak membuat
-     ruang kosong putih di bawah daftar. */
-  #sec-posKasir.aspos-selection-mode{
-    height:calc(100dvh - 118px)!important;
-    min-height:calc(100dvh - 118px)!important;
-    padding:0!important;
-    margin:0!important;
-    overflow:hidden!important;
-    box-sizing:border-box!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-grid{
-    height:calc(100dvh - 182px)!important;
-    min-height:0!important;
-    display:block!important;
-    overflow:hidden!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel{
-    width:100%!important;
-    height:100%!important;
-    min-height:0!important;
-    max-height:none!important;
-    margin:0!important;
-    padding:0 12px 0!important;
-    box-sizing:border-box!important;
-    overflow:hidden!important;
-    border-radius:0!important;
-    box-shadow:none!important;
-    background:#fff!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel>div:first-child{
-    display:none!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-container{
-    width:100%!important;
-    height:100%!important;
-    min-height:0!important;
-    max-height:none!important;
-    display:flex!important;
-    flex-direction:column!important;
-    gap:0!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    padding:0 0 4px!important;
-    margin:0!important;
-    box-sizing:border-box!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-container::-webkit-scrollbar{
-    display:none!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-card{
-    flex:0 0 54px!important;
-    width:100%!important;
-    min-height:54px!important;
-    height:54px!important;
-    box-sizing:border-box!important;
-    display:grid!important;
-    grid-template-columns:46px minmax(0,1fr) 34px!important;
-    grid-template-rows:auto auto!important;
-    column-gap:9px!important;
-    align-items:center!important;
-    padding:2px 0!important;
-    margin:0!important;
-    border:0!important;
-    border-bottom:1px solid #e7ecea!important;
-    border-radius:0!important;
-    box-shadow:none!important;
-    text-align:left!important;
-    background:#fff!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-img{
-    grid-column:1!important;
-    grid-row:1 / 3!important;
-    width:40px!important;
-    height:50px!important;
-    max-width:40px!important;
-    max-height:50px!important;
-    margin:0!important;
-    border-radius:6px!important;
-    object-fit:cover!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .best-product-title{
-    grid-column:2!important;
-    grid-row:1!important;
-    height:28px!important;
-    max-height:28px!important;
-    margin:0!important;
-    font-size:12.5px!important;
-    line-height:14px!important;
-    font-weight:800!important;
-    display:-webkit-box!important;
-    -webkit-box-orient:vertical!important;
-    -webkit-line-clamp:2!important;
-    line-clamp:2!important;
-    overflow:hidden!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-meta{
-    grid-column:2!important;
-    grid-row:2!important;
-    margin:0!important;
-    font-size:10px!important;
-    line-height:11px!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-  }
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-qty{
-    grid-column:3!important;
-    grid-row:1 / 3!important;
-    width:32px!important;
-    min-width:32px!important;
-    height:32px!important;
-    border:2px solid #0f5132!important;
-    border-radius:8px!important;
-    font-size:14px!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    box-sizing:border-box!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-selection-bar{
-    left:42px!important;
-    right:42px!important;
-    bottom:10px!important;
-    height:52px!important;
-    z-index:99990!important;
-    border-radius:27px!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-selection-count{
-    padding-left:14px!important;
-    font-size:13px!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-selection-count strong{
-    font-size:23px!important;
-  }
-  #sec-posKasir.aspos-selection-mode .aspos-selection-bar button{
-    min-width:108px!important;
-    font-size:14px!important;
-  }
-}
-</style>
-
-<style id="ASPOS-FINAL-REQUESTED-UI">
-/* Permintaan tampilan POS mobile: qty hanya angka, tanpa kotak */
-@media screen and (max-width: 992px){
-  #sec-posKasir.aspos-selection-mode .pos-left-panel .catalog-qty,
-  #sec-posKasir.aspos-selection-mode .catalog-qty{
-    width:auto !important;
-    min-width:20px !important;
-    height:auto !important;
-    min-height:0 !important;
-    margin:0 !important;
-    padding:0 !important;
-    border:0 !important;
-    border-radius:0 !important;
-    background:transparent !important;
-    box-shadow:none !important;
-    font-size:18px !important;
-    line-height:1.1 !important;
-    font-weight:800 !important;
-    color:#0f5132 !important;
-  }
-  #sec-posKasir.aspos-selection-mode .catalog-qty:empty{
-    display:none !important;
-  }
-}
-
-/* Logout: ganti tombol merah bertuliskan Logout menjadi ikon kecil */
-.aspos-logout-btn{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  width:34px !important;
-  height:34px !important;
-  padding:0 !important;
-  margin:0 !important;
-  border:0 !important;
-  background:transparent !important;
-  color:#dc3545 !important;
-  cursor:pointer !important;
-  border-radius:50% !important;
-}
-.aspos-logout-btn:hover{
-  background:#fff1f2 !important;
-}
-.aspos-logout-btn svg{
-  width:22px !important;
-  height:22px !important;
-  display:block !important;
-}
-@media screen and (max-width:992px){
-  .aspos-logout-btn{
-    width:30px !important;
-    height:30px !important;
-  }
-  .aspos-logout-btn svg{
-    width:20px !important;
-    height:20px !important;
-  }
-}
-</style>
-
-<style id="ASPOS-SCAN-ICON-FINAL">
-/* Ikon scanner kamera/barcode untuk POS mobile */
-.aspos-mobile-scan-btn svg{
-  width:28px!important;
-  height:28px!important;
-  display:block!important;
-}
-.aspos-mobile-scan-btn{
-  cursor:pointer!important;
-  -webkit-tap-highlight-color:transparent!important;
-}
-.aspos-mobile-scan-btn:active{
-  transform:scale(.94)!important;
-}
-</style>
-<style id="ASPOS-CART-COMPACT-FINAL">
-@media screen and (max-width:992px){
-  #sec-posKasir.aspos-checkout-mode{height:calc(100dvh - 66px)!important;min-height:calc(100dvh - 66px)!important;overflow:hidden!important;padding-bottom:0!important}
-  #sec-posKasir.aspos-checkout-mode .pos-right-panel{height:calc(100dvh - 66px)!important;min-height:0!important;overflow:hidden!important}
-  #sec-posKasir.aspos-checkout-mode .pos-right-panel>div:nth-child(2){height:100%!important;min-height:0!important;overflow:hidden!important}
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;padding:0 10px 96px!important;box-sizing:border-box!important}
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang tr{grid-template-columns:34px minmax(0,1fr) 28px!important;gap:8px!important;padding:8px 4px!important;min-height:54px!important;box-sizing:border-box!important}
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1){grid-column:2!important;grid-row:1!important;min-width:0!important}
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(2){grid-column:1!important;grid-row:1!important;align-self:center!important}
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(3){display:none!important}
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4){grid-column:3!important;grid-row:1!important;min-width:28px!important;align-self:center!important}
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang input[type=number]{width:32px!important;min-width:32px!important;height:32px!important;padding:0!important;border:0!important;background:#eef3f1!important;border-radius:50%!important;text-align:center!important;font-size:13px!important;font-weight:800!important;box-sizing:border-box!important}
-  #sec-posKasir.aspos-checkout-mode .aspos-cart-item-title{font-size:12.5px!important;line-height:16px!important;height:16px!important;max-height:16px!important;margin:0!important;font-weight:800!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-  #sec-posKasir.aspos-checkout-mode .aspos-cart-item-title.aspos-title-scroll{display:block!important;height:16px!important;line-height:16px!important;overflow-x:auto!important;overflow-y:hidden!important;text-overflow:clip!important;white-space:nowrap!important}
-  #sec-posKasir.aspos-checkout-mode .aspos-cart-meta{display:flex!important;align-items:center!important;gap:7px!important;height:15px!important;line-height:15px!important;margin-top:1px!important;white-space:nowrap!important;overflow:hidden!important;font-size:9.5px!important;color:#7a8581!important}
-  #sec-posKasir.aspos-checkout-mode .aspos-cart-meta b{font-size:10.5px!important;color:#3f4945!important;font-weight:800!important}
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1)>div[style]{display:none!important}
-  #sec-posKasir.aspos-checkout-mode .aspos-remove-cart{width:24px!important;height:28px!important;min-width:24px!important;padding:0!important;border:0!important;background:transparent!important;color:#9aa5a1!important;font-size:0!important}
-  #sec-posKasir.aspos-checkout-mode .aspos-remove-cart:before{content:"🗑"!important;font-size:16px!important;line-height:28px!important;opacity:.75!important}
-  #sec-posKasir.aspos-checkout-mode .aspos-checkout-action{position:fixed!important;left:0!important;right:0!important;bottom:0!important;z-index:99990!important;margin:0!important;padding:7px 10px calc(7px + env(safe-area-inset-bottom))!important;border-top:1px solid #e4eae7!important;background:#fff!important;box-shadow:0 -4px 14px rgba(0,0,0,.08)!important}
-  #sec-posKasir.aspos-checkout-mode .aspos-detail-total{height:28px!important;margin:0 4px 5px!important;font-size:13px!important}
-  #sec-posKasir.aspos-checkout-mode .aspos-detail-total strong{font-size:18px!important}
-  #sec-posKasir.aspos-checkout-mode .aspos-pay-detail-btn{height:42px!important;min-height:42px!important;border-radius:22px!important;font-size:15px!important}
-}
-</style>
-<style id="ASPOS-CHECKOUT-COMPACT-V2">
-@media screen and (max-width:992px){
-  /* Header atas checkout dihilangkan: total + bayar cukup di bagian bawah. */
-  #sec-posKasir.aspos-checkout-mode .aspos-checkout-header{display:none!important}
-  #sec-posKasir.aspos-checkout-mode .pos-right-panel{
-    min-height:calc(100dvh - 66px)!important;
-    height:calc(100dvh - 66px)!important;
-  }
-  #sec-posKasir.aspos-checkout-mode .pos-right-panel>div:nth-child(2){
-    height:100%!important;
-    min-height:0!important;
-  }
-  /* Daftar keranjang memakai ruang yang tersedia, bukan berhenti di kotak pendek. */
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang{
-    width:100%!important;
-  }
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang thead{display:none!important}
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang tbody{
-    display:block!important;
-    width:100%!important;
-  }
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang tr{
-    display:grid!important;
-    grid-template-columns:34px minmax(0,1fr) 28px!important;
-    align-items:center!important;
-    gap:8px!important;
-    padding:8px 4px!important;
-    min-height:52px!important;
-  }
-  /* Judul produk wajib terlihat di atas harga/item. */
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1){
-    grid-column:2!important;
-    grid-row:1!important;
-    display:block!important;
-    min-width:0!important;
-    overflow:hidden!important;
-  }
-  #sec-posKasir.aspos-checkout-mode .aspos-cart-item-title{
-    display:block!important;
-    visibility:visible!important;
-    opacity:1!important;
-    width:100%!important;
-    height:16px!important;
-    max-height:16px!important;
-    font-size:12px!important;
-    line-height:16px!important;
-    font-weight:800!important;
-    color:#303633!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-  }
-  #sec-posKasir.aspos-checkout-mode .aspos-cart-meta{
-    display:flex!important;
-    visibility:visible!important;
-    opacity:1!important;
-    align-items:center!important;
-    gap:7px!important;
-    height:15px!important;
-    line-height:15px!important;
-    margin:0!important;
-    font-size:9.5px!important;
-    color:#7a8581!important;
-    white-space:nowrap!important;
-  }
-  #sec-posKasir.aspos-checkout-mode .aspos-cart-meta b{
-    font-size:10px!important;
-    color:#3f4945!important;
-  }
-  /* Qty tetap kecil. */
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(2){
-    grid-column:1!important;grid-row:1!important;align-self:center!important;
-  }
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang input[type=number]{
-    width:32px!important;height:32px!important;min-width:32px!important;
-    padding:0!important;border:0!important;border-radius:50%!important;
-    background:#eef3f1!important;text-align:center!important;
-    font-size:13px!important;font-weight:800!important;
-  }
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(3){display:none!important}
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(4){
-    grid-column:3!important;grid-row:1!important;min-width:28px!important;
-  }
-  #sec-posKasir.aspos-checkout-mode .aspos-remove-cart{
-    width:24px!important;height:26px!important;min-width:24px!important;
-  }
-  #sec-posKasir.aspos-checkout-mode .aspos-remove-cart:before{
-    font-size:15px!important;opacity:.7!important;
-  }
-  /* Container daftar barang: tinggi fleksibel sampai panel bayar. */
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang{
-    max-height:none!important;
-    min-height:0!important;
-  }
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang{
-    margin:0!important;
-  }
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang{
-    border:0!important;
-  }
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang tbody:empty:before{
-    content:"Keranjang kosong";
-    display:block;
-    text-align:center;
-    padding:20px;
-    color:#8a9490;
-    font-size:12px;
-  }
-  /* Tombol kembali dipindah ke bawah, satu area dengan Total/Bayar. */
-  #sec-posKasir.aspos-checkout-mode .aspos-checkout-action{
-    padding:5px 10px calc(7px + env(safe-area-inset-bottom))!important;
-  }
-  #sec-posKasir.aspos-checkout-mode .aspos-bottom-back{
-    display:block!important;
-    width:auto!important;
-    height:26px!important;
-    padding:0 6px!important;
-    margin:0 2px 3px!important;
-    border:0!important;
-    background:transparent!important;
-    color:#0aa681!important;
-    font-size:12px!important;
-    font-weight:800!important;
-    line-height:26px!important;
-  }
-  #sec-posKasir.aspos-checkout-mode .aspos-detail-total{
-    height:27px!important;
-    margin:0 4px 4px!important;
-    font-size:13px!important;
-  }
-  #sec-posKasir.aspos-checkout-mode .aspos-detail-total strong{
-    font-size:18px!important;
-  }
-  #sec-posKasir.aspos-checkout-mode .aspos-pay-detail-btn{
-    height:42px!important;
-    min-height:42px!important;
-    border-radius:22px!important;
-    font-size:15px!important;
-  }
-}
-.aspos-bottom-back{display:none}
-</style>
-<style id="ASPOS-CART-NAME-FORCE-FINAL">
-@media screen and (max-width:992px){
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1){
-    position:relative!important;
-    display:block!important;
-    grid-column:2!important;
-    grid-row:1!important;
-    min-width:0!important;
-    overflow:visible!important;
-  }
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang .aspos-cart-item-title{
-    display:block!important;
-    position:relative!important;
-    visibility:visible!important;
-    opacity:1!important;
-    color:#2f3432!important;
-    font-size:12px!important;
-    font-weight:800!important;
-    line-height:15px!important;
-    width:100%!important;
-    height:15px!important;
-    max-height:15px!important;
-    margin:0!important;
-    padding:0!important;
-    overflow:hidden!important;
-    white-space:nowrap!important;
-    text-overflow:ellipsis!important;
-  }
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang .aspos-cart-meta{
-    position:relative!important;
-    display:flex!important;
-    visibility:visible!important;
-    opacity:1!important;
-    color:#7a8581!important;
-    font-size:9.5px!important;
-    line-height:15px!important;
-    height:15px!important;
-    margin:0!important;
-    padding:0!important;
-  }
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td:nth-child(1)>div[style]{
-    display:none!important;
-  }
-}
-</style>
-<style id="ASPOS-CART-NAME-GUARANTEE">
-@media screen and (max-width:992px){
-  /* Nama produk ditampilkan langsung dari data-cart-name agar selalu terlihat di checkout mobile. */
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td[data-cart-name]::before{
-    content:attr(data-cart-name)!important;
-    display:block!important;
-    width:100%!important;
-    height:16px!important;
-    margin:0!important;
-    padding:0!important;
-    color:#2f3432!important;
-    font-size:12px!important;
-    line-height:16px!important;
-    font-weight:800!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    visibility:visible!important;
-    opacity:1!important;
-  }
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td[data-cart-name] .aspos-cart-item-title{
-    display:none!important;
-  }
-  #sec-posKasir.aspos-checkout-mode #tabelKeranjang td[data-cart-name]{
-    color:#2f3432!important;
-    min-height:32px!important;
-  }
-}
-</style>
+  </style>
 </head>
 <body>
 
@@ -1817,13 +222,6 @@
     </div>
   </div>
 
-  <div id="asposScanOverlay">
-    <div class="aspos-camera-head"><div class="aspos-camera-title">Scan Barcode / QRCode</div><button class="aspos-camera-close" type="button" onclick="stopPosScanner()">×</button></div>
-    <div id="asposScanMount"></div>
-    <div class="aspos-scan-guide"><div class="aspos-scan-line"></div></div>
-    <div class="aspos-scan-hint">Arahkan barcode ke dalam kotak untuk memindai</div>
-  </div>
-
   <!-- Halaman Utama Aplikasi -->
   <div id="appWrapper">
     
@@ -1838,9 +236,6 @@
         <div class="sidebar-section">Utama</div>
         <li><a href="#" onclick="switchMenu('dashboard', this)" class="active">📊 Dashboard</a></li>
         
-        <div class="sidebar-section">Laporan</div>
-        <li><a href="#" onclick="switchMenu('laporan', this)">📊 Laporan</a></li>
-
         <div class="sidebar-section">Database</div>
         <li><a href="#" onclick="switchMenu('masterBarang', this)">📚 Master Barang</a></li>
         <li><a href="#" onclick="switchMenu('supplier', this)">🏢 Supplier</a></li>
@@ -1879,7 +274,7 @@
               <p class="user-role" id="userRole">-</p>
             </div>
           </div>
-          <button class="aspos-logout-btn" onclick="logoutUser()" aria-label="Logout" title="Logout"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10M15 16l4-4-4-4M19 12H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="btn btn-danger btn-sm" onclick="logoutUser()">Logout</button>
         </div>
       </div>
 
@@ -1887,81 +282,90 @@
         
         <!-- DASHBOARD -->
         <div id="sec-dashboard" class="page-section active">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;">
-<div class="card" style="padding: 20px; text-align: center;">
-              <h4 style="margin:0; color:#6c757d; font-size:12px;">TRANSAKSI HARI INI</h4>
-              <p id="statTotalTransaksi" style="font-size:24px; font-weight:bold; color:#ffc107; margin:10px 0 0 0;">0</p>
-            </div>
-            <div class="card" style="padding: 20px; text-align: center;">
-              <h4 style="margin:0; color:#6c757d; font-size:12px;">PENDAPATAN HARI INI</h4>
-              <p id="statPendapatanHariIni" style="font-size:20px; font-weight:bold; color:#198754; margin:10px 0 0 0;">Rp 0</p>
-            </div>
-          </div>
-          
-          <!-- Laporan Custom Date -->
-          <div class="card">
-            <div class="card-header">Laporan Pendapatan Kustom</div>
-            <div class="card-body">
-              <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap;">
-                <div>
-                  <label style="font-size: 12px; font-weight: bold; color: #6c757d;">Dari Tanggal</label>
-                  <input type="date" id="filterDateStart" class="form-control" style="width: auto;">
-                </div>
-                <div>
-                  <label style="font-size: 12px; font-weight: bold; color: #6c757d;">Sampai Tanggal</label>
-                  <input type="date" id="filterDateEnd" class="form-control" style="width: auto;">
-                </div>
-                <div>
-                  <button class="btn btn-primary" onclick="loadLaporanCustom()" id="btnFilterLaporan">Filter Laporan</button>
-                </div>
-              </div>
-              <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 20px;">
-                <div>
-                  <h4 style="margin:0 0 5px 0; color:#6c757d; font-size:13px;">TOTAL TRANSAKSI (Filter)</h4>
-                  <p id="laporanTransaksi" style="font-size:20px; font-weight:bold; color:#333; margin:0;">-</p>
-                </div>
-                <div>
-                  <h4 style="margin:0 0 5px 0; color:#6c757d; font-size:13px;">TOTAL PENDAPATAN (Filter)</h4>
-                  <p id="laporanPendapatan" style="font-size:20px; font-weight:bold; color:var(--primary-color); margin:0;">-</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- LAPORAN -->
-        <div id="sec-laporan" class="page-section">
-          <div class="laporan-mobile-head">
-            <div class="laporan-title"><span>📊</span><b>LAPORAN</b></div>
-            <div class="laporan-update">↻ <span>Update :<br><b id="laporanUpdateTime">baru saja</b></span></div>
-          </div>
-
-          <div class="laporan-banner">
-            <div class="laporan-banner-icon">📈</div>
+          <div class="dashboard-page-header">
             <div>
-              <div class="laporan-banner-title">Laporan Penjualan</div>
-              <div class="laporan-banner-sub">Ringkasan dan detail penjualan toko</div>
+              <h1>Dashboard</h1>
+              <p id="dashboardPeriodLabel">Ringkasan penjualan</p>
             </div>
-            <button type="button" class="laporan-chevron" onclick="toggleLaporanMenu()" aria-label="Buka atau tutup laporan">⌃</button>
+            <div class="dashboard-date-box">
+              <label for="dashboardDate">Tanggal Penjualan</label>
+              <div class="dashboard-date-row">
+                <input type="date" id="dashboardDate" class="form-control">
+                <button class="btn btn-primary" onclick="loadDashboardByDate()" id="btnDashboardDate">Tampilkan</button>
+              </div>
+            </div>
           </div>
 
-          <div id="laporanMenuItems" class="laporan-menu-items">
-            <button type="button" onclick="bukaLaporanTransaksi()">Transaksi</button>
-            <button type="button" onclick="bukaLaporanBarang()">Penjualan Barang</button>
-            <button type="button" onclick="bukaLaporanKategori()">Penjualan Kategori</button>
+          <div class="dashboard-summary-grid">
+            <div class="dashboard-summary-card">
+              <div class="summary-icon summary-icon-green">🛒</div>
+              <div>
+                <div class="summary-label">Jumlah Transaksi</div>
+                <div id="statTotalTransaksi" class="summary-value">0</div>
+              </div>
+            </div>
+            <div class="dashboard-summary-card">
+              <div class="summary-icon summary-icon-orange">Rp</div>
+              <div>
+                <div class="summary-label">Pendapatan</div>
+                <div id="statPendapatanHariIni" class="summary-value">Rp 0</div>
+              </div>
+            </div>
+            <div class="dashboard-summary-card">
+              <div class="summary-icon summary-icon-teal">📦</div>
+              <div>
+                <div class="summary-label">Barang Terjual</div>
+                <div id="statBarangTerjual" class="summary-value">0</div>
+              </div>
+            </div>
+            <div class="dashboard-summary-card">
+              <div class="summary-icon summary-icon-blue">$</div>
+              <div>
+                <div class="summary-label">Keuntungan</div>
+                <div id="statKeuntungan" class="summary-value">Rp 0</div>
+              </div>
+            </div>
           </div>
 
-          <div id="laporanSummary" class="laporan-summary">
-            <div class="laporan-filter">
-              <div><label>Dari</label><input type="date" id="laporanDateStart"></div>
-              <div><label>Sampai</label><input type="date" id="laporanDateEnd"></div>
-              <button type="button" onclick="loadLaporanRingkas()">Tampilkan</button>
+          <div class="card dashboard-detail-card">
+            <div class="card-header dashboard-detail-header">
+              <div>
+                <div class="dashboard-detail-title">Laporan Penjualan Barang</div>
+                <div id="dashboardDetailSubtitle" class="dashboard-detail-subtitle">Rincian barang terjual</div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="loadDashboardByDate()">↻ Muat Ulang</button>
             </div>
-            <div class="laporan-cards">
-              <div><span>Total Transaksi</span><b id="laporanTotalTrx">0</b></div>
-              <div><span>Total Penjualan</span><b id="laporanTotalRp">Rp 0</b></div>
+            <div class="table-responsive">
+              <table id="tabelDashboardPenjualan">
+                <thead>
+                  <tr>
+                    <th>Kode</th>
+                    <th>Nama</th>
+                    <th>Jumlah Barang</th>
+                    <th>Jumlah Transaksi</th>
+                    <th>Keuntungan (Rp)</th>
+                    <th>Pendapatan (Rp)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="6" class="dashboard-empty">Memuat data...</td></tr>
+                </tbody>
+              </table>
             </div>
-            <div class="laporan-hint">Pilih salah satu menu di atas untuk melihat laporan yang lebih detail.</div>
+            <div class="dashboard-table-footer">
+              <span id="dashboardTableInfo">-</span>
+            </div>
+          </div>
+
+          <div class="dashboard-secondary-stats">
+            <div class="dashboard-mini-card">
+              <span>Total Produk</span>
+              <strong id="statTotalBarang">0</strong>
+            </div>
+            <div class="dashboard-mini-card">
+              <span>Total Supplier</span>
+              <strong id="statTotalSupplier">0</strong>
+            </div>
           </div>
         </div>
 
@@ -2125,17 +529,8 @@
 
         <!-- KASIR (POS) -->
         <div id="sec-posKasir" class="page-section">
-          <div class="aspos-mobile-pos-header">
-            <button type="button" class="aspos-back-menu" onclick="openSidebarMobile()" aria-label="Menu">☰</button>
-            <div class="aspos-mobile-search-wrap">
-              <input type="text" id="searchPosMobile" class="aspos-mobile-search-input" placeholder="Cari barang..." autocomplete="off"
-                oninput="syncMobilePosSearch(this)" onkeydown="asposSearchKeydown(event)">
-            </div>
-            <button type="button" class="aspos-mobile-scan-btn" aria-label="Scan barcode" title="Scan barcode dengan kamera" onclick="togglePosScanner()"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 17v-3a4 4 0 0 1 4-4h3M31 10h3a4 4 0 0 1 4 4v3M38 31v3a4 4 0 0 1-4 4h-3M17 38h-3a4 4 0 0 1-4-4v-3" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><path d="M15 20v8M19 18v12M23 20v8M27 18v12M31 20v8M35 18v12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
-          </div>
           <!-- LAYOUT BARU: Kiri (Best Seller), Kanan (Search + Cart) -->
           <!-- Di HP urutannya ditukar via CSS agar Search+Cart ada di ATAS -->
-          <div class="aspos-checkout-header"><button type="button" class="aspos-detail-back" onclick="backToPosSelection()">‹</button><div class="aspos-detail-total-top" id="asposDetailTotalTop">Rp 0</div><button type="button" class="aspos-detail-pay-top" onclick="prosesCheckout()">BAYAR</button></div>
           <div class="pos-grid" style="display: grid; grid-template-columns: 1.2fr 2fr; gap: 20px;">
             
             <!-- PANEL KIRI: BEST SELLER -->
@@ -2150,22 +545,21 @@
             <div class="card pos-right-panel" style="padding: 15px; display: flex; flex-direction: column; overflow: visible;">
               
               <!-- Bagian Input / Search -->
-              <div class="aspos-desktop-search-area">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                  <h3 style="margin:0;font-size:16px;">Input Penjualan</h3>
+              <div style="margin-bottom: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <h3 style="margin:0; font-size:16px;">Input Penjualan</h3>
                   <button class="btn btn-outline btn-sm" onclick="togglePosScanner()">📷 Scan Barcode</button>
                 </div>
                 <div id="readerPos"></div>
-                <div style="position:relative;">
-                  <input type="text" id="searchPos" class="form-control" placeholder="Ketik nama barang atau scan barcode..." oninput="handlePosInput()" onkeydown="asposSearchKeydown(event)" autocomplete="off" style="width:100%;box-sizing:border-box;padding:10px;font-size:14px;border:2px solid var(--primary-color);">
-                  <div id="suggestionBox" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid #ced4da;border-radius:4px;max-height:250px;overflow-y:auto;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.15);"></div>
+                <div style="position: relative;">
+                  <input type="text" id="searchPos" class="form-control" placeholder="Ketik nama barang atau scan barcode..." oninput="handlePosInput()" autocomplete="off" style="width:100%; box-sizing: border-box; padding: 10px; font-size: 14px; border: 2px solid var(--primary-color);">
+                  <div id="suggestionBox" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ced4da; border-radius: 4px; max-height: 250px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></div>
                 </div>
               </div>
 
               <!-- Bagian Keranjang Belanja -->
               <div style="display: flex; flex-direction: column; flex: 1;">
-                <div class="aspos-mobile-cart-heading"><div><strong>Keranjang</strong><span id="asposCartCount2">0 barang</span></div><span id="asposCartTotalMini">Rp 0</span></div>
-                                <h3 style="margin:0 0 10px 0; font-size:16px;">Keranjang Belanja</h3>
+                <h3 style="margin:0 0 10px 0; font-size:16px;">Keranjang Belanja</h3>
                 <div style="max-height: 350px; overflow-y: auto; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 4px;">
                   <table id="tabelKeranjang" style="font-size: 11.5px; margin: 0;">
                     <thead>
@@ -2177,19 +571,24 @@
               </div>
 
               <!-- Bagian Checkout / Bayar -->
-              <div class="aspos-checkout-action">
-                <button type="button" class="aspos-bottom-back" onclick="backToPosSelection()">‹ KEMBALI</button>
-                <div class="aspos-detail-total"><span>Total</span><strong id="posTotalBayar">Rp 0</strong></div>
-                <div class="form-group aspos-desktop-payment-method"><label>Metode Pembayaran:</label><select id="posMetode" class="form-control"><option value="Tunai">Tunai (Cash)</option><option value="QRIS">QRIS</option><option value="Transfer Bank">Transfer Bank</option></select></div>
-                <button id="asposPayFromDetail" class="btn btn-primary aspos-pay-detail-btn" type="button" onclick="prosesCheckout()">BAYAR</button>
+              <div style="border-top: 1px solid var(--border-color); padding-top: 10px;">
+                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 10px;">
+                  <span>Total Tagihan:</span>
+                  <span id="posTotalBayar" style="color: var(--primary-color);">Rp 0</span>
+                </div>
+                <div class="form-group">
+                  <label>Metode Pembayaran:</label>
+                  <select id="posMetode" class="form-control">
+                    <option value="Tunai">Tunai (Cash)</option>
+                    <option value="QRIS">QRIS</option>
+                    <option value="Transfer Bank">Transfer Bank</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 10px; font-size: 14px;" onclick="prosesCheckout()">Bayar & Cetak Nota</button>
               </div>
 
             </div>
 
-          </div>
-          <div id="asposSelectionBar" class="aspos-selection-bar">
-            <div class="aspos-selection-count"><strong id="asposSelectionCount">0</strong><span> Barang</span></div>
-            <button type="button" onclick="openPosCheckout()">LANJUT <span>›</span></button>
           </div>
         </div>
 
@@ -2626,17 +1025,6 @@
     </div>
   </div>
 
-  <!-- Modal Edit Item POS -->
-  <div id="modalEditItemPos" class="modal aspos-item-edit-modal">
-    <div class="modal-content aspos-item-edit-content">
-      <div class="aspos-item-edit-head"><div class="aspos-item-edit-product"><div id="editItemPosThumb" class="aspos-item-edit-thumb">#</div><div><div id="editItemPosName" class="aspos-item-edit-name">Barang</div><div id="editItemPosId" class="aspos-item-edit-id">-</div></div></div><div id="editItemPosPriceInfo" class="aspos-item-edit-price">Rp 0</div></div>
-      <div class="aspos-item-edit-qty"><button type="button" onclick="editItemQty(-1)">−</button><strong id="editItemPosQty">1</strong><button type="button" onclick="editItemQty(1)">+</button></div>
-      <div class="aspos-item-edit-fields"><div class="aspos-edit-field"><label>Harga jual sementara</label><input type="number" id="editItemPosPrice" min="0" inputmode="numeric" oninput="updateEditItemPreview()"></div><div class="aspos-edit-field"><label>Diskon / potongan</label><div class="aspos-disc-row"><select id="editItemPosDiscType"><option value="Rp">Rp</option><option value="%">%</option></select><input type="number" id="editItemPosDiscVal" min="0" inputmode="numeric" oninput="updateEditItemPreview()"></div></div></div>
-      <div class="aspos-item-edit-preview"><span>Subtotal item</span><strong id="editItemPosSubtotal">Rp 0</strong></div>
-      <div class="aspos-item-edit-actions"><button type="button" class="aspos-edit-delete" onclick="hapusItemDariEdit()">HAPUS</button><button type="button" class="aspos-edit-save" onclick="simpanEditItemPos()">OK</button></div>
-    </div>
-  </div>
-
   <!-- Modal Pembayaran & Diskon Keseluruhan -->
   <div id="modalPembayaran" class="modal">
     <div class="modal-content" style="max-width: 400px;">
@@ -2685,21 +1073,9 @@
             <h3 id="payKembalian" style="margin: 5px 0; color: #dc3545;">Rp 0</h3>
           </div>
         </div>
-        <div class="aspos-payment-keypad">
-          <button type="button" onclick="asposPayKey('7')">7</button><button type="button" onclick="asposPayKey('8')">8</button><button type="button" onclick="asposPayKey('9')">9</button><button type="button" class="key-clear" onclick="asposPayClear()">C</button>
-          <button type="button" onclick="asposPayKey('4')">4</button><button type="button" onclick="asposPayKey('5')">5</button><button type="button" onclick="asposPayKey('6')">6</button><button type="button" class="key-back" onclick="asposPayBackspace()">⌫</button>
-          <button type="button" onclick="asposPayKey('1')">1</button><button type="button" onclick="asposPayKey('2')">2</button><button type="button" onclick="asposPayKey('3')">3</button><button type="button" class="key-auto" onclick="asposPayAuto()">AUTO</button>
-          <button type="button" onclick="asposPayKey('0')">0</button><button type="button" onclick="asposPayKey('000')">000</button><button type="button" onclick="asposPayKey('.')">.</button><button type="button" class="key-auto" onclick="asposPayAuto()">💵 AUTO</button>
-        </div>
-        <div class="aspos-quick-pay">
-          <button type="button" onclick="asposPaySetQuick(grandFinalBayar)">Rp <span id="quickExact">0</span></button>
-          <button type="button" onclick="asposPaySetQuick(300000)">Rp 300.000</button>
-          <button type="button" onclick="asposPaySetQuick(500000)">Rp 500.000</button>
-          <button type="button" onclick="asposPaySetQuick(1000000)">Rp 1.000.000</button>
-        </div>
         <div class="modal-footer" style="margin: -20px -20px -20px -20px; margin-top: 20px;">
           <button type="button" class="btn btn-outline" onclick="closeModalPembayaran()">Batal</button>
-          <button type="button" class="btn btn-primary" id="btnKonfirmasiBayar" onclick="konfirmasiPembayaran()">BAYAR & CETAK NOTA</button>
+          <button type="button" class="btn btn-primary" id="btnKonfirmasiBayar" onclick="konfirmasiPembayaran()">Terima & Cetak Struk</button>
         </div>
       </div>
     </div>
@@ -2734,7 +1110,7 @@
       </div>
       <div class="modal-footer" style="text-align: center; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
         <button class="btn btn-outline btn-sm" onclick="closeModalStruk()">Tutup</button>
-        <button class="btn btn-outline btn-sm" onclick="downloadStrukImage()">💾 Simpan HP/PC</button>\n        <button class="btn btn-outline btn-sm" onclick="printStruk()">🖨️ Print</button>
+        <button class="btn btn-outline btn-sm" onclick="downloadStrukImage()">💾 Simpan HP/PC</button>
         <button class="btn btn-primary btn-sm" onclick="shareStrukImage()">📤 Share (WA, dll)</button>
       </div>
     </div>
@@ -2751,7 +1127,7 @@
   <script>
     window.AS_POS_CONFIG = window.AS_POS_CONFIG || {
       // GANTI dengan URL deployment Web App GAS yang berakhiran /exec.
-      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwI6lIZS484WprutYpWQVyeWI_BbrKtDODmtWHm1oJIOS9Jyy7qwuShc1cubhC6jHbj/exec"
+      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbxwcIHkNlIBEO3x9-yhnULdexy6HQbwjm2YNaaQswJAnAJJuQKr5MFINOkfB3BSr80X/exec"
     };
 
     (function installGasBridge() {
@@ -2763,54 +1139,17 @@
 
       function callGas(functionName, args, success, failure) {
         if (!apiUrl || apiUrl.indexOf('PASTE_URL_WEB_APP_GAS') !== -1) {
-          const err = new Error('URL Web App GAS belum diisi.');
-          if (typeof failure === 'function') failure(err); else console.error(err);
+          const err = new Error('URL Web App GAS belum diisi. Buka index.html dan isi AS_POS_CONFIG.GAS_WEB_APP_URL.');
+          if (typeof failure === 'function') failure(err);
+          else alert(err.message);
           return;
         }
 
-        // Fungsi baca memakai JSONP agar GitHub Pages dapat menerima
-        // respons Apps Script tanpa terhalang CORS/redirect.
-        const readOnly = {
-          getBarang:1, getProductBest:1, getPromoList:1,
-          getDashboardData:1, getSupplier:1, getPenjualan:1,
-          getDetailPenjualanByNota:1, getLaporanPenjualanBarangAdvanced:1,
-          getStokMasuk:1, getReturBarang:1, getLogoToko:1
-        };
-
-        if (readOnly[functionName]) {
-          const callbackName = '__aspos_cb_' + Date.now() + '_' + Math.floor(Math.random()*100000);
-          const script = document.createElement('script');
-          const cleanup = function() {
-            try { delete window[callbackName]; } catch(e) { window[callbackName]=undefined; }
-            if (script.parentNode) script.parentNode.removeChild(script);
-          };
-          window[callbackName] = function(result) {
-            cleanup();
-            if (result && result.ok === false) {
-              if (typeof failure === 'function') failure(new Error(result.message || 'Gagal menjalankan fungsi GAS.'));
-              return;
-            }
-            if (typeof success === 'function') success(result ? result.data : undefined);
-          };
-          script.onerror = function() {
-            cleanup();
-            const err = new Error('Gagal mengambil data dari Web App GAS.');
-            if (typeof failure === 'function') failure(err);
-          };
-          script.src = apiUrl +
-            '?api=jsonp&functionName=' + encodeURIComponent(functionName) +
-            '&args=' + encodeURIComponent(JSON.stringify(args || [])) +
-            '&prefix=' + encodeURIComponent(callbackName) +
-            '&_=' + Date.now();
-          document.head.appendChild(script);
-          return;
-        }
-
-        // Fungsi tulis tetap memakai POST.
         fetch(apiUrl, {
           method: 'POST',
           redirect: 'follow',
           cache: 'no-store',
+          // text/plain sengaja dipakai agar request tidak memicu preflight CORS.
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ functionName: functionName, args: args || [] })
         })
@@ -2828,8 +1167,10 @@
         .catch(function(error) {
           console.error('[AS-Pos GAS]', functionName, error);
           if (typeof failure === 'function') failure(error);
+          else alert('Koneksi ke server gagal: ' + error.message);
         });
       }
+
       function makeRunner(success, failure) {
         return new Proxy({}, {
           get: function(target, prop) {
@@ -2901,26 +1242,8 @@
     };
 
     function toggleSidebar() {
-      var sidebar = document.querySelector('.sidebar');
-      var overlay = document.getElementById('sidebarOverlay');
-      if (!sidebar || !overlay) return;
-      sidebar.classList.toggle('active-mobile');
-      overlay.classList.toggle('active-mobile');
-    }
-
-    /* Alias yang dipakai tombol hamburger POS versi mobile. */
-    function openSidebarMobile() {
-      var sidebar = document.querySelector('.sidebar');
-      var overlay = document.getElementById('sidebarOverlay');
-      if (!sidebar || !overlay) return;
-      sidebar.classList.add('active-mobile');
-      overlay.classList.add('active-mobile');
-      setTimeout(function() {
-        var active = document.querySelector('.sidebar-menu a.active');
-        if (active && typeof active.scrollIntoView === 'function') {
-          active.scrollIntoView({ block: 'nearest' });
-        }
-      }, 50);
+      document.querySelector('.sidebar').classList.toggle('active-mobile');
+      document.getElementById('sidebarOverlay').classList.toggle('active-mobile');
     }
 
     function closeSidebarMobile() {
@@ -2969,69 +1292,25 @@
     }
 
     function switchMenu(menuId, el) {
-      // Tutup drawer terlebih dahulu agar area konten langsung menerima sentuhan.
-      closeSidebarMobile();
-
-      // Hentikan kamera dengan aman sebelum berpindah halaman.
-      try { if (typeof stopAllScanners === 'function') stopAllScanners(); } catch (e) {
-        console.warn('Gagal menghentikan scanner saat pindah menu:', e);
-      }
-
-      document.querySelectorAll('.page-section').forEach(function(sec) {
-        sec.classList.remove('active');
-      });
-      document.querySelectorAll('.sidebar-menu li a').forEach(function(a) {
-        a.classList.remove('active');
-      });
-
-      var target = document.getElementById('sec-' + menuId);
-      if (!target) {
-        console.error('Menu section tidak ditemukan:', menuId);
-        return false;
-      }
-
+      stopAllScanners();
+      document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.sidebar-menu li a').forEach(a => a.classList.remove('active'));
+      
       if (el) el.classList.add('active');
-      target.classList.add('active');
+      document.getElementById('sec-' + menuId).classList.add('active');
 
-      // Di POS mobile gunakan satu tombol menu saja: tombol di bar POS.
-      // Tombol menu di samping logo disembunyikan khusus saat POS aktif.
-      var appWrapper = document.getElementById('appWrapper');
-      if (appWrapper) appWrapper.classList.toggle('aspos-pos-active', menuId === 'posKasir');
-
-      // Kembalikan posisi konten ke atas saat pindah menu di HP.
-      var contentBody = document.querySelector('.content-body');
-      if (contentBody) contentBody.scrollTop = 0;
-
-      // Jalankan loader setelah tampilan menu sudah aktif.
-      // setTimeout mencegah proses API mengganggu event sentuhan menu di HP.
-      setTimeout(function() {
-        try {
-          if (menuId === 'masterBarang') loadBarang();
-          if (menuId === 'supplier') loadSupplier();
-          if (menuId === 'promoManajemen') loadPromoManajemen();
-          if (menuId === 'stokMasuk') loadStokMasuk();
-          if (menuId === 'returBarang') loadReturBarang();
-          if (menuId === 'posKasir') {
-            setPosMobileMode('selection');
-            loadPosKatalog();
-            setTimeout(function(){
-              document.querySelectorAll('#sec-posKasir .aspos-mobile-icons button').forEach(function(btn){
-                var label=String(btn.getAttribute('aria-label')||'').toLowerCase();
-                var txt=String(btn.textContent||'');
-                if(label.indexOf('keranjang')>=0 || txt.indexOf('🛒')>=0){btn.remove();}
-              });
-            },50);
-          }
-          if (menuId === 'riwayatPenjualan') loadRiwayat();
-          if (menuId === 'riwayatPerBarang') initRiwayatPerBarang();
-          if (menuId === 'dashboard') loadDashboardStats();
-          if (menuId === 'laporan') { setLaporanDates(); loadLaporanRingkas(); }
-        } catch (e) {
-          console.error('Gagal memuat menu ' + menuId + ':', e);
-        }
-      }, 0);
-
-      return false;
+      if (menuId === 'masterBarang') loadBarang();
+      if (menuId === 'supplier') loadSupplier();
+      if (menuId === 'promoManajemen') loadPromoManajemen();
+      if (menuId === 'stokMasuk') loadStokMasuk();
+      if (menuId === 'returBarang') loadReturBarang();
+      if (menuId === 'posKasir') loadPosKatalog();
+      if (menuId === 'riwayatPenjualan') loadRiwayat();
+      if (menuId === 'riwayatPerBarang') initRiwayatPerBarang();
+      if (menuId === 'dashboard') loadDashboardStats();
+      
+      // Sembunyikan sidebar di mobile setelah menu dipilih
+      closeSidebarMobile();
     }
 
     function initApp() {
@@ -3045,157 +1324,92 @@
       }).getPromoList();
     }
 
-    function getLocalDateISO(date) {
-      var d = date || new Date();
-      var year = d.getFullYear();
-      var month = String(d.getMonth() + 1).padStart(2, '0');
-      var day = String(d.getDate()).padStart(2, '0');
-      return year + '-' + month + '-' + day;
+    function setDashboardDateDefaults() {
+      var dateInput = document.getElementById('dashboardDate');
+      if (!dateInput || dateInput.value) return;
+      var now = new Date();
+      var localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+      dateInput.value = localDate;
     }
 
-    function toggleLaporanMenu() {
-      var box=document.getElementById('laporanMenuItems');
-      if(box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    function formatRupiahDashboard(value) {
+      return 'Rp ' + (Number(value) || 0).toLocaleString('id-ID');
     }
-    function setLaporanDates() {
-      var d=new Date(), iso=getLocalDateISO(d);
-      var s=document.getElementById('laporanDateStart'), e=document.getElementById('laporanDateEnd');
-      if(s&&!s.value)s.value=iso; if(e&&!e.value)e.value=iso;
-      var u=document.getElementById('laporanUpdateTime'); if(u)u.textContent='baru saja';
-    }
-    function bukaLaporanTransaksi(){
-      var sec=document.getElementById('sec-laporan'); if(!sec)return;
-      var old=document.getElementById('laporanTransaksiPanel'); if(old)old.remove();
-      var panel=document.createElement('div'); panel.id='laporanTransaksiPanel'; panel.className='laporan-transaksi-panel';
-      panel.innerHTML='<div class="laporan-detail-head"><button type="button" onclick="this.closest(\'#laporanTransaksiPanel\').remove()">‹ Kembali</button><b>Transaksi Penjualan</b></div><div id="laporanHarianList"><div class="laporan-loading">Memuat transaksi...</div></div>';
-      sec.appendChild(panel); renderLaporanHarian();
-    }
-    function formatHariLaporan(v){
-      var d=new Date(v); if(isNaN(d)) return String(v||'-');
-      return d.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-    }
-    function renderLaporanHarian(){
-      var box=document.getElementById('laporanHarianList'); if(!box)return;
-      var rows=Array.isArray(globalRiwayatData)?globalRiwayatData:[];
-      var groups={};
-      rows.forEach(function(r){
-        var raw=String(r.tanggal||''); var key=raw.slice(0,10);
-        if(!/^\d{4}-\d{2}-\d{2}$/.test(key)){ var d=new Date(raw); key=isNaN(d)?raw:d.toISOString().slice(0,10); }
-        (groups[key]||(groups[key]=[])).push(r);
-      });
-      var keys=Object.keys(groups).sort().reverse();
-      if(!keys.length){box.innerHTML='<div class="laporan-empty">Belum ada transaksi.</div>';return;}
-      box.innerHTML=keys.map(function(k,idx){
-        var arr=groups[k], total=arr.reduce(function(s,x){return s+Number(x.total_bayar||0)},0);
-        var id='lh_'+k.replace(/\W/g,'_');
-        return '<div class="hari-row"><button type="button" class="hari-btn" onclick="toggleHariLaporan(\''+id+'\')"><span><b>'+formatHariLaporan(k)+'</b><small>'+arr.length+' transaksi · Rp '+total.toLocaleString('id-ID')+'</small></span><span>›</span></button><div id="'+id+'" class="nota-list">'+arr.map(function(x){var n=String(x.no_nota||'').replace(/'/g,"\\\\'");return '<button type="button" onclick="bukaStrukUlang(\''+n+'\')"><span><b>'+x.no_nota+'</b><small>'+(x.kasir||'-')+' · '+(x.total_item||0)+' item</small></span><strong>Rp '+Number(x.total_bayar||0).toLocaleString('id-ID')+'</strong></button>';}).join('')+'</div></div>';
-      }).join('');
-      if(keys[0])toggleHariLaporan('lh_'+keys[0].replace(/\\W/g,'_'));
-    }
-    function toggleHariLaporan(id){var e=document.getElementById(id);if(e)e.classList.toggle('open');}
 
-    function bukaLaporanBarang(){ switchMenu('riwayatPerBarang'); }
-    function bukaLaporanKategori(){
-      var sec=document.getElementById('sec-laporan');
-      if(!sec)return;
-      var old=document.getElementById('laporanKategoriPanel');
-      if(old)old.remove();
-      var panel=document.createElement('div'); panel.id='laporanKategoriPanel'; panel.className='card'; panel.style.marginTop='14px';
-      panel.innerHTML='<div class="card-header">Penjualan Kategori</div><div style="padding:14px"><div class="laporan-filter"><div><label>Dari</label><input type="date" id="kategoriDateStart"></div><div><label>Sampai</label><input type="date" id="kategoriDateEnd"></div><button type="button" onclick="loadLaporanKategori()">Tampilkan</button></div><div class="table-responsive" style="margin-top:14px"><table><thead><tr><th>Kategori</th><th>Total Qty</th><th>Total Penjualan</th></tr></thead><tbody id="bodyLaporanKategori"><tr><td colspan="3" style="text-align:center">Pilih periode lalu tekan Tampilkan.</td></tr></tbody></table></div></div>';
-      sec.appendChild(panel); setLaporanDates();
-      var s=document.getElementById('kategoriDateStart'),e=document.getElementById('kategoriDateEnd'); s.value=document.getElementById('laporanDateStart').value;e.value=document.getElementById('laporanDateEnd').value;
-    }
-    function loadLaporanRingkas(){
-      var s=document.getElementById('laporanDateStart').value,e=document.getElementById('laporanDateEnd').value;
-      if(!s||!e)return alert('Silakan pilih periode laporan.');
-      google.script.run.withSuccessHandler(function(d){
-        document.getElementById('laporanTotalTrx').textContent=(d.total_transaksi||0)+' Trx';
-        document.getElementById('laporanTotalRp').textContent='Rp '+Number(d.total_pendapatan||0).toLocaleString('id-ID');
-        var u=document.getElementById('laporanUpdateTime');if(u)u.textContent='baru saja';
-      }).getDashboardData(s,e);
-    }
-    function loadLaporanKategori(){
-      var s=document.getElementById('kategoriDateStart').value,e=document.getElementById('kategoriDateEnd').value,body=document.getElementById('bodyLaporanKategori');
-      if(!s||!e)return alert('Silakan pilih periode laporan.');
-      body.innerHTML='<tr><td colspan="3" style="text-align:center">Memuat...</td></tr>';
-      google.script.run.withSuccessHandler(function(rows){
-        var map={};
-        (rows||[]).forEach(function(x){
-          var b=(globalDataBarang||[]).find(function(z){return String(z.id_barang)===String(x.id_barang);});
-          var k=(b&&b.kategori)||'Tanpa Kategori';
-          if(!map[k])map[k]={qty:0,rp:0};
-          map[k].qty+=Number(x.qty||x.total_qty||0); map[k].rp+=Number(x.subtotal||x.total_pendapatan||0);
-        });
-        body.innerHTML='';
-        Object.keys(map).sort().forEach(function(k){body.innerHTML+= '<tr><td>'+k+'</td><td>'+map[k].qty+'</td><td>Rp '+map[k].rp.toLocaleString('id-ID')+'</td></tr>';});
-        if(!Object.keys(map).length)body.innerHTML='<tr><td colspan="3" style="text-align:center">Tidak ada data pada periode tersebut.</td></tr>';
-      }).getLaporanPenjualanBarangAdvanced(s,e,'rekap');
+    function escapeDashboardHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
     function loadDashboardStats() {
-      // Gunakan tanggal lokal HP, bukan UTC.
-      // Di Indonesia, toISOString() dini hari dapat masih menunjukkan tanggal kemarin.
-      var today = getLocalDateISO(new Date());
-      google.script.run.withSuccessHandler(function(data) {
-        var elBarang=document.getElementById("statTotalBarang");
-        var elSupplier=document.getElementById("statTotalSupplier");
-        var elTransaksi=document.getElementById("statTotalTransaksi");
-        var elPendapatan=document.getElementById("statPendapatanHariIni");
-        if(elBarang) elBarang.innerText=data.total_barang;
-        if(elSupplier) elSupplier.innerText=data.total_supplier;
-        if(elTransaksi) elTransaksi.innerText=data.total_transaksi;
-        if(elPendapatan) elPendapatan.innerText="Rp "+Number(data.total_pendapatan||0).toLocaleString('id-ID');
-      }).getDashboardData(today, today);
+      setDashboardDateDefaults();
+      loadDashboardByDate();
     }
 
+    function loadDashboardByDate() {
+      var dateInput = document.getElementById('dashboardDate');
+      var date = dateInput && dateInput.value ? dateInput.value : '';
+      var btn = document.getElementById('btnDashboardDate');
+      var tbody = document.querySelector('#tabelDashboardPenjualan tbody');
+      if (!date) return alert('Silakan pilih tanggal penjualan terlebih dahulu.');
+
+      if (btn) { btn.disabled = true; btn.innerText = 'Memuat...'; }
+      if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty">Memuat data...</td></tr>';
+
+      google.script.run
+        .withSuccessHandler(function(data) {
+          data = data || {};
+          document.getElementById('statTotalBarang').innerText = Number(data.total_barang || 0).toLocaleString('id-ID');
+          document.getElementById('statTotalSupplier').innerText = Number(data.total_supplier || 0).toLocaleString('id-ID');
+          document.getElementById('statTotalTransaksi').innerText = Number(data.total_transaksi || 0).toLocaleString('id-ID');
+          document.getElementById('statPendapatanHariIni').innerText = formatRupiahDashboard(data.total_pendapatan);
+          document.getElementById('statBarangTerjual').innerText = Number(data.total_barang_terjual || 0).toLocaleString('id-ID');
+          document.getElementById('statKeuntungan').innerText = formatRupiahDashboard(data.total_keuntungan);
+
+          var label = data.tanggal_label || date;
+          document.getElementById('dashboardPeriodLabel').innerText = 'Ringkasan penjualan • ' + label;
+          document.getElementById('dashboardDetailSubtitle').innerText = 'Rincian barang terjual pada ' + label;
+
+          var rows = Array.isArray(data.rincian_barang) ? data.rincian_barang : [];
+          if (tbody) {
+            if (!rows.length) {
+              tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty">Tidak ada penjualan pada tanggal ini.</td></tr>';
+            } else {
+              tbody.innerHTML = rows.map(function(item) {
+                return '<tr>' +
+                  '<td style="white-space:nowrap;"><b>' + escapeDashboardHtml(item.id_barang) + '</b></td>' +
+                  '<td style="min-width:220px;">' + escapeDashboardHtml(item.nama_barang) + '</td>' +
+                  '<td>' + Number(item.jumlah_barang || 0).toLocaleString('id-ID') + '</td>' +
+                  '<td>' + Number(item.jumlah_transaksi || 0).toLocaleString('id-ID') + '</td>' +
+                  '<td>' + Number(item.keuntungan || 0).toLocaleString('id-ID') + '</td>' +
+                  '<td>' + Number(item.pendapatan || 0).toLocaleString('id-ID') + '</td>' +
+                '</tr>';
+              }).join('');
+            }
+          }
+          document.getElementById('dashboardTableInfo').innerText = rows.length ? 'Menampilkan 1 sampai ' + rows.length + ' barang' : 'Tidak ada data';
+          if (btn) { btn.disabled = false; btn.innerText = 'Tampilkan'; }
+        })
+        .withFailureHandler(function(err) {
+          console.error(err);
+          if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty" style="color:#dc3545;">Gagal memuat dashboard: ' + escapeDashboardHtml(err && err.message ? err.message : err) + '</td></tr>';
+          if (btn) { btn.disabled = false; btn.innerText = 'Tampilkan'; }
+          alert('Gagal memuat Dashboard: ' + (err && err.message ? err.message : err));
+        })
+        .getDashboardData(date, date);
+    }
+
+    // Dipertahankan untuk kompatibilitas dengan kode/versi lama.
     function loadLaporanCustom() {
-      var start = document.getElementById("filterDateStart").value;
-      var end = document.getElementById("filterDateEnd").value;
-      var btn = document.getElementById("btnFilterLaporan");
-      
-      if(!start || !end) return alert("Silakan pilih tanggal awal dan akhir terlebih dahulu.");
-
-      btn.innerText = "Memuat...";
-      btn.disabled = true;
-
-      google.script.run.withSuccessHandler(function(data) {
-        document.getElementById("laporanTransaksi").innerText = data.total_transaksi + " Trx";
-        document.getElementById("laporanPendapatan").innerText = "Rp " + data.total_pendapatan.toLocaleString('id-ID');
-        btn.innerText = "Filter Laporan";
-        btn.disabled = false;
-      }).getDashboardData(start, end);
+      loadDashboardByDate();
     }
 
     function loadBarang() {
-      var showData = function(data) {
-        data = Array.isArray(data) ? data : [];
+      google.script.run.withSuccessHandler(function(data) {
         globalDataBarang = data;
-        try { localStorage.setItem('aspos_barang_cache', JSON.stringify(data)); } catch(e) {}
         renderTabelBarang(data);
-      };
-
-      var showError = function(err) {
-        console.error('[AS-Pos] getBarang gagal:', err);
-        var cached = null;
-        try { cached = JSON.parse(localStorage.getItem('aspos_barang_cache') || 'null'); } catch(e) {}
-        if (Array.isArray(cached) && cached.length) {
-          showData(cached);
-          return;
-        }
-        var tbody = document.querySelector('#tabelBarang tbody');
-        if (tbody) {
-          tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:35px;color:#dc3545;">Data barang belum dapat dimuat.<br><small>Periksa koneksi Web App GAS lalu tekan menu Master Barang lagi.</small></td></tr>';
-        }
-      };
-
-      try {
-        google.script.run
-          .withSuccessHandler(showData)
-          .withFailureHandler(showError)
-          .getBarang();
-      } catch(e) {
-        showError(e);
-      }
+      }).getBarang();
     }
 
     function renderTabelBarang(data) {
@@ -3403,105 +1617,17 @@
       }
     }
 
-    function setPosMobileMode(mode) {
-      var sec=document.getElementById('sec-posKasir'); if(!sec) return;
-      sec.classList.remove('aspos-selection-mode','aspos-checkout-mode','aspos-search-open');
-      if(mode==='checkout'||mode==='detail') sec.classList.add('aspos-checkout-mode'); else sec.classList.add('aspos-selection-mode');
-      var bar=document.getElementById('asposSelectionBar'); if(bar) bar.style.display=(mode==='checkout'||mode==='detail'?'none':'');
-      if(mode==='selection') syncPosSelectionBar(); else updatePosDetailTotals();
-    }
-    function openPosCheckout(){
-      if(!keranjang.length){alert('Pilih barang terlebih dahulu.');return;}
-      setPosMobileMode('detail'); var sec=document.getElementById('sec-posKasir'); if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'}); renderKeranjang(); updatePosDetailTotals();
-    }
-    function backToPosSelection(){closeEditItemPos();setPosMobileMode('selection');var sec=document.getElementById('sec-posKasir');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
-    function updatePosDetailTotals(){var total=Math.max(0,Number(subtotalKotor||0)-Number(totalDiskonItem||0));var a=document.getElementById('asposDetailTotalTop'),b=document.getElementById('posTotalBayar');if(a)a.innerText='Rp '+total.toLocaleString('id-ID');if(b)b.innerText='Rp '+total.toLocaleString('id-ID');}
-
-    function syncPosSelectionBar() {
-      var count=keranjang.reduce(function(s,i){return s+Number(i.qty||0);},0);
-      var el=document.getElementById('asposSelectionCount');
-      if(el) el.innerText=count;
-      document.querySelectorAll('#bestProductGrid .best-product-card').forEach(function(card){
-        var id=card.getAttribute('data-id-barang');
-        var item=keranjang.find(function(k){return String(k.id_barang)===String(id);});
-        var q=card.querySelector('.catalog-qty');
-        if(q) q.innerText=item?item.qty:'';
-      });
-    }
-
     function loadPosKatalog() {
-      var showCatalog = function(data) {
-        globalDataBarang = Array.isArray(data) ? data : [];
-        try { localStorage.setItem('aspos_barang_cache', JSON.stringify(globalDataBarang)); } catch(e) {}
+      google.script.run.withSuccessHandler(function(data) {
+        globalDataBarang = data;
+        document.getElementById("searchPos").value = "";
+        let suggestionBox = document.getElementById("suggestionBox");
+        if(suggestionBox) suggestionBox.style.display = "none";
+      }).getBarang();
 
-        var search = document.getElementById("searchPos");
-        if (search) search.value = "";
-        var suggestionBox = document.getElementById("suggestionBox");
-        if (suggestionBox) suggestionBox.style.display = "none";
-
-        // Transaksi memakai sumber data yang sama persis dengan Master Barang.
-        renderProductCatalogGrid(globalDataBarang);
-      };
-
-      var showCatalogError = function(err) {
-        console.error('[AS-Pos] katalog Master Barang gagal dimuat:', err);
-        try {
-          var cached = JSON.parse(localStorage.getItem('aspos_barang_cache') || 'null');
-          if (Array.isArray(cached)) {
-            globalDataBarang = cached;
-            renderProductCatalogGrid(cached);
-          }
-        } catch(e) {}
-      };
-
-      try {
-        google.script.run
-          .withSuccessHandler(showCatalog)
-          .withFailureHandler(showCatalogError)
-          .getBarang();
-      } catch(e) {
-        showCatalogError(e);
-      }
-    }
-
-    function renderProductCatalogGrid(list) {
-      var grid = document.getElementById("bestProductGrid");
-      if (!grid) return;
-      grid.innerHTML = "";
-
-      var activeList = (Array.isArray(list) ? list : []).filter(function(item) {
-        return item && item.status !== "Tidak Aktif";
-      });
-
-      if (!activeList.length) {
-        grid.innerHTML = '<div style="font-size:12px;color:#6c757d;grid-column:1/-1;text-align:center;padding:18px;">Belum ada barang aktif di Master Barang.</div>';
-        return;
-      }
-
-      activeList.forEach(function(item) {
-        var div = document.createElement("div");
-        div.className = "best-product-card";
-        div.setAttribute("data-id-barang", String(item.id_barang || ""));
-        div.setAttribute("role", "button");
-        div.setAttribute("tabindex", "0");
-        div.onclick = function() { tambahKeKeranjang(item); };
-        div.onkeydown = function(e) {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            tambahKeKeranjang(item);
-          }
-        };
-
-        var imgUrl = item.gambar || 'https://via.placeholder.com/70?text=No+Img';
-        var stok = Number(item.stok || 0);
-
-        div.innerHTML =
-          '<img src="' + imgUrl + '" class="best-product-img" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/70?text=Img\';">' +
-          '<div class="best-product-title" title="' + String(item.nama_barang || '') + '">' + String(item.nama_barang || '-') + '</div>' +
-          '<div class="catalog-meta"><span>sisa ' + stok + '</span><span>•</span><span>Rp ' + Number(item.harga_jual || 0).toLocaleString('id-ID') + '</span></div>' +
-          '<div class="catalog-qty"></div>';
-        grid.appendChild(div);
-      });
+      google.script.run.withSuccessHandler(function(bestList) {
+        renderProductBestGrid(bestList);
+      }).getProductBest();
     }
 
     function renderProductBestGrid(list) {
@@ -3523,108 +1649,62 @@
         `;
         grid.appendChild(div);
       });
-      syncPosSelectionBar();
-    }
-
-
-    function asposOpenSearch() {
-      var sec=document.getElementById('sec-posKasir');
-      if(!sec || sec.classList.contains('aspos-checkout-mode')) return;
-
-      var old=document.getElementById('asposMobileSearchBar');
-      if(old){ var oldInput=old.querySelector('input'); if(oldInput){oldInput.focus();} return; }
-
-      var bar=document.createElement('div');
-      bar.id='asposMobileSearchBar';
-      bar.style.cssText='position:relative;z-index:1000;background:#fff;padding:8px 10px;border-bottom:1px solid #dfe7e4;box-shadow:0 2px 8px rgba(0,0,0,.08);display:flex;gap:8px;align-items:center;';
-      bar.innerHTML='<input id="asposMobileSearchInput" type="search" autocomplete="off" placeholder="Cari nama barang atau barcode..." style="flex:1;height:42px;box-sizing:border-box;border:2px solid #10ad86;border-radius:12px;padding:0 12px;font-size:15px;outline:none;"><button type="button" style="width:42px;height:42px;border:0;border-radius:12px;background:#eef7f4;color:#087d62;font-size:24px;">×</button>';
-      var header=sec.querySelector('.aspos-mobile-pos-header');
-      if(header && header.parentNode) header.parentNode.insertBefore(bar,header.nextSibling);
-      else sec.insertBefore(bar,sec.firstChild);
-
-      var input=bar.querySelector('input'), closeBtn=bar.querySelector('button');
-      function filterNow(){
-        var q=String(input.value||'').trim().toLowerCase();
-        var active=(Array.isArray(globalDataBarang)?globalDataBarang:[]).filter(function(item){return item&&item.status!=='Tidak Aktif';});
-        if(!q){renderProductCatalogGrid(active);return;}
-        var words=q.split(/\s+/).filter(Boolean);
-        var filtered=active.filter(function(item){
-          var nama=String(item.nama_barang||'').toLowerCase();
-          var id=String(item.id_barang||'').toLowerCase();
-          return words.every(function(w){return nama.indexOf(w)>=0||id.indexOf(w)>=0;});
-        });
-        renderProductCatalogGrid(filtered);
-      }
-      input.addEventListener('input',filterNow);
-      input.addEventListener('keydown',function(e){
-        if(e.key==='Enter'){
-          var q=String(input.value||'').trim().toLowerCase();
-          if(!q)return;
-          var active=(Array.isArray(globalDataBarang)?globalDataBarang:[]).filter(function(item){return item&&item.status!=='Tidak Aktif';});
-          var exact=active.find(function(item){return String(item.id_barang||'').trim().toLowerCase()===q;});
-          if(exact){tambahKeKeranjang(exact);input.value='';filterNow();}
-        }
-        if(e.key==='Escape') closeBtn.click();
-      });
-      closeBtn.onclick=function(){
-        bar.remove();
-        renderProductCatalogGrid(globalDataBarang);
-      };
-      input.focus();
-    }
-
-    function asposSearchKeydown(e) {
-      if(e.key!=='Enter') return;
-      e.preventDefault();
-      var input=document.getElementById('searchPos');
-      var q=String(input?input.value:'').trim().toLowerCase();
-      if(!q) return;
-      var list=(Array.isArray(globalDataBarang)?globalDataBarang:[]).filter(function(item){return item&&item.status!=='Tidak Aktif';});
-      var item=list.find(function(x){return String(x.id_barang||'').trim().toLowerCase()===q;});
-      if(item){tambahKeKeranjang(item);input.value='';handlePosInput();}
-    }
-    function asposCloseSearch() {
-      var sec=document.getElementById('sec-posKasir'); if(!sec)return;
-      sec.classList.remove('aspos-search-open');
-      var input=document.getElementById('searchPos'); if(input)input.value='';
-      var box=document.getElementById('suggestionBox'); if(box)box.style.display='none';
-      renderProductCatalogGrid(globalDataBarang);
-    }
-
-    function syncMobilePosSearch(mobileInput) {
-      var mainInput = document.getElementById('searchPos');
-      var value = mobileInput ? mobileInput.value : '';
-      if (mainInput) mainInput.value = value;
-      handlePosInput();
     }
 
     function handlePosInput() {
-      var inputEl=document.getElementById('searchPos');
-      var keyword=String(inputEl ? inputEl.value : '').trim().toLowerCase();
-      var suggestionBox=document.getElementById('suggestionBox');
-      var activeBarang=(Array.isArray(globalDataBarang)?globalDataBarang:[]).filter(function(item){return item && item.status!=='Tidak Aktif';});
-      if(document.getElementById('sec-posKasir') && (document.getElementById('sec-posKasir').classList.contains('aspos-selection-mode') || document.getElementById('sec-posKasir').classList.contains('aspos-search-open'))){
-        if(!keyword){ if(suggestionBox)suggestionBox.style.display='none'; renderProductCatalogGrid(activeBarang); return; }
-        var keywords=keyword.split(/\s+/).filter(function(k){return k.length>0;});
-        var filtered=activeBarang.filter(function(item){
-          var nama=String(item.nama_barang||'').toLowerCase(), id=String(item.id_barang||'').toLowerCase();
-          return keywords.every(function(kw){return nama.indexOf(kw)>=0 || id.indexOf(kw)>=0;});
-        });
-        renderProductCatalogGrid(filtered);
-        if(suggestionBox)suggestionBox.style.display='none';
+      let inputEl = document.getElementById("searchPos");
+      let keyword = inputEl.value.trim().toLowerCase();
+      let suggestionBox = document.getElementById("suggestionBox");
+      
+      if (keyword === "") {
+        suggestionBox.style.display = "none";
         return;
       }
-      if(!keyword){if(suggestionBox)suggestionBox.style.display='none';return;}
-      var exactMatch=activeBarang.find(function(item){return String(item.id_barang||'').toLowerCase()===keyword;});
-      if(exactMatch){tambahKeKeranjang(exactMatch);inputEl.value='';if(suggestionBox)suggestionBox.style.display='none';return;}
-      var keywords2=keyword.split(/\s+/).filter(function(k){return k.length>0;});
-      var filtered2=activeBarang.filter(function(item){var nama=String(item.nama_barang||'').toLowerCase(),id=String(item.id_barang||'').toLowerCase();return keywords2.every(function(kw){return nama.indexOf(kw)>=0||id.indexOf(kw)>=0;});});
-      if(!suggestionBox)return;
-      suggestionBox.innerHTML='';
-      if(filtered2.length){
-        filtered2.slice(0,20).forEach(function(item){var div=document.createElement('div');div.style.cssText='padding:10px 15px;border-bottom:1px solid #eee;cursor:pointer;display:flex;justify-content:space-between;align-items:center;';div.onclick=function(){tambahKeKeranjang(item);inputEl.value='';suggestionBox.style.display='none';inputEl.focus();};div.innerHTML='<div><div style="font-weight:600;font-size:13px;color:#333;">'+String(item.nama_barang||'-')+'</div><div style="font-size:11px;color:#6c757d;">ID: '+String(item.id_barang||'-')+' | Stok: <b>'+String(item.stok||0)+'</b></div></div><div style="font-weight:bold;color:var(--primary-color);font-size:13px;">Rp '+Number(item.harga_jual||0).toLocaleString('id-ID')+'</div>';suggestionBox.appendChild(div);});
-        suggestionBox.style.display='block';
-      }else{suggestionBox.innerHTML='<div style="padding:10px;text-align:center;color:#dc3545;font-size:12px;">Barang tidak ditemukan atau tidak aktif</div>';suggestionBox.style.display='block';}
+
+      let activeBarang = globalDataBarang.filter(item => item.status !== "Tidak Aktif");
+
+      let exactMatch = activeBarang.find(item => String(item.id_barang || "").toLowerCase() === keyword);
+      if (exactMatch) {
+        tambahKeKeranjang(exactMatch);
+        inputEl.value = "";
+        suggestionBox.style.display = "none";
+        return;
+      }
+
+      let keywords = keyword.split(" ").filter(k => k.length > 0);
+      let filtered = activeBarang.filter(item => {
+        let nama = String(item.nama_barang || "").toLowerCase();
+        let idBarang = String(item.id_barang || "").toLowerCase();
+        return keywords.every(kw => nama.includes(kw) || idBarang.includes(kw));
+      });
+
+      if (filtered.length > 0) {
+        suggestionBox.innerHTML = "";
+        filtered.forEach(item => {
+          let div = document.createElement("div");
+          div.style.cssText = "padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center;";
+          div.onmouseover = function() { this.style.background = "#f8f9fa"; };
+          div.onmouseout = function() { this.style.background = "white"; };
+          div.onclick = function() {
+            tambahKeKeranjang(item);
+            inputEl.value = "";
+            suggestionBox.style.display = "none";
+            inputEl.focus();
+          };
+          div.innerHTML = `
+            <div>
+              <div style="font-weight: 600; font-size: 13px; color: #333;">${item.nama_barang}</div>
+              <div style="font-size: 11px; color: #6c757d;">ID: ${item.id_barang} | Stok: <b>${item.stok}</b></div>
+            </div>
+            <div style="font-weight: bold; color: var(--primary-color); font-size: 13px;">Rp ${Number(item.harga_jual).toLocaleString('id-ID')}</div>
+          `;
+          suggestionBox.appendChild(div);
+        });
+        suggestionBox.style.display = "block";
+      } else {
+        suggestionBox.innerHTML = `<div style="padding: 10px; text-align: center; color: #dc3545; font-size: 12px;">Barang tidak ditemukan atau tidak aktif</div>`;
+        suggestionBox.style.display = "block";
+      }
     }
 
     document.addEventListener('click', function(e) {
@@ -3660,23 +1740,8 @@
         });
       }
       renderKeranjang();
-      syncPosSelectionBar();
     }
 
-    function hapusDariKeranjang(idx) {
-      if (idx < 0 || idx >= keranjang.length) return;
-      keranjang.splice(idx, 1);
-      renderKeranjang();
-      syncPosSelectionBar();
-    }
-
-    var asposEditingItemIndex=-1;
-    function openEditItemPos(idx){if(idx<0||idx>=keranjang.length)return;asposEditingItemIndex=idx;var i=keranjang[idx],n=document.getElementById('editItemPosName'),id=document.getElementById('editItemPosId'),pi=document.getElementById('editItemPosPriceInfo'),q=document.getElementById('editItemPosQty'),p=document.getElementById('editItemPosPrice'),dt=document.getElementById('editItemPosDiscType'),dv=document.getElementById('editItemPosDiscVal'),th=document.getElementById('editItemPosThumb');if(n)n.innerText=i.nama_barang||'Barang';if(id)id.innerText=i.id_barang||'-';if(pi)pi.innerText='Rp '+Number(i.harga_jual||0).toLocaleString('id-ID');if(q)q.innerText=String(i.qty||1);if(p)p.value=Number(i.harga_jual||0);if(dt)dt.value=i.disc_type||'Rp';if(dv)dv.value=Number(i.disc_val||0);if(th)th.innerText=(String(i.nama_barang||'#').trim().charAt(0)||'#').toUpperCase();updateEditItemPreview();var m=document.getElementById('modalEditItemPos');if(m)m.style.display='flex';}
-    function closeEditItemPos(){var m=document.getElementById('modalEditItemPos');if(m)m.style.display='none';asposEditingItemIndex=-1;}
-    function editItemQty(d){if(asposEditingItemIndex<0)return;var i=keranjang[asposEditingItemIndex],m=globalDataBarang.find(function(b){return String(b.id_barang)===String(i.id_barang)}),max=m?Number(m.stok||0):9999,n=Math.max(1,Number(i.qty||1)+d);if(max>0&&n>max){alert('Jumlah melebihi stok tersedia ('+max+').');n=max}i.qty=n;document.getElementById('editItemPosQty').innerText=String(n);updateEditItemPreview();}
-    function updateEditItemPreview(){if(asposEditingItemIndex<0)return;var i=keranjang[asposEditingItemIndex],p=Number(document.getElementById('editItemPosPrice').value)||0,q=Number(i.qty)||1,t=document.getElementById('editItemPosDiscType').value,d=Number(document.getElementById('editItemPosDiscVal').value)||0,b=p*q,x=t==='%'?b*d/100:d;if(x>b)x=b;document.getElementById('editItemPosSubtotal').innerText='Rp '+Math.max(0,b-x).toLocaleString('id-ID');}
-    function simpanEditItemPos(){if(asposEditingItemIndex<0)return;var i=keranjang[asposEditingItemIndex];i.harga_jual=Math.max(0,Number(document.getElementById('editItemPosPrice').value)||0);i.disc_type=document.getElementById('editItemPosDiscType').value;i.disc_val=Math.max(0,Number(document.getElementById('editItemPosDiscVal').value)||0);closeEditItemPos();renderKeranjang();updatePosDetailTotals();}
-    function hapusItemDariEdit(){if(asposEditingItemIndex<0)return;var x=asposEditingItemIndex;closeEditItemPos();hapusDariKeranjang(x);}
     function kalkulasiPromoKeranjang() {
       keranjang.forEach(item => item.promoPotongan = 0);
       let groups = {};
@@ -3790,17 +1855,15 @@
         totalDiskonItem += potongan;
 
         let promoBadge = (k.promoPotongan > 0) ? `<div style="color:#198754; font-size:9.5px; font-weight:bold;">(Promo - Rp ${k.promoPotongan.toLocaleString('id-ID')})</div>` : '';
-        // Fallback nama memastikan judul selalu muncul walaupun item hasil scanner tidak membawa nama_barang.
-        let cartName = String(k.nama_barang || k.id_barang || 'Barang');
 
         var tr = document.createElement("tr");
         tr.innerHTML = `
-          <td data-cart-name="${cartName.replace(/"/g, '&quot;')}">
-            <div class="aspos-cart-item-title" onclick="openEditItemPos(${idx})" title="Ketuk untuk ubah qty, harga, atau diskon">${cartName}</div>
-            <div class="aspos-cart-meta"><span>Rp ${k.harga_jual.toLocaleString('id-ID')} /item</span><b>Rp ${k.subtotal.toLocaleString('id-ID')}</b></div>
+          <td>
+            <div style="font-weight:600;">${k.nama_barang}</div>
+            <div style="color:#6c757d; font-size:10px;">Rp ${k.harga_jual.toLocaleString('id-ID')} /item</div>
             ${promoBadge}
           </td>
-          <td><input type="number" class="form-control" value="${k.qty}" min="1" onchange="ubahQtyItem(${idx}, this.value)"></td>
+          <td><input type="number" class="form-control" style="width:50px; padding:3px;" value="${k.qty}" min="1" onchange="ubahQtyItem(${idx}, this.value)"></td>
           <td><b>Rp ${k.subtotal.toLocaleString('id-ID')}</b></td>
           <td style="text-align: right;">
             <div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">
@@ -3809,34 +1872,15 @@
                 <option value="%" ${k.disc_type==='%'?'selected':''}>%</option>
               </select>
               <input type="number" class="form-control" style="width: 65px; padding: 2px; font-size: 10px;" placeholder="Disc" value="${k.disc_val}" min="0" onchange="ubahDiscValItem(${idx}, this.value)" title="Ketik diskon lalu klik di luar">
-              <button class="btn btn-danger btn-sm aspos-remove-cart" onclick="hapusDariKeranjang(${idx})" title="Hapus item">🗑 Hapus</button>
+              <button class="btn btn-danger btn-sm" style="padding: 2px 6px;" onclick="keranjang.splice(${idx},1); renderKeranjang();" title="Hapus item">×</button>
             </div>
           </td>
         `;
         tbody.appendChild(tr);
       });
 
-      // Judul panjang tetap maksimal 2 baris. Jika terlalu panjang untuk area
-      // judul, hanya area judul yang menjadi horizontal-scroll.
-      if (window.matchMedia && window.matchMedia('(max-width: 992px)').matches) {
-        requestAnimationFrame(function(){
-          document.querySelectorAll('#sec-posKasir.aspos-checkout-mode .aspos-cart-item-title').forEach(function(el){
-            var oldDisplay=el.style.display, oldClamp=el.style.webkitLineClamp, oldLineClamp=el.style.lineClamp, oldOverflow=el.style.overflow, oldHeight=el.style.height;
-            el.style.display='block'; el.style.webkitLineClamp='unset'; el.style.lineClamp='none'; el.style.overflow='visible'; el.style.height='auto';
-            var tooLong=el.scrollHeight>38;
-            el.style.display=oldDisplay; el.style.webkitLineClamp=oldClamp; el.style.lineClamp=oldLineClamp; el.style.overflow=oldOverflow; el.style.height=oldHeight;
-            if(tooLong) el.classList.add('aspos-title-scroll');
-          });
-        });
-      }
-
       let netSubtotal = subtotalKotor - totalDiskonItem;
       document.getElementById("posTotalBayar").innerText = "Rp " + netSubtotal.toLocaleString('id-ID');
-      var cartCount=keranjang.reduce(function(s,i){return s+Number(i.qty||0);},0);
-      var c1=document.getElementById("asposCartCount"),c2=document.getElementById("asposCartCount2"),mt=document.getElementById("asposCartTotalMini");
-      if(c1)c1.innerText=cartCount;if(c2)c2.innerText=cartCount+" barang";if(mt)mt.innerText="Rp "+netSubtotal.toLocaleString('id-ID');
-      // Pastikan qty pada katalog selalu mengikuti isi keranjang terbaru.
-      syncPosSelectionBar();
     }
 
     function prosesCheckout() {
@@ -3897,16 +1941,6 @@
       }
     }
 
-    function asposPaySync() {
-      var el=document.getElementById("payNominal"); if(el) el.dispatchEvent(new Event("input",{bubbles:true}));
-      var q=document.getElementById("quickExact"); if(q) q.innerText=Math.round(Number(grandFinalBayar)||0).toLocaleString('id-ID');
-    }
-    function asposPayKey(v){var e=document.getElementById("payNominal");if(!e)return;var x=String(e.value||"");if(x==="0")x="";e.value=x+v;asposPaySync();}
-    function asposPayClear(){var e=document.getElementById("payNominal");if(e)e.value="";asposPaySync();}
-    function asposPayBackspace(){var e=document.getElementById("payNominal");if(e)e.value=String(e.value||"").slice(0,-1);asposPaySync();}
-    function asposPayAuto(){var e=document.getElementById("payNominal");if(e){e.value=Math.max(0,Number(grandFinalBayar)||0);asposPaySync();}}
-    function asposPaySetQuick(v){var e=document.getElementById("payNominal");if(e){e.value=Math.max(0,Number(v)||0);asposPaySync();}}
-
     function konfirmasiPembayaran() {
       let nominal = Number(document.getElementById("payNominal").value) || 0;
       let metode = document.getElementById("payMetode").value;
@@ -3946,10 +1980,8 @@
       };
 
       closeModalPembayaran();
-      closeEditItemPos();
       tampilkanStruk(lastTransaksi);
       keranjang = [];
-      setPosMobileMode('selection');
       renderKeranjang();
       loadPosKatalog();
 
@@ -4002,25 +2034,7 @@
        document.getElementById("strukKembali").innerText = "Rp " + (kembaliUang >= 0 ? kembaliUang : 0).toLocaleString('id-ID');
        document.getElementById("strukMetode").innerText = data.metode_pembayaran || data.metode || 'Tunai';
 
-       (function(){
-         var m=document.getElementById("modalStruk");
-         if(m && !m.querySelector(".struk-menu3")){
-           var host=m.querySelector("#areaStruk") || m.firstElementChild || m;
-           if(host && getComputedStyle(host).position==="static") host.style.position="relative";
-           var wrap=document.createElement("div"); wrap.className="struk-menu3";
-           wrap.innerHTML='<button type="button" onclick="toggleStrukEditMenu(event)">⋮</button><div class="struk-edit-menu" id="strukEditMenu"><button type="button" onclick="bukaEditorStruk()">✏️ Edit struk</button><button type="button" onclick="tutupStrukMenu()">↩️ Retur / koreksi</button></div>';
-           (host||m).appendChild(wrap);
-         }
-       })();
        document.getElementById("modalStruk").style.display = "flex";
-    }
-
-    function printStruk(){
-      var area=document.getElementById('areaStruk'); if(!area)return;
-      var w=window.open('','_blank','width=420,height=700');
-      if(!w){alert('Pop-up diblokir. Izinkan pop-up untuk mencetak struk.');return;}
-      w.document.write('<html><head><title>Struk '+((lastTransaksi&&lastTransaksi.no_nota)||'Transaksi')+'</title><style>body{font-family:monospace;margin:12px}*{box-sizing:border-box}</style></head><body>'+area.outerHTML+'</body></html>');
-      w.document.close();w.focus();setTimeout(function(){w.print();w.close();},300);
     }
 
     function downloadStrukImage() {
@@ -4052,24 +2066,6 @@
        });
     }
 
-    function toggleStrukEditMenu(e){if(e)e.stopPropagation();var x=document.getElementById('strukEditMenu');if(x)x.style.display=x.style.display==='block'?'none':'block';}
-    function tutupStrukMenu(){var x=document.getElementById('strukEditMenu');if(x)x.style.display='none';}
-    function bukaEditorStruk(){
-      tutupStrukMenu(); if(!lastTransaksi)return;
-      var old=document.getElementById('koreksiStrukBox');if(old)old.remove();
-      var box=document.createElement('div');box.id='koreksiStrukBox';box.className='koreksi-box';
-      box.innerHTML='<b>Edit Struk</b><div style="font-size:12px;color:#777;margin:5px 0 10px">Ubah harga, diskon, qty atau hapus barang. Perubahan ini saat ini disiapkan sebagai koreksi tampilan; penyimpanan ke stok memerlukan fungsi koreksi di Apps Script.</div>'+
-        lastTransaksi.items.map(function(it,i){return '<div class="koreksi-item" data-i="'+i+'"><b>'+it.nama_barang+'</b><br>Qty <input type="number" min="0" class="kq" value="'+Number(it.qty||0)+'"> Harga <input type="number" min="0" class="kh" value="'+Number(it.harga_jual||0)+'"><button type="button" onclick="this.closest(\'.koreksi-item\').remove()">Hapus</button><br><label>Disc Rp <input type="number" min="0" class="kd" value="'+Number(it.disc_val||0)+'"></label></div>';}).join('')+
-        '<div class="koreksi-actions"><button class="koreksi-cancel" onclick="document.getElementById(\'koreksiStrukBox\').remove()">Batal</button><button class="koreksi-save" onclick="terapkanKoreksiStruk()">Terapkan</button></div>';
-      var area=document.getElementById('areaStruk');if(area)area.parentNode.insertBefore(box,area);else document.getElementById('modalStruk').appendChild(box);
-    }
-    function terapkanKoreksiStruk(){
-      var box=document.getElementById('koreksiStrukBox');if(!box||!lastTransaksi)return;
-      var items=[];box.querySelectorAll('.koreksi-item').forEach(function(row){var i=Number(row.dataset.i),src=lastTransaksi.items[i];if(!src)return;var q=Number(row.querySelector('.kq').value)||0,h=Number(row.querySelector('.kh').value)||0,d=Number(row.querySelector('.kd').value)||0;if(q>0)items.push(Object.assign({},src,{qty:q,harga_jual:h,disc_val:d,subtotal:Math.max(0,h*q-d)}));});
-      lastTransaksi.items=items;lastTransaksi.total_bayar=items.reduce(function(s,x){return s+Number(x.subtotal||0)},0);
-      box.remove();tampilkanStruk(lastTransaksi);
-      alert('Koreksi tampilan struk diterapkan. Untuk mengembalikan stok dan menyimpan retur/edit secara permanen, perlu ditambahkan fungsi koreksi pada Apps Script.');
-    }
     function loadRiwayat() {
       google.script.run.withSuccessHandler(function(data) {
         globalRiwayatData = data;
@@ -4095,7 +2091,7 @@
           <td>Rp ${Number(r.total_bayar).toLocaleString('id-ID')}</td>
           <td>${r.metode_pembayaran}</td>
           <td>${r.kasir || '-'}</td>
-          <td style="text-align: center;"><button class="badge-ubah" onclick="bukaStrukUlang('${safeNota}')" title="Buka dan bagikan struk transaksi ini">🧾 Share Struk</button></td>
+          <td style="text-align: center;"><button class="badge-ubah" onclick="bukaStrukUlang('${safeNota}')" title="Cetak atau bagikan struk transaksi ini">Cetak / Share Struk</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -4481,34 +2477,15 @@
     }
 
     function togglePosScanner() {
-      var overlay=document.getElementById('asposScanOverlay');
-      var mount=document.getElementById('asposScanMount');
-      if(isPosScanning){ stopPosScanner(); return; }
-      if(!overlay||!mount){ alert('Tampilan scanner tidak tersedia.'); return; }
-      // Tampilkan scanner UI lebih dulu agar tidak ada layar hitam kosong saat kamera mulai.
-      overlay.style.display='block';
-      mount.innerHTML='<div class="aspos-scan-loading">Mengaktifkan kamera…</div>';
-      mount.style.background='#edf3f1';
-      mount.style.opacity='1';
-      try { document.body.classList.add('aspos-camera-active'); } catch(e){}
-      html5QrCodePos=new Html5Qrcode('asposScanMount',{verbose:false});
-      isPosScanning=true;
-      var scanConfig={fps:12,qrbox:function(viewfinderWidth,viewfinderHeight){var w=Math.floor(Math.min(viewfinderWidth*0.78,420));var h=Math.floor(Math.min(viewfinderHeight*0.28,150));return {width:Math.max(220,w),height:Math.max(90,h)};},aspectRatio:1.7777778,disableFlip:false};
-      html5QrCodePos.start({facingMode:{ideal:'environment'}},scanConfig,function(decodedText){
-        var value=String(decodedText||'').trim(); if(!value)return;
-        var scanner=html5QrCodePos; isPosScanning=false;
-        Promise.resolve(scanner.stop()).catch(function(){}).finally(function(){
-          mount.innerHTML=''; mount.style.background='#edf3f1'; overlay.style.display='none';
-          document.body.classList.remove('aspos-camera-active');
-          var inp=document.getElementById('searchPos');if(inp){inp.value=value;}
-          handlePosInput();
-        });
-      },function(){}).catch(function(err){
-        console.error('POS scanner error',err);isPosScanning=false;
-        try{html5QrCodePos.clear();}catch(e){}
-        mount.innerHTML='<div class="aspos-scan-error">Kamera tidak dapat dibuka.<br><small>Periksa izin kamera lalu coba lagi.</small></div>';
-        setTimeout(function(){overlay.style.display='none';mount.innerHTML='';document.body.classList.remove('aspos-camera-active');},1200);
-      });
+      var readerDiv = document.getElementById("readerPos");
+      if (!isPosScanning) {
+        readerDiv.style.display = "block";
+        html5QrCodePos = new Html5Qrcode("readerPos");
+        html5QrCodePos.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 100 } },
+          function(decodedText) { document.getElementById("searchPos").value = decodedText; handlePosInput(); stopPosScanner(); }, function() {}
+        ).catch(err => { alert("Kamera error: " + err); readerDiv.style.display = "none"; });
+        isPosScanning = true;
+      } else { stopPosScanner(); }
     }
 
     function stopScanner() {
@@ -4527,11 +2504,8 @@
     }
 
     function stopPosScanner() {
-      var overlay=document.getElementById('asposScanOverlay'),mount=document.getElementById('asposScanMount');
-      var scanner=html5QrCodePos; isPosScanning=false;
-      if(scanner&&typeof scanner.stop==='function'){
-        Promise.resolve(scanner.stop()).catch(function(){}).finally(function(){try{scanner.clear();}catch(e){};html5QrCodePos=null;if(mount)mount.innerHTML='';if(overlay)overlay.style.display='none';document.body.classList.remove('aspos-camera-active');});
-      } else {html5QrCodePos=null;if(mount)mount.innerHTML='';if(overlay)overlay.style.display='none';document.body.classList.remove('aspos-camera-active');}
+      if (html5QrCodePos && isPosScanning) { html5QrCodePos.stop().then(() => { document.getElementById("readerPos").style.display = "none"; isPosScanning = false; }).catch(() => { document.getElementById("readerPos").style.display = "none"; isPosScanning = false; });
+      } else { document.getElementById("readerPos").style.display = "none"; isPosScanning = false; }
     }
 
     function stopAllScanners() {
@@ -4977,17 +2951,7 @@
         try {
           // Minta izin kamera lebih dulu. Ini membantu browser/GitHub Pages
           // menampilkan prompt permission dengan benar.
-          // Minta izin kamera hanya untuk memastikan permission tersedia.
-          // Setelah izin didapat, hentikan stream sementara agar Html5Qrcode
-          // dapat membuka kamera yang sama tanpa konflik "Could not start video source".
-          const permissionStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: 'environment' } },
-            audio: false
-          });
-          permissionStream.getTracks().forEach(function(track) {
-            try { track.stop(); } catch (e) {}
-          });
-
+          await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
           const cameraId = await chooseCamera();
           readerDiv.innerHTML = '';
           scanner = new Html5Qrcode(readerId, { verbose: false });
@@ -5034,9 +2998,6 @@
         }
       }
 
-      // Expose engine scanner agar tombol scanner POS fullscreen dapat memakainya.
-      window.startScannerInstance = startScannerInstance;
-
       // Override global functions yang dipanggil oleh tombol HTML.
       window.toggleScanner = function() {
         startScannerInstance('reader', 'html5QrCode', function(value) {
@@ -5078,160 +3039,5 @@
       };
     })();
   </script>
-
-  <script>
-    (function installFullscreenPosScanner(){
-      var originalStart = window.startScannerInstance;
-      var originalStop = window.stopPosScanner;
-      window.togglePosScanner = function(){
-        var overlay=document.getElementById('asposScanOverlay');
-        var reader=document.getElementById('readerPos');
-        var mount=document.getElementById('asposScanMount');
-        if(!overlay || !reader || !mount || !originalStart){ return; }
-        if(overlay.classList.contains('active')){ window.stopPosScanner(); return; }
-        mount.appendChild(reader);
-        document.body.classList.add('aspos-scanning');
-        overlay.classList.add('active');
-        originalStart('readerPos','html5QrCodePos',function(value){
-          overlay.classList.remove('active');
-          document.body.classList.remove('aspos-scanning');
-          var el=document.getElementById('searchPos');
-          if(el){el.value=value;}
-          if(typeof handlePosInput==='function') handlePosInput();
-        });
-      };
-      window.stopPosScanner=function(){
-        try{ if(typeof originalStop==='function') originalStop(); }catch(e){}
-        var overlay=document.getElementById('asposScanOverlay');
-        if(overlay) overlay.classList.remove('active');
-        document.body.classList.remove('aspos-scanning');
-        var reader=document.getElementById('readerPos');
-        var holder=document.querySelector('.aspos-desktop-search-area');
-        if(reader && holder && reader.parentElement!==holder) holder.insertBefore(reader, holder.firstChild);
-      };
-      window.asposOpenSearch=function(){
-        var sec=document.getElementById('sec-posKasir');
-        var el=document.getElementById('searchPos');
-        if(!sec || !el) return;
-        var opened=sec.classList.toggle('aspos-search-open');
-        if(opened){
-          el.style.display='block';
-          setTimeout(function(){
-            el.focus();
-            el.scrollIntoView({behavior:'smooth',block:'center'});
-          },50);
-        }else{
-          var box=document.getElementById('suggestionBox');
-          if(box) box.style.display='none';
-          el.blur();
-        }
-      };
-    })();
-  </script>
-
-  <!-- Modern notification system -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-    (function installModernNotifications() {
-      const nativeAlert = window.alert;
-      window.alert = function(message) {
-        const text = String(message == null ? '' : message);
-        const lower = text.toLowerCase();
-
-        let icon = 'info';
-        let title = 'Informasi';
-
-        if (
-          lower.includes('gagal') ||
-          lower.includes('error') ||
-          lower.includes('tidak dapat') ||
-          lower.includes('tidak ditemukan')
-        ) {
-          icon = 'error';
-          title = 'Terjadi Kesalahan';
-        } else if (
-          lower.includes('berhasil') ||
-          lower.includes('sukses') ||
-          lower.includes('tersimpan') ||
-          lower.includes('ditambahkan') ||
-          lower.includes('diperbarui') ||
-          lower.includes('dihapus')
-        ) {
-          icon = 'success';
-          title = 'Berhasil';
-        } else if (
-          lower.includes('stok barang habis') ||
-          lower.includes('melebihi stok') ||
-          lower.includes('peringatan') ||
-          lower.includes('kurang') ||
-          lower.includes('pilih ') ||
-          lower.includes('silakan')
-        ) {
-          icon = 'warning';
-          title = 'Perhatian';
-        }
-
-        if (typeof Swal === 'undefined') {
-          nativeAlert(text);
-          return;
-        }
-
-        Swal.fire({
-          icon: icon,
-          title: title,
-          text: text,
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#0f5132',
-          background: '#ffffff',
-          color: '#212529',
-          allowOutsideClick: true,
-          allowEscapeKey: true,
-          customClass: {
-            popup: 'aspos-modern-alert',
-            confirmButton: 'aspos-modern-alert-btn'
-          }
-        });
-      };
-    })();
-  </script>
-  <style>
-    .aspos-modern-alert {
-      border-radius: 18px !important;
-      padding: 1.6rem !important;
-      box-shadow: 0 18px 55px rgba(0,0,0,.20) !important;
-    }
-    .aspos-modern-alert-btn {
-      border-radius: 10px !important;
-      padding: 9px 24px !important;
-      font-weight: 600 !important;
-    }
-  <style id="laporan-mobile-style">
-.laporan-mobile-head{display:flex;justify-content:space-between;align-items:center;padding:4px 6px 14px}
-.laporan-title{display:flex;align-items:center;gap:12px;font-size:26px;color:#139b7b}
-.laporan-title span{font-size:26px}.laporan-update{display:flex;align-items:center;gap:7px;color:#139b7b;font-size:22px}.laporan-update span{font-size:12px;line-height:1.15;color:#666}.laporan-update b{color:#666;font-weight:500}
-.laporan-banner{display:flex;align-items:center;gap:16px;background:#b9eee2;padding:24px 20px;border-radius:0;min-height:72px}
-.laporan-banner-icon{font-size:34px}.laporan-banner-title{font-size:25px;font-weight:700;color:#222}.laporan-banner-sub{font-size:13px;color:#5b6b68;margin-top:3px}.laporan-chevron{margin-left:auto;border:0;background:transparent;font-size:32px;font-weight:700;cursor:pointer}
-.laporan-menu-items{background:#effbf8;border-bottom:1px solid #dceee9}
-.laporan-menu-items button{display:block;width:100%;border:0;border-bottom:1px solid #e0efec;background:transparent;text-align:left;padding:25px 20px 25px 145px;font-size:22px;color:#26302e;cursor:pointer}
-.laporan-menu-items button:active{background:#dff5ef}
-.laporan-summary{padding:18px 14px;background:#fff}.laporan-filter{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.laporan-filter label{display:block;font-size:12px;color:#6c757d;margin-bottom:4px}.laporan-filter input{padding:9px;border:1px solid #ced4da;border-radius:8px}.laporan-filter button{padding:10px 16px;border:0;border-radius:8px;background:#139b7b;color:#fff;font-weight:700}.laporan-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.laporan-cards div{background:#f5f9f8;border-radius:10px;padding:13px}.laporan-cards span{display:block;font-size:12px;color:#6c757d}.laporan-cards b{display:block;margin-top:5px;font-size:19px;color:#139b7b}.laporan-hint{font-size:12px;color:#777;margin-top:14px}
-@media(max-width:600px){.laporan-title{font-size:25px}.laporan-update{font-size:24px}.laporan-banner{padding:20px 16px}.laporan-banner-title{font-size:22px}.laporan-menu-items button{padding:24px 18px 24px 142px;font-size:20px}.laporan-summary{padding:14px 10px}.laporan-filter>div{flex:1;min-width:125px}.laporan-filter input{width:100%;box-sizing:border-box}.laporan-filter button{width:100%}}
-</style>
-</style>
-
-<script id="ASPOS-CLEAN-STRAY-TEXT">
-(function(){
-  function clean(){
-    try{
-      Array.prototype.slice.call(document.body.childNodes).forEach(function(node){
-        if(node.nodeType===3 && /^\\n\s*$/.test(String(node.nodeValue||''))) node.remove();
-      });
-    }catch(e){}
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',clean);
-  else clean();
-})();
-</script>
-<script id="RIWAYAT-NO-EDIT-GUARD">(function(){function bersihkanEditRiwayat(){var t=document.querySelector("#tabelRiwayat");if(!t)return;t.querySelectorAll("button").forEach(function(b){if((b.textContent||"").toLowerCase().includes("edit"))b.remove();});}document.addEventListener("DOMContentLoaded",bersihkanEditRiwayat);if(window.MutationObserver)new MutationObserver(bersihkanEditRiwayat).observe(document.body,{subtree:true,childList:true});})();</script>
 </body>
 </html>
