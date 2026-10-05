@@ -1128,7 +1128,7 @@
   <script>
     window.AS_POS_CONFIG = window.AS_POS_CONFIG || {
       // GANTI dengan URL deployment Web App GAS yang berakhiran /exec.
-      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbzb5Oq2JHOdfnbJiOaknSC2t4xRwbvdT5mj0CW8BYAA39gflbHAGRe4YCK4MJp9J9Nz/exec"
+      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbxvlXRCtFPIBLmTmwKlWOS58ftRUWaEo4WS8etrSWubKRH3nK9yNj8FgXo5ArxguLZK/exec"
     };
 
     (function installGasBridge() {
@@ -1416,11 +1416,14 @@
     function renderTabelBarang(data) {
       var tbody = document.querySelector("#tabelBarang tbody");
       tbody.innerHTML = "";
-      if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: #6c757d;">Belum ada data barang.</td></tr>`;
+      // Data lengkap tetap berada di globalDataBarang/IndexedDB, tetapi DOM dibatasi
+      // agar Master Barang tidak membeku saat jumlah data sangat besar.
+      var renderData = Array.isArray(data) && data.length > 500 ? data.slice(0, 500) : (data || []);
+      if (renderData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;color:#6c757d;">Belum ada data barang.</td></tr>`;
         return;
       }
-      data.forEach(function(item) {
+      renderData.forEach(function(item) {
         var tr = document.createElement("tr");
         var imgTag = item.gambar ? `<img src="${item.gambar}" class="img-thumb" onerror="this.onerror=null;this.src='https://via.placeholder.com/36?text=No+Img';">` : `<div class="img-thumb">No Img</div>`;
         var safeId = item.id_barang.replace(/'/g, "\\'");
@@ -3255,20 +3258,232 @@
       summary: databaseSummary
     };
 
-    // Simpan data Master Barang yang saat ini masih diambil dari GAS.
-    const originalLoadBarang = window.loadBarang;
-    if (typeof originalLoadBarang === 'function') {
-      window.loadBarang = function() {
-        return originalLoadBarang.apply(this, arguments);
-      };
-    }
-    const originalLoadSupplier = window.loadSupplier;
-    if (typeof originalLoadSupplier === 'function') {
-      window.loadSupplier = function() {
-        return originalLoadSupplier.apply(this, arguments);
-      };
+    // =========================================================
+    // MASTER BARANG -> IndexedDB + GAS Batch Sync
+    // =========================================================
+    const BARANG_BATCH_SIZE = 500;
+    const BARANG_SYNC_INTERVAL = 10 * 60 * 1000;
+    let barangSyncRunning = false;
+    let barangSyncPromise = null;
+
+    function gasCallPromise(functionName, args) {
+      return new Promise(function(resolve, reject) {
+        try {
+          var runner = google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject);
+          runner[functionName].apply(runner, args || []);
+        } catch (e) {
+          reject(e);
+        }
+      });
     }
 
+    async function getLocalBarangAll() {
+      return await getAll('barang');
+    }
+
+    async function getLocalBarangById(idBarang) {
+      const id = String(idBarang || '').trim();
+      if (!id) return null;
+      return openLocalDB().then(function(db) {
+        return new Promise(function(resolve, reject) {
+          const t = db.transaction('barang', 'readonly');
+          const req = t.objectStore('barang').get(id);
+          req.onsuccess = function() { resolve(req.result || null); };
+          req.onerror = function() { reject(req.error); };
+        });
+      });
+    }
+
+    async function searchLocalBarang(keyword, maxResults) {
+      const kw = String(keyword || '').trim().toLowerCase();
+      const limit = maxResults || 30;
+      if (!kw) return [];
+
+      // Exact barcode/ID diprioritaskan.
+      const exact = await getLocalBarangById(kw);
+      if (exact && exact.status !== 'Tidak Aktif') return [exact];
+
+      const keywords = kw.split(/\s+/).filter(function(k) { return k.length > 0; });
+      const results = [];
+
+      return openLocalDB().then(function(db) {
+        return new Promise(function(resolve, reject) {
+          const t = db.transaction('barang', 'readonly');
+          const req = t.objectStore('barang').openCursor();
+          req.onsuccess = function(e) {
+            const cursor = e.target.result;
+            if (!cursor || results.length >= limit) {
+              resolve(results);
+              return;
+            }
+            const item = cursor.value;
+            if (item && item.status !== 'Tidak Aktif') {
+              const nama = String(item.nama_barang || '').toLowerCase();
+              const id = String(item.id_barang || '').toLowerCase();
+              if (keywords.every(function(k) { return nama.includes(k) || id.includes(k); })) {
+                results.push(item);
+              }
+            }
+            cursor.continue();
+          };
+          req.onerror = function() { reject(req.error); };
+        });
+      });
+    }
+
+    async function syncBarangFromServer(force) {
+      if (barangSyncRunning && barangSyncPromise) return barangSyncPromise;
+
+      barangSyncRunning = true;
+      barangSyncPromise = (async function() {
+        try {
+          const total = Number(await gasCallPromise('getBarangTotalCount', [])) || 0;
+          if (!total) {
+            await clearStore('barang');
+            await putMany('app_settings', [{key:'barang_sync_at', value:Date.now(), total:0}]);
+            globalDataBarang = [];
+            if (typeof renderTabelBarang === 'function') renderTabelBarang([]);
+            return {total:0};
+          }
+
+          // Ambil bertahap agar tidak ada request GAS/IndexedDB yang terlalu besar.
+          for (let offset = 0; offset < total; offset += BARANG_BATCH_SIZE) {
+            const result = await gasCallPromise('getBarangBatch', [offset, BARANG_BATCH_SIZE]);
+            const items = result && Array.isArray(result.items) ? result.items : [];
+            if (items.length) await putMany('barang', items);
+
+            const progress = Math.min(total, offset + (result && result.limit ? Number(result.limit) : items.length));
+            const statusEl = document.getElementById('cashierNameDisplay');
+            if (statusEl) statusEl.title = 'Sinkronisasi barang: ' + progress.toLocaleString('id-ID') + ' / ' + total.toLocaleString('id-ID');
+
+            if (!items.length && !(result && result.hasMore)) break;
+          }
+
+          await putMany('app_settings', [{
+            key:'barang_sync_at',
+            value:Date.now(),
+            total:total
+          }]);
+
+          const all = await getLocalBarangAll();
+          globalDataBarang = all;
+          return {total:total, local:all.length};
+        } finally {
+          barangSyncRunning = false;
+          barangSyncPromise = null;
+        }
+      })();
+
+      return barangSyncPromise;
+    }
+
+    async function loadBarangFromLocalThenSync() {
+      try {
+        const local = await getLocalBarangAll();
+        globalDataBarang = local;
+
+        // Data lokal langsung dipakai agar POS tetap cepat.
+        if (typeof renderTabelBarang === 'function') renderTabelBarang(local);
+
+        let setting = null;
+        try {
+          const settings = await getAll('app_settings');
+          setting = settings.find(function(x) { return x && x.key === 'barang_sync_at'; }) || null;
+        } catch(e) {}
+
+        const lastSync = setting ? Number(setting.value || 0) : 0;
+        const needSync = !local.length || !lastSync || (Date.now() - lastSync > BARANG_SYNC_INTERVAL);
+
+        if (needSync) {
+          syncBarangFromServer(true).then(function() {
+            if (typeof renderTabelBarang === 'function') renderTabelBarang(globalDataBarang);
+          }).catch(function(err) {
+            console.warn('Sinkronisasi Master Barang:', err);
+            if (!local.length) {
+              alert('Data barang belum tersedia di database lokal dan sinkronisasi gagal.\\n\\n' + (err.message || err));
+            }
+          });
+        }
+      } catch(e) {
+        console.warn('IndexedDB loadBarang:', e);
+        // Fallback ke GAS lama jika IndexedDB gagal.
+        if (typeof originalLoadBarangLegacy === 'function') originalLoadBarangLegacy();
+      }
+    }
+
+    // Simpan fungsi GAS lama sebagai fallback.
+    const originalLoadBarangLegacy = window.loadBarang;
+
+    // Ganti loadBarang agar sumber utama Master Barang adalah IndexedDB.
+    window.loadBarang = function() {
+      return loadBarangFromLocalThenSync();
+    };
+
+    // POS: cari langsung di IndexedDB, bukan menyaring 100 ribu data di DOM/memori.
+    const originalHandlePosInput = window.handlePosInput;
+    let posSearchTimer = null;
+    window.handlePosInput = function() {
+      const inputEl = document.getElementById('searchPos');
+      const suggestionBox = document.getElementById('suggestionBox');
+      if (!inputEl || !suggestionBox) return;
+
+      const keyword = inputEl.value.trim();
+      if (!keyword) {
+        suggestionBox.style.display = 'none';
+        return;
+      }
+
+      clearTimeout(posSearchTimer);
+      posSearchTimer = setTimeout(async function() {
+        try {
+          const exact = await getLocalBarangById(keyword);
+          if (exact && exact.status !== 'Tidak Aktif') {
+            tambahKeKeranjang(exact);
+            inputEl.value = '';
+            suggestionBox.style.display = 'none';
+            return;
+          }
+
+          const filtered = await searchLocalBarang(keyword, 30);
+          if (filtered.length > 0) {
+            suggestionBox.innerHTML = '';
+            filtered.forEach(function(item) {
+              const div = document.createElement('div');
+              div.style.cssText = 'padding:10px 15px;border-bottom:1px solid #eee;cursor:pointer;display:flex;justify-content:space-between;align-items:center;';
+              div.onmouseover = function() { this.style.background = '#f8f9fa'; };
+              div.onmouseout = function() { this.style.background = 'white'; };
+              div.onclick = function() {
+                tambahKeKeranjang(item);
+                inputEl.value = '';
+                suggestionBox.style.display = 'none';
+                inputEl.focus();
+              };
+              div.innerHTML = '<div><div style="font-weight:600;font-size:13px;color:#333;">' +
+                item.nama_barang + '</div><div style="font-size:11px;color:#6c757d;">ID: ' +
+                item.id_barang + ' | Stok: <b>' + item.stok + '</b></div></div>' +
+                '<div style="font-weight:bold;color:var(--primary-color);font-size:13px;">Rp ' +
+                Number(item.harga_jual).toLocaleString('id-ID') + '</div>';
+              suggestionBox.appendChild(div);
+            });
+            suggestionBox.style.display = 'block';
+          } else {
+            suggestionBox.innerHTML = '<div style="padding:10px;text-align:center;color:#dc3545;font-size:12px;">Barang tidak ditemukan atau tidak aktif</div>';
+            suggestionBox.style.display = 'block';
+          }
+        } catch(e) {
+          console.warn('Pencarian lokal gagal:', e);
+          if (typeof originalHandlePosInput === 'function') originalHandlePosInput();
+        }
+      }, 120);
+    };
+
+    // Scanner POS sekarang otomatis memakai pencarian lokal di atas.
+    // Barcode yang terbaca akan langsung menemukan barang dan masuk keranjang.
+
+    // Jangan menunggu menu Master Barang untuk melakukan sinkronisasi pertama.
+    // Jika user sudah login, initApp() akan memanggil loadBarang().
     openLocalDB().catch(function(e){ console.warn('IndexedDB:', e); });
   })();
   </script>
