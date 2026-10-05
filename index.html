@@ -3326,8 +3326,16 @@
         await openLocalDB();
         const currentPending = await getAll('transaksi_pending');
         const currentQueue = await getAll('sync_queue');
+        const currentBarang = await getAll('barang');
+        const backupBarang = Array.isArray(payload.stores.barang) ? payload.stores.barang : [];
 
         let message = 'Restore akan mengganti seluruh database lokal dengan isi file backup.';
+        message += '\\n\\nMaster Barang saat ini: ' + currentBarang.length.toLocaleString('id-ID') +
+          ' item. Isi backup: ' + backupBarang.length.toLocaleString('id-ID') + ' item.';
+        if (backupBarang.length < currentBarang.length) {
+          message += '\\n\\nPERINGATAN: backup lebih lama/kecil. Setelah restore, Master Barang akan sementara turun menjadi ' +
+            backupBarang.length.toLocaleString('id-ID') + ' item, lalu aplikasi akan mencoba sinkron ke server terbaru.';
+        }
         if (currentPending.length || currentQueue.length) {
           message += '\\n\\nPERINGATAN: saat ini ada ' +
             currentPending.length.toLocaleString('id-ID') +
@@ -3336,7 +3344,7 @@
             ' antrian sync yang akan ikut diganti oleh backup.';
         }
         message += '\\n\\nLanjutkan?';
-        if (!confirm(message)) return;
+        if (!confirm(message)) return false;
 
         // Restore tetap bertahap agar tidak membuat satu transaksi IndexedDB raksasa.
         for (const name of STORES) {
@@ -3348,9 +3356,11 @@
         }
 
         await updateBackupStatus();
-        alert('Restore berhasil.\\n\\nDatabase lokal sudah dikembalikan dari backup. Data barang akan mengikuti sinkronisasi server berikutnya.');
+        alert('Restore berhasil.\\n\\nDatabase lokal sudah dikembalikan dari backup. Aplikasi akan mencoba sinkronisasi server agar data terbaru kembali masuk bila koneksi tersedia.');
+        return true;
       } catch(e) {
         alert('Restore gagal: ' + (e.message || e));
+        return false;
       }
     };
 
@@ -4073,9 +4083,9 @@
     const oldRestore = window.restoreLocalDatabase;
     if (typeof oldRestore === 'function') {
       window.restoreLocalDatabase = async function(event) {
-        await oldRestore(event);
+        const restored = await oldRestore(event);
         installSyncMenu();
-        if (typeof syncAllDataManual === 'function') {
+        if (restored === true && typeof syncAllDataManual === 'function') {
           setTimeout(function(){
             syncAllDataManual().catch(function(e){ console.warn('Sync setelah restore:',e); });
           }, 500);
