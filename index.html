@@ -605,7 +605,7 @@
                   <tr>
                     <th>No Nota</th>
                     <th>Tanggal</th>
-                    <th>Supplier</th>
+                    <th>Potongan / Disc</th>
                     <th>Total Item</th>
                     <th>Total Bayar</th>
                     <th>Metode</th>
@@ -1127,7 +1127,7 @@
   <script>
     window.AS_POS_CONFIG = window.AS_POS_CONFIG || {
       // GANTI dengan URL deployment Web App GAS yang berakhiran /exec.
-      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbzz-3I88ohEMPRtWa0nw6jQgx11fPM-OFThEEjQYvlPaMkC3ok6tYT3TkoRnYUGP5GL/exec"
+      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbz0eEDoTpUQyxdK29TGbBz3B93ElucTLANg4O735lka1c96tng0JSPSjBYMFgRviSZY/exec"
     };
 
     (function installGasBridge() {
@@ -1973,6 +1973,7 @@
       var payload = {
         supplier: keranjang[0].supplier || 'Umum',
         total_item: totalItem,
+        diskon_global: gDiscTotal,
         total_bayar: grandFinalBayar,
         metode_pembayaran: metode,
         kasir: lastTransaksi.kasir,
@@ -2086,7 +2087,7 @@
         tr.innerHTML = `
           <td><b>${r.no_nota}</b></td>
           <td>${r.tanggal}</td>
-          <td>${r.supplier}</td>
+          <td>Rp ${Number(r.potongan || 0).toLocaleString('id-ID')}</td>
           <td>${r.total_item}</td>
           <td>Rp ${Number(r.total_bayar).toLocaleString('id-ID')}</td>
           <td>${r.metode_pembayaran}</td>
@@ -2102,7 +2103,7 @@
       var filtered = globalRiwayatData.filter(r => 
         String(r.no_nota || "").toLowerCase().includes(keyword) || 
         String(r.kasir || "").toLowerCase().includes(keyword) || 
-        String(r.supplier || "").toLowerCase().includes(keyword)
+        String(r.potongan || "").toLowerCase().includes(keyword)
       );
       renderTabelRiwayat(filtered);
     }
