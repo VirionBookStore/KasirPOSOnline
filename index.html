@@ -105,6 +105,44 @@
     .best-product-title { font-size: 11px; font-weight: 600; color: #333; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; line-height: 1.2; height: 26px; }
     .best-product-price { font-size: 11px; color: var(--primary-color); font-weight: bold; }
 
+    /* --- DASHBOARD BARU --- */
+    .dashboard-page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      margin-bottom: 18px;
+      padding: 2px 0;
+    }
+    .dashboard-page-header h1 { margin: 0 0 5px 0; font-size: 24px; color: #212529; }
+    .dashboard-page-header p { margin: 0; color: #6c757d; font-size: 13px; }
+    .dashboard-date-box { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; min-width: 290px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+    .dashboard-date-box label { display:block; font-size:11px; font-weight:700; color:#6c757d; margin-bottom:5px; }
+    .dashboard-date-row { display:flex; gap:8px; align-items:center; }
+    .dashboard-date-row .form-control { width:170px; }
+    .dashboard-summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
+    .dashboard-summary-card { background:#fff; border:1px solid var(--border-color); border-radius:8px; padding:18px; display:flex; align-items:center; gap:14px; min-height:74px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+    .summary-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; flex:0 0 48px; }
+    .summary-icon-green { color:#087f5b; background:#e6f7f1; }
+    .summary-icon-orange { color:#d97706; background:#fff4df; }
+    .summary-icon-teal { color:#087f8c; background:#e5f8fa; }
+    .summary-icon-blue { color:#0b7285; background:#e6f6f8; }
+    .summary-label { font-size:12px; color:#6c757d; margin-bottom:5px; }
+    .summary-value { font-size:21px; line-height:1.15; font-weight:800; color:#212529; }
+    .dashboard-detail-card { margin-bottom:14px; }
+    .dashboard-detail-header { padding:16px 20px; }
+    .dashboard-detail-title { font-size:16px; font-weight:800; color:#212529; }
+    .dashboard-detail-subtitle { margin-top:3px; font-size:12px; color:#6c757d; }
+    #tabelDashboardPenjualan th, #tabelDashboardPenjualan td { padding:10px 12px; font-size:12px; }
+    #tabelDashboardPenjualan th { background:#fff; color:#212529; border-bottom:2px solid #e9ecef; }
+    #tabelDashboardPenjualan td:nth-child(3), #tabelDashboardPenjualan td:nth-child(4), #tabelDashboardPenjualan td:nth-child(5), #tabelDashboardPenjualan td:nth-child(6) { white-space:nowrap; }
+    .dashboard-empty { text-align:center; padding:28px !important; color:#6c757d; }
+    .dashboard-table-footer { padding:10px 20px; border-top:1px solid var(--border-color); color:#6c757d; font-size:12px; }
+    .dashboard-secondary-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .dashboard-mini-card { background:#fff; border:1px solid var(--border-color); border-radius:8px; padding:13px 16px; display:flex; justify-content:space-between; align-items:center; }
+    .dashboard-mini-card span { color:#6c757d; font-size:12px; }
+    .dashboard-mini-card strong { color:var(--primary-color); font-size:16px; }
+
     /* --- RESPONSIVE MOBILE CSS --- */
     #hamburger-btn {
       display: none;
@@ -147,6 +185,18 @@
       .pos-grid { display: flex !important; flex-direction: column !important; gap: 15px !important; }
       .pos-right-panel { order: 1; } /* Search & Cart Naik Ke Atas */
       .pos-left-panel { order: 2; }  /* Best Seller Turun Ke Bawah */
+      .dashboard-page-header { flex-direction:column; align-items:stretch; gap:10px; }
+      .dashboard-page-header h1 { font-size:20px; }
+      .dashboard-date-box { min-width:0; width:100%; box-sizing:border-box; }
+      .dashboard-date-row .form-control { flex:1; width:auto; min-width:0; }
+      .dashboard-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+      .dashboard-summary-card { padding:12px; gap:9px; min-height:64px; }
+      .summary-icon { width:38px; height:38px; flex-basis:38px; border-radius:9px; font-size:14px; }
+      .summary-label { font-size:10px; }
+      .summary-value { font-size:15px; }
+      .dashboard-detail-header { padding:12px; }
+      #tabelDashboardPenjualan th, #tabelDashboardPenjualan td { padding:8px 9px; font-size:11px; }
+      .dashboard-secondary-stats { grid-template-columns:1fr 1fr; gap:9px; }
     }
   </style>
 </head>
@@ -232,52 +282,89 @@
         
         <!-- DASHBOARD -->
         <div id="sec-dashboard" class="page-section active">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;">
-            <div class="card" style="padding: 20px; text-align: center;">
-              <h4 style="margin:0; color:#6c757d; font-size:12px;">TOTAL PRODUK</h4>
-              <p id="statTotalBarang" style="font-size:24px; font-weight:bold; color:var(--primary-color); margin:10px 0 0 0;">0</p>
+          <div class="dashboard-page-header">
+            <div>
+              <h1>Dashboard</h1>
+              <p id="dashboardPeriodLabel">Ringkasan penjualan</p>
             </div>
-            <div class="card" style="padding: 20px; text-align: center;">
-              <h4 style="margin:0; color:#6c757d; font-size:12px;">TOTAL SUPPLIER</h4>
-              <p id="statTotalSupplier" style="font-size:24px; font-weight:bold; color:#0d6efd; margin:10px 0 0 0;">0</p>
-            </div>
-            <div class="card" style="padding: 20px; text-align: center;">
-              <h4 style="margin:0; color:#6c757d; font-size:12px;">TRANSAKSI HARI INI</h4>
-              <p id="statTotalTransaksi" style="font-size:24px; font-weight:bold; color:#ffc107; margin:10px 0 0 0;">0</p>
-            </div>
-            <div class="card" style="padding: 20px; text-align: center;">
-              <h4 style="margin:0; color:#6c757d; font-size:12px;">PENDAPATAN HARI INI</h4>
-              <p id="statPendapatanHariIni" style="font-size:20px; font-weight:bold; color:#198754; margin:10px 0 0 0;">Rp 0</p>
+            <div class="dashboard-date-box">
+              <label for="dashboardDate">Tanggal Penjualan</label>
+              <div class="dashboard-date-row">
+                <input type="date" id="dashboardDate" class="form-control">
+                <button class="btn btn-primary" onclick="loadDashboardByDate()" id="btnDashboardDate">Tampilkan</button>
+              </div>
             </div>
           </div>
-          
-          <!-- Laporan Custom Date -->
-          <div class="card">
-            <div class="card-header">Laporan Pendapatan Kustom</div>
-            <div class="card-body">
-              <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap;">
-                <div>
-                  <label style="font-size: 12px; font-weight: bold; color: #6c757d;">Dari Tanggal</label>
-                  <input type="date" id="filterDateStart" class="form-control" style="width: auto;">
-                </div>
-                <div>
-                  <label style="font-size: 12px; font-weight: bold; color: #6c757d;">Sampai Tanggal</label>
-                  <input type="date" id="filterDateEnd" class="form-control" style="width: auto;">
-                </div>
-                <div>
-                  <button class="btn btn-primary" onclick="loadLaporanCustom()" id="btnFilterLaporan">Filter Laporan</button>
-                </div>
+
+          <div class="dashboard-summary-grid">
+            <div class="dashboard-summary-card">
+              <div class="summary-icon summary-icon-green">🛒</div>
+              <div>
+                <div class="summary-label">Jumlah Transaksi</div>
+                <div id="statTotalTransaksi" class="summary-value">0</div>
               </div>
-              <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 20px;">
-                <div>
-                  <h4 style="margin:0 0 5px 0; color:#6c757d; font-size:13px;">TOTAL TRANSAKSI (Filter)</h4>
-                  <p id="laporanTransaksi" style="font-size:20px; font-weight:bold; color:#333; margin:0;">-</p>
-                </div>
-                <div>
-                  <h4 style="margin:0 0 5px 0; color:#6c757d; font-size:13px;">TOTAL PENDAPATAN (Filter)</h4>
-                  <p id="laporanPendapatan" style="font-size:20px; font-weight:bold; color:var(--primary-color); margin:0;">-</p>
-                </div>
+            </div>
+            <div class="dashboard-summary-card">
+              <div class="summary-icon summary-icon-orange">Rp</div>
+              <div>
+                <div class="summary-label">Pendapatan</div>
+                <div id="statPendapatanHariIni" class="summary-value">Rp 0</div>
               </div>
+            </div>
+            <div class="dashboard-summary-card">
+              <div class="summary-icon summary-icon-teal">📦</div>
+              <div>
+                <div class="summary-label">Barang Terjual</div>
+                <div id="statBarangTerjual" class="summary-value">0</div>
+              </div>
+            </div>
+            <div class="dashboard-summary-card">
+              <div class="summary-icon summary-icon-blue">$</div>
+              <div>
+                <div class="summary-label">Keuntungan</div>
+                <div id="statKeuntungan" class="summary-value">Rp 0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card dashboard-detail-card">
+            <div class="card-header dashboard-detail-header">
+              <div>
+                <div class="dashboard-detail-title">Laporan Penjualan Barang</div>
+                <div id="dashboardDetailSubtitle" class="dashboard-detail-subtitle">Rincian barang terjual</div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="loadDashboardByDate()">↻ Muat Ulang</button>
+            </div>
+            <div class="table-responsive">
+              <table id="tabelDashboardPenjualan">
+                <thead>
+                  <tr>
+                    <th>Kode</th>
+                    <th>Nama</th>
+                    <th>Jumlah Barang</th>
+                    <th>Jumlah Transaksi</th>
+                    <th>Keuntungan (Rp)</th>
+                    <th>Pendapatan (Rp)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="6" class="dashboard-empty">Memuat data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="dashboard-table-footer">
+              <span id="dashboardTableInfo">-</span>
+            </div>
+          </div>
+
+          <div class="dashboard-secondary-stats">
+            <div class="dashboard-mini-card">
+              <span>Total Produk</span>
+              <strong id="statTotalBarang">0</strong>
+            </div>
+            <div class="dashboard-mini-card">
+              <span>Total Supplier</span>
+              <strong id="statTotalSupplier">0</strong>
             </div>
           </div>
         </div>
@@ -1237,32 +1324,85 @@
       }).getPromoList();
     }
 
-    function loadDashboardStats() {
-      var today = new Date().toISOString().split('T')[0];
-      google.script.run.withSuccessHandler(function(data) {
-        document.getElementById("statTotalBarang").innerText = data.total_barang;
-        document.getElementById("statTotalSupplier").innerText = data.total_supplier;
-        document.getElementById("statTotalTransaksi").innerText = data.total_transaksi;
-        document.getElementById("statPendapatanHariIni").innerText = "Rp " + data.total_pendapatan.toLocaleString('id-ID');
-      }).getDashboardData(today, today);
+    function setDashboardDateDefaults() {
+      var dateInput = document.getElementById('dashboardDate');
+      if (!dateInput || dateInput.value) return;
+      var now = new Date();
+      var localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+      dateInput.value = localDate;
     }
 
+    function formatRupiahDashboard(value) {
+      return 'Rp ' + (Number(value) || 0).toLocaleString('id-ID');
+    }
+
+    function escapeDashboardHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function loadDashboardStats() {
+      setDashboardDateDefaults();
+      loadDashboardByDate();
+    }
+
+    function loadDashboardByDate() {
+      var dateInput = document.getElementById('dashboardDate');
+      var date = dateInput && dateInput.value ? dateInput.value : '';
+      var btn = document.getElementById('btnDashboardDate');
+      var tbody = document.querySelector('#tabelDashboardPenjualan tbody');
+      if (!date) return alert('Silakan pilih tanggal penjualan terlebih dahulu.');
+
+      if (btn) { btn.disabled = true; btn.innerText = 'Memuat...'; }
+      if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty">Memuat data...</td></tr>';
+
+      google.script.run
+        .withSuccessHandler(function(data) {
+          data = data || {};
+          document.getElementById('statTotalBarang').innerText = Number(data.total_barang || 0).toLocaleString('id-ID');
+          document.getElementById('statTotalSupplier').innerText = Number(data.total_supplier || 0).toLocaleString('id-ID');
+          document.getElementById('statTotalTransaksi').innerText = Number(data.total_transaksi || 0).toLocaleString('id-ID');
+          document.getElementById('statPendapatanHariIni').innerText = formatRupiahDashboard(data.total_pendapatan);
+          document.getElementById('statBarangTerjual').innerText = Number(data.total_barang_terjual || 0).toLocaleString('id-ID');
+          document.getElementById('statKeuntungan').innerText = formatRupiahDashboard(data.total_keuntungan);
+
+          var label = data.tanggal_label || date;
+          document.getElementById('dashboardPeriodLabel').innerText = 'Ringkasan penjualan • ' + label;
+          document.getElementById('dashboardDetailSubtitle').innerText = 'Rincian barang terjual pada ' + label;
+
+          var rows = Array.isArray(data.rincian_barang) ? data.rincian_barang : [];
+          if (tbody) {
+            if (!rows.length) {
+              tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty">Tidak ada penjualan pada tanggal ini.</td></tr>';
+            } else {
+              tbody.innerHTML = rows.map(function(item) {
+                return '<tr>' +
+                  '<td style="white-space:nowrap;"><b>' + escapeDashboardHtml(item.id_barang) + '</b></td>' +
+                  '<td style="min-width:220px;">' + escapeDashboardHtml(item.nama_barang) + '</td>' +
+                  '<td>' + Number(item.jumlah_barang || 0).toLocaleString('id-ID') + '</td>' +
+                  '<td>' + Number(item.jumlah_transaksi || 0).toLocaleString('id-ID') + '</td>' +
+                  '<td>' + Number(item.keuntungan || 0).toLocaleString('id-ID') + '</td>' +
+                  '<td>' + Number(item.pendapatan || 0).toLocaleString('id-ID') + '</td>' +
+                '</tr>';
+              }).join('');
+            }
+          }
+          document.getElementById('dashboardTableInfo').innerText = rows.length ? 'Menampilkan 1 sampai ' + rows.length + ' barang' : 'Tidak ada data';
+          if (btn) { btn.disabled = false; btn.innerText = 'Tampilkan'; }
+        })
+        .withFailureHandler(function(err) {
+          console.error(err);
+          if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty" style="color:#dc3545;">Gagal memuat dashboard: ' + escapeDashboardHtml(err && err.message ? err.message : err) + '</td></tr>';
+          if (btn) { btn.disabled = false; btn.innerText = 'Tampilkan'; }
+          alert('Gagal memuat Dashboard: ' + (err && err.message ? err.message : err));
+        })
+        .getDashboardData(date, date);
+    }
+
+    // Dipertahankan untuk kompatibilitas dengan kode/versi lama.
     function loadLaporanCustom() {
-      var start = document.getElementById("filterDateStart").value;
-      var end = document.getElementById("filterDateEnd").value;
-      var btn = document.getElementById("btnFilterLaporan");
-      
-      if(!start || !end) return alert("Silakan pilih tanggal awal dan akhir terlebih dahulu.");
-
-      btn.innerText = "Memuat...";
-      btn.disabled = true;
-
-      google.script.run.withSuccessHandler(function(data) {
-        document.getElementById("laporanTransaksi").innerText = data.total_transaksi + " Trx";
-        document.getElementById("laporanPendapatan").innerText = "Rp " + data.total_pendapatan.toLocaleString('id-ID');
-        btn.innerText = "Filter Laporan";
-        btn.disabled = false;
-      }).getDashboardData(start, end);
+      loadDashboardByDate();
     }
 
     function loadBarang() {
