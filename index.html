@@ -605,7 +605,7 @@
                   <tr>
                     <th>No Nota</th>
                     <th>Tanggal</th>
-                    <th>Supplier</th>
+                    <th>Diskon / Potongan</th>
                     <th>Total Item</th>
                     <th>Total Bayar</th>
                     <th>Metode</th>
@@ -2074,28 +2074,32 @@
     }
 
     function renderTabelRiwayat(data) {
-      var tbody = document.querySelector("#tabelRiwayat tbody");
-      tbody.innerHTML = "";
-      if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center;">Belum ada riwayat transaksi.</td></tr>`;
-        return;
-      }
-      data.forEach(function(r) {
-        var tr = document.createElement("tr");
-        var safeNota = String(r.no_nota || '').replace(/'/g, "\\'");
-        tr.innerHTML = `
-          <td><b>${r.no_nota}</b></td>
-          <td>${r.tanggal}</td>
-          <td>${r.supplier}</td>
-          <td>${r.total_item}</td>
-          <td>Rp ${Number(r.total_bayar).toLocaleString('id-ID')}</td>
-          <td>${r.metode_pembayaran}</td>
-          <td>${r.kasir || '-'}</td>
-          <td style="text-align: center;"><button class="badge-ubah" onclick="bukaStrukUlang('${safeNota}')" title="Cetak atau bagikan struk transaksi ini">Cetak / Share Struk</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+  var tbody = document.querySelector("#tabelRiwayat tbody");
+  tbody.innerHTML = "";
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align: center;">Belum ada riwayat transaksi.</td></tr>`;
+    return;
+  }
+  data.forEach(function(r) {
+    var tr = document.createElement("tr");
+    var safeNota = String(r.no_nota || '').replace(/'/g, "\\'");
+    
+    // Format angka potongan menjadi Rupiah. Jika 0, tampilkan strip (-)
+    var formatDiskon = r.potongan > 0 ? "Rp " + Number(r.potongan).toLocaleString('id-ID') : "-";
+
+    tr.innerHTML = `
+      <td><b>${r.no_nota}</b></td>
+      <td>${r.tanggal}</td>
+      <td style="color: #dc3545; font-weight: bold;">${formatDiskon}</td> <!-- Baris ini yang diubah -->
+      <td>${r.total_item}</td>
+      <td>Rp ${Number(r.total_bayar).toLocaleString('id-ID')}</td>
+      <td>${r.metode_pembayaran}</td>
+      <td>${r.kasir || '-'}</td>
+      <td style="text-align: center;"><button class="badge-ubah" onclick="bukaStrukUlang('${safeNota}')" title="Cetak atau bagikan struk transaksi ini">Cetak / Share Struk</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
     function filterRiwayatTransaksi() {
       var keyword = document.getElementById("searchRiwayatInput").value.toLowerCase();
