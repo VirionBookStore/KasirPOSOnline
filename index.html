@@ -242,6 +242,11 @@
         <li><a href="#" onclick="switchMenu('promoManajemen', this)">🎁 Manajemen Promo</a></li>
         
         <div class="sidebar-section">Manajemen Stok</div>
+        <div class="sidebar-section">Transaksi & Kasir</div>
+        <li><a href="#" onclick="switchMenu('posKasir', this)">🛒 Kasir (POS)</a></li>
+        <li><a href="#" onclick="switchMenu('returPos', this)">🔄 Retur & Tukar (POS)</a></li> <!-- Tambahkan baris ini -->
+        <li><a href="#" onclick="switchMenu('riwayatPenjualan', this)">📋 Riwayat Penjualan</a></li>
+        <li><a href="#" onclick="switchMenu('riwayatPerBarang', this)">📦 Penjualan per Barang</a></li>
         <li><a href="#" onclick="switchMenu('stokMasuk', this)">📥 Barang Masuk</a></li>
         <li><a href="#" onclick="switchMenu('returBarang', this)">🔄 Retur Barang</a></li>
 
@@ -279,6 +284,85 @@
       </div>
 
       <div class="content-body">
+        
+       <!-- RETUR & TUKAR POS -->
+        <div id="sec-returPos" class="page-section">
+          <div style="background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: 500;">
+            ⚠️ <b>Mode Retur & Tukar Transaksi:</b> Gunakan tombol mode untuk memasukkan barang yang dikembalikan pembeli (Qty Otomatis Negatif / Menambah Stok) atau barang pengganti baru (Qty Positif / Mengurangi Stok).
+          </div>
+          
+          <div class="pos-grid" style="display: grid; grid-template-columns: 1.2fr 2fr; gap: 20px;">
+            
+            <!-- PANEL KIRI: KATALOG / PENCARIAN CEPAT -->
+            <div class="card" style="padding: 15px; height: fit-content; overflow: hidden;">
+              <div style="font-size: 12px; font-weight: bold; color: #6c757d; margin-bottom: 8px;">📚 PILIH / CARI PRODUK KEMBALIAN</div>
+              <input type="text" id="searchReturPosKatalog" class="form-control" placeholder="Cari nama barang..." oninput="filterReturPosKatalog()" style="margin-bottom: 10px;">
+              <div id="returProductGrid" class="best-product-container" style="max-height: 450px;">
+                <!-- Diisi dinamis -->
+              </div>
+            </div>
+
+            <!-- PANEL KANAN: KERANJANG RETUR & SELISIH PEMBAYARAN -->
+            <div class="card" style="padding: 15px; display: flex; flex-direction: column; overflow: visible;">
+              
+              <!-- Pilihan Mode Input -->
+              <div style="margin-bottom: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <h3 style="margin:0; font-size:16px;">Keranjang Retur & Tukar</h3>
+                  <div style="display: flex; gap: 5px;">
+                    <button type="button" id="btnModeRetur" class="btn btn-sm btn-outline" onclick="setReturMode('retur')" style="border-color: #dc3545; color: #dc3545;">- Mode Retur (Masuk Stok)</button>
+                    <button type="button" id="btnModeBeli" class="btn btn-sm btn-primary" onclick="setReturMode('beli')">+ Mode Beli/Tukar (Keluar Stok)</button>
+                  </div>
+                </div>
+                
+                <div style="position: relative;">
+                  <input type="text" id="searchReturPos" class="form-control" placeholder="Ketik nama barang atau scan barcode..." oninput="handleReturPosInput()" autocomplete="off" style="width:100%; box-sizing: border-box; padding: 10px; font-size: 14px; border: 2px solid #dc3545;" id="inputBorderRetur">
+                  <div id="suggestionBoxRetur" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ced4da; border-radius: 4px; max-height: 250px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></div>
+                </div>
+              </div>
+
+              <!-- Tabel Keranjang Retur -->
+              <div style="display: flex; flex-direction: column; flex: 1;">
+                <div style="max-height: 320px; overflow-y: auto; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 4px;">
+                  <table id="tabelKeranjangRetur" style="font-size: 11.5px; margin: 0;">
+                    <thead>
+                      <tr><th>Item & Status</th><th>Qty</th><th>Subtotal / Nilai</th><th style="text-align:right;">Aksi</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Bagian Kalkulasi Selisih -->
+              <div style="border-top: 1px solid var(--border-color); padding-top: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: #6c757d;">
+                  <span>Total Retur (Barang Dikembalikan):</span>
+                  <span id="returTotalMin" style="color: #dc3545;">Rp 0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: #6c757d;">
+                  <span>Total Pembelian (Barang Baru):</span>
+                  <span id="returTotalPlus" style="color: #198754;">Rp 0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 12px; background: #f8f9fa; padding: 8px; border-radius: 4px;">
+                  <span id="labelStatusSelisih">Selisih (Kurang Bayar):</span>
+                  <span id="returGrandTotal" style="color: var(--primary-color);">Rp 0</span>
+                </div>
+                
+                <div class="form-group">
+                  <label>Metode Penyelesaian / Pembayaran:</label>
+                  <select id="returMetode" class="form-control">
+                    <option value="Tunai">Tunai (Cash)</option>
+                    <option value="QRIS">QRIS</option>
+                    <option value="Transfer Bank">Transfer Bank</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 10px; font-size: 14px; background-color: #d97706; border-color: #d97706;" onclick="prosesCheckoutRetur()">Selesaikan Retur & Cetak Nota</button>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
         
         <!-- DASHBOARD -->
         <div id="sec-dashboard" class="page-section active">
@@ -1308,6 +1392,7 @@
       if (menuId === 'riwayatPenjualan') loadRiwayat();
       if (menuId === 'riwayatPerBarang') initRiwayatPerBarang();
       if (menuId === 'dashboard') loadDashboardStats();
+      if (menuId === 'returPos') initReturPos();
       
       // Sembunyikan sidebar di mobile setelah menu dipilih
       closeSidebarMobile();
@@ -2905,6 +2990,240 @@
 
   <!-- Scanner override: kamera belakang + pemilihan kamera + format barcode umum -->
   <script>
+    let keranjangRetur = [];
+    let currentReturMode = 'retur'; // 'retur' (qty negatif) atau 'beli' (qty positif)
+
+    function initReturPos() {
+      google.script.run.withSuccessHandler(function(data) {
+        globalDataBarang = data;
+        renderReturProductGrid(data);
+        document.getElementById("searchReturPos").value = "";
+      }).getBarang();
+    }
+
+    function setReturMode(mode) {
+      currentReturMode = mode;
+      let btnRetur = document.getElementById("btnModeRetur");
+      let btnBeli = document.getElementById("btnModeBeli");
+      let inputSearch = document.getElementById("searchReturPos");
+
+      if (mode === 'retur') {
+        btnRetur.className = "btn btn-sm btn-primary";
+        btnRetur.style.background = "#dc3545";
+        btnRetur.style.borderColor = "#dc3545";
+        btnRetur.style.color = "#fff";
+        
+        btnBeli.className = "btn btn-sm btn-outline";
+        btnBeli.style.background = "transparent";
+        btnBeli.style.color = "#0f5132";
+        
+        inputSearch.style.borderColor = "#dc3545";
+        inputSearch.placeholder = "Scan/Ketik barang yang DIKEMBALIKAN pembeli...";
+      } else {
+        btnBeli.className = "btn btn-sm btn-primary";
+        btnBeli.style.background = "#0f5132";
+        btnBeli.style.borderColor = "#0f5132";
+        btnBeli.style.color = "#fff";
+        
+        btnRetur.className = "btn btn-sm btn-outline";
+        btnRetur.style.background = "transparent";
+        btnRetur.style.color = "#dc3545";
+        
+        inputSearch.style.borderColor = "#0f5132";
+        inputSearch.placeholder = "Scan/Ketik barang PENGGANTI baru...";
+      }
+    }
+
+    function renderReturProductGrid(list) {
+      let grid = document.getElementById("returProductGrid");
+      grid.innerHTML = "";
+      if (!list || list.length === 0) {
+        grid.innerHTML = `<div style="font-size:11px; color:#adb5bd; grid-column: 1/-1; text-align:center; padding: 10px;">Belum ada data barang.</div>`;
+        return;
+      }
+      list.forEach(item => {
+        let div = document.createElement("div");
+        div.className = "best-product-card";
+        let imgUrl = item.gambar ? item.gambar : 'https://via.placeholder.com/45?text=No+Img';
+        div.onclick = function() { tambahKeKeranjangRetur(item); };
+        div.innerHTML = `
+          <img src="${imgUrl}" class="best-product-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/45?text=Img';">
+          <div class="best-product-title" title="${item.nama_barang}">${item.nama_barang}</div>
+          <div class="best-product-price">Rp ${Number(item.harga_jual).toLocaleString('id-ID')}</div>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    function filterReturPosKatalog() {
+      let kw = document.getElementById("searchReturPosKatalog").value.toLowerCase();
+      let filtered = globalDataBarang.filter(i => (i.nama_barang && i.nama_barang.toLowerCase().includes(kw)) || (i.id_barang && i.id_barang.toLowerCase().includes(kw)));
+      renderReturProductGrid(filtered);
+    }
+
+    function handleReturPosInput() {
+      let inputEl = document.getElementById("searchReturPos");
+      let keyword = inputEl.value.trim().toLowerCase();
+      let suggestionBox = document.getElementById("suggestionBoxRetur");
+      
+      if (keyword === "") {
+        suggestionBox.style.display = "none";
+        return;
+      }
+
+      let exactMatch = globalDataBarang.find(item => String(item.id_barang || "").toLowerCase() === keyword);
+      if (exactMatch) {
+        tambahKeKeranjangRetur(exactMatch);
+        inputEl.value = "";
+        suggestionBox.style.display = "none";
+        return;
+      }
+
+      let filtered = globalDataBarang.filter(item => {
+        let nama = String(item.nama_barang || "").toLowerCase();
+        let idBarang = String(item.id_barang || "").toLowerCase();
+        return nama.includes(keyword) || idBarang.includes(keyword);
+      });
+
+      if (filtered.length > 0) {
+        suggestionBox.innerHTML = "";
+        filtered.forEach(item => {
+          let div = document.createElement("div");
+          div.style.cssText = "padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center;";
+          div.onclick = function() {
+            tambahKeKeranjangRetur(item);
+            inputEl.value = "";
+            suggestionBox.style.display = "none";
+            inputEl.focus();
+          };
+          div.innerHTML = `
+            <div>
+              <div style="font-weight: 600; font-size: 13px; color: #333;">${item.nama_barang}</div>
+              <div style="font-size: 11px; color: #6c757d;">ID: ${item.id_barang}</div>
+            </div>
+            <div style="font-weight: bold; color: var(--primary-color); font-size: 13px;">Rp ${Number(item.harga_jual).toLocaleString('id-ID')}</div>
+          `;
+          suggestionBox.appendChild(div);
+        });
+        suggestionBox.style.display = "block";
+      } else {
+        suggestionBox.innerHTML = `<div style="padding: 10px; text-align: center; color: #dc3545; font-size: 12px;">Barang tidak ditemukan</div>`;
+        suggestionBox.style.display = "block";
+      }
+    }
+
+    function tambahKeKeranjangRetur(item) {
+      // Jika mode retur, Qty bernilai negatif (-1). Jika beli, positif (+1)
+      let multiplier = (currentReturMode === 'retur') ? -1 : 1;
+      
+      var exist = keranjangRetur.find(k => k.id_barang === item.id_barang && ((k.qty < 0 && currentReturMode === 'retur') || (k.qty > 0 && currentReturMode === 'beli')));
+      if (exist) {
+        exist.qty += multiplier;
+        if (exist.qty === 0) exist.qty = multiplier; // Jangan biarkan 0
+      } else {
+        keranjangRetur.push({
+          id_barang: item.id_barang,
+          nama_barang: item.nama_barang,
+          supplier: item.supplier,
+          harga_jual: Number(item.harga_jual),
+          qty: multiplier,
+          subtotal: Number(item.harga_jual) * multiplier
+        });
+      }
+      renderKeranjangRetur();
+    }
+
+    function renderKeranjangRetur() {
+      var tbody = document.querySelector("#tabelKeranjangRetur tbody");
+      tbody.innerHTML = "";
+      let totalMin = 0;
+      let totalPlus = 0;
+      
+      keranjangRetur.forEach((k, idx) => {
+        k.subtotal = k.harga_jual * k.qty;
+        if (k.qty < 0) {
+          totalMin += Math.abs(k.subtotal);
+        } else {
+          totalPlus += k.subtotal;
+        }
+
+        let badgeType = k.qty < 0 ? 
+          `<span style="background: #dc3545; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 9.5px; font-weight: bold;">RETUR (Masuk)</span>` : 
+          `<span style="background: #198754; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 9.5px; font-weight: bold;">BARU (Keluar)</span>`;
+
+        var tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>
+            <div style="font-weight:600;">${k.nama_barang}</div>
+            <div style="margin-top:2px;">${badgeType}</div>
+          </td>
+          <td><input type="number" class="form-control" style="width:60px; padding:3px;" value="${k.qty}" onchange="ubahQtyRetur(${idx}, this.value)"></td>
+          <td><b>Rp ${k.subtotal.toLocaleString('id-ID')}</b></td>
+          <td style="text-align: right;">
+            <button class="btn btn-danger btn-sm" style="padding: 2px 6px;" onclick="keranjangRetur.splice(${idx},1); renderKeranjangRetur();">×</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      let selisih = totalPlus - totalMin;
+      document.getElementById("returTotalMin").innerText = "Rp " + totalMin.toLocaleString('id-ID');
+      document.getElementById("returTotalPlus").innerText = "Rp " + totalPlus.toLocaleString('id-ID');
+      
+      let lblSelisih = document.getElementById("labelStatusSelisih");
+      let valSelisih = document.getElementById("returGrandTotal");
+      
+      if (selisih > 0) {
+        lblSelisih.innerText = "Kurang Bayar (Pembeli Bayar Lagi):";
+        valSelisih.style.color = "var(--primary-color)";
+        valSelisih.innerText = "Rp " + selisih.toLocaleString('id-ID');
+      } else if (selisih < 0) {
+        lblSelisih.innerText = "Kembalikan Uang ke Pembeli:";
+        valSelisih.style.color = "#dc3545";
+        valSelisih.innerText = "Rp " + Math.abs(selisih).toLocaleString('id-ID');
+      } else {
+        lblSelisih.innerText = "Selisih Transaksi:";
+        valSelisih.style.color = "#333";
+        valSelisih.innerText = "Rp 0 (Tukar Tambah Imbang)";
+      }
+    }
+
+    function ubahQtyRetur(idx, val) {
+      let q = parseInt(val) || 0;
+      if (q === 0) q = 1;
+      keranjangRetur[idx].qty = q;
+      renderKeranjangRetur();
+    }
+
+    function prosesCheckoutRetur() {
+      if (keranjangRetur.length === 0) {
+        alert("Keranjang retur masih kosong!");
+        return;
+      }
+      
+      let totalItemCount = keranjangRetur.reduce((sum, item) => sum + Math.abs(item.qty), 0);
+      let totalBayarSelisih = keranjangRetur.reduce((sum, item) => sum + item.subtotal, 0);
+      let metode = document.getElementById("returMetode").value;
+
+      var payload = {
+        supplier: keranjangRetur[0].supplier || 'Umum',
+        total_item: totalItemCount,
+        total_bayar: totalBayarSelisih,
+        metode_pembayaran: metode + " (Retur/Tukar)",
+        kasir: currentUser ? currentUser.nama : 'Admin',
+        items: keranjangRetur
+      };
+
+      if(confirm("Proses transaksi retur & tukar ini? Stok master akan otomatis disesuaikan.")) {
+        google.script.run.withSuccessHandler(function(res) {
+          alert("Retur berhasil diproses! Nomor Nota: " + res.no_nota);
+          keranjangRetur = [];
+          renderKeranjangRetur();
+          switchMenu('riwayatPenjualan', document.querySelector("a[onclick*='riwayatPenjualan']"));
+        }).simpanTransaksi(payload);
+      }
+    }
+    
     (function installRobustScanner() {
       const formats = (window.Html5QrcodeSupportedFormats) ? [
         Html5QrcodeSupportedFormats.QR_CODE,
