@@ -3232,6 +3232,32 @@
       });
     }
 
+    function replaceBarangFromStage() {
+      return openLocalDB().then(function(db) {
+        return new Promise(function(resolve, reject) {
+          const t = db.transaction(['barang','barang_sync_stage'], 'readwrite');
+          const target = t.objectStore('barang');
+          const stage = t.objectStore('barang_sync_stage');
+          const clearReq = target.clear();
+
+          clearReq.onerror = function(){ reject(clearReq.error || new Error('Gagal membersihkan snapshot barang lama.')); };
+          clearReq.onsuccess = function(){
+            const req = stage.openCursor();
+            req.onsuccess = function(e){
+              const cursor = e.target.result;
+              if (!cursor) return;
+              target.put(cursor.value);
+              cursor.continue();
+            };
+            req.onerror = function(){ reject(req.error || new Error('Gagal membaca snapshot barang baru.')); };
+          };
+          t.oncomplete = function(){ resolve(); };
+          t.onerror = function(){ reject(t.error || new Error('Gagal mengganti snapshot barang.')); };
+          t.onabort = function(){ reject(t.error || new Error('Penggantian snapshot barang dibatalkan.')); };
+        });
+      });
+    }
+
     window.backupLocalDatabase = async function() {
       const btn = document.getElementById('btnBackupLocal');
       if (btn) { btn.disabled = true; btn.textContent = 'Menyiapkan backup...'; }
@@ -3441,11 +3467,9 @@
             if (!items.length && !(result && result.hasMore)) break;
           }
 
-          // Semua batch berhasil: sekarang ganti snapshot barang lama dengan snapshot baru.
-          await clearStore('barang');
-          await getStoreChunks('barang_sync_stage', 500, async function(batch) {
-            await putMany('barang', batch);
-          });
+          // Semua batch berhasil: sekarang ganti snapshot barang lama secara atomik
+          // dalam satu transaksi IndexedDB. Jika batch sebelumnya gagal, data lama tetap aman.
+          await replaceBarangFromStage();
           await clearStore('barang_sync_stage');
 
           await putMany('app_settings', [{
