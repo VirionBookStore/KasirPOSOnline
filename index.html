@@ -3895,6 +3895,68 @@
       if (!local.length) syncBarangFromServer(true).catch(function(e){ console.warn(e); });
     };
 
+    // Detail nota juga local-first: setelah pertama kali dibuka, detail disimpan di IndexedDB.
+    window.bukaStrukUlang = async function(noNota) {
+      const nota = String(noNota || '').trim();
+      const header = (globalRiwayatData || []).find(function(r){ return String(r.no_nota).trim() === nota; });
+      const key = cacheKey('detail_nota', nota);
+      let detail = await cacheGet(key);
+
+      if (Array.isArray(detail) && detail.length) {
+        const transObj = {
+          no_nota: nota,
+          tanggal: header ? header.tanggal : new Date().toLocaleString('id-ID'),
+          kasir: header ? (header.kasir || 'Admin') : (detail[0].kasir || 'Admin'),
+          metode_pembayaran: header ? (header.metode_pembayaran || 'Tunai') : (detail[0].metode_pembayaran || 'Tunai'),
+          total_bayar: header ? Number(header.total_bayar) : detail.reduce(function(s,i){ return s + Number(i.subtotal || 0); }, 0),
+          items: detail.map(function(d){
+            return {
+              id_barang: d.id_barang,
+              nama_barang: d.nama_barang || d.id_barang,
+              harga_jual: Number(d.harga_satuan) || 0,
+              qty: Number(d.qty) || 0,
+              subtotal: Number(d.subtotal) || 0,
+              disc_val: 0,
+              disc_type: 'Rp'
+            };
+          })
+        };
+        tampilkanStruk(transObj);
+      }
+
+      try {
+        const fresh = await gasCallPromise('getDetailPenjualanByNota', [nota]);
+        if (!Array.isArray(fresh) || !fresh.length) {
+          if (!detail || !detail.length) alert('Detail transaksi tidak ditemukan!');
+          return;
+        }
+        await cachePut(key, fresh);
+        if (!detail || JSON.stringify(detail) !== JSON.stringify(fresh)) {
+          const transObj = {
+            no_nota: nota,
+            tanggal: header ? header.tanggal : new Date().toLocaleString('id-ID'),
+            kasir: header ? (header.kasir || 'Admin') : (fresh[0].kasir || 'Admin'),
+            metode_pembayaran: header ? (header.metode_pembayaran || 'Tunai') : (fresh[0].metode_pembayaran || 'Tunai'),
+            total_bayar: header ? Number(header.total_bayar) : fresh.reduce(function(s,i){ return s + Number(i.subtotal || 0); }, 0),
+            items: fresh.map(function(d){
+              return {
+                id_barang: d.id_barang,
+                nama_barang: d.nama_barang || d.id_barang,
+                harga_jual: Number(d.harga_satuan) || 0,
+                qty: Number(d.qty) || 0,
+                subtotal: Number(d.subtotal) || 0,
+                disc_val: 0,
+                disc_type: 'Rp'
+              };
+            })
+          };
+          tampilkanStruk(transObj);
+        }
+      } catch(err) {
+        if (!detail || !detail.length) alert('Gagal mengambil detail transaksi dan belum ada cache lokal.');
+      }
+    };
+
     // Laporan per barang: cache berdasarkan tanggal + mode, sehingga buka ulang langsung cepat.
     function reportCacheKey(start,end,mode){ return cacheKey('laporan', [start,end,mode].join('|')); }
     function renderLaporanPerBarangLocal(resData, mode, selectedKasir, selectedSupplierRaw) {
