@@ -197,6 +197,8 @@
       #sec-posKasir > .pos-mobile-shell { margin:-4px -2px 0; }
       #sec-posKasir .card { box-shadow:none; border:0; }
       body.pos-mobile-cart-open .pos-mobile-bottom { display:none; }
+      body:has(#sec-posKasir.active) .header-container { display:none !important; }
+      body:has(#sec-posKasir.active) .content-body { padding:12px 10px 84px !important; }
     }
 
     @media screen and (max-width: 992px) {
@@ -329,29 +331,6 @@
             ⚠️ <b>Mode Retur & Tukar Transaksi:</b> Gunakan tombol mode untuk memasukkan barang yang dikembalikan pembeli (Qty Otomatis Negatif / Menambah Stok) atau barang pengganti baru (Qty Positif / Mengurangi Stok).
           </div>
           
-          <!-- POS MOBILE: katalog utama seperti referensi -->
-          <div class="pos-mobile-shell" id="posMobileShell">
-            <div class="pos-mobile-header">
-              <button type="button" class="pos-mobile-menu-icon" onclick="openSidebarMobile()" aria-label="Menu">☰</button>
-              <h2 class="pos-mobile-title">Transaksi</h2>
-              <span style="width:28px;"></span>
-            </div>
-            <div id="readerPosMobile"></div>
-            <div class="pos-mobile-search-row">
-              <div class="pos-mobile-search-wrap">
-                <input id="searchPosMobile" class="pos-mobile-search" type="text" placeholder="Cari nama atau kode" autocomplete="off" oninput="handlePosInputMobile()">
-                <button type="button" class="pos-mobile-clear" onclick="clearMobilePosSearch()" aria-label="Hapus pencarian">×</button>
-              </div>
-              <button type="button" class="pos-mobile-scan" onclick="togglePosScanner()" aria-label="Scan barcode">▣</button>
-            </div>
-            <div id="posMobileCategories" class="pos-mobile-cats"></div>
-            <div id="posMobileList" class="pos-mobile-list"></div>
-            <button type="button" class="pos-mobile-bottom" onclick="prosesCheckout()">
-              <span class="pos-mobile-bottom-count"><strong id="posMobileItemCount">0</strong><span>Barang</span></span>
-              <span class="pos-mobile-bottom-next">LANJUT <span style="font-size:28px;line-height:1;">›</span></span>
-            </button>
-          </div>
-
           <div class="pos-grid" style="display: grid; grid-template-columns: 1.2fr 2fr; gap: 20px;">
             
             <!-- PANEL KIRI: KATALOG / PENCARIAN CEPAT -->
@@ -674,6 +653,30 @@
 
         <!-- KASIR (POS) -->
         <div id="sec-posKasir" class="page-section">
+          <!-- POS MOBILE: katalog utama seperti referensi -->
+          <div class="pos-mobile-shell" id="posMobileShell">
+            <div class="pos-mobile-header">
+              <button type="button" class="pos-mobile-menu-icon" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+              <h2 class="pos-mobile-title">Transaksi</h2>
+              <span style="width:28px;"></span>
+            </div>
+            <div id="readerPosMobile"></div>
+            <div class="pos-mobile-search-row">
+              <div class="pos-mobile-search-wrap">
+                <input id="searchPosMobile" class="pos-mobile-search" type="text" placeholder="Cari nama atau kode" autocomplete="off" oninput="handlePosInputMobile()">
+                <button type="button" class="pos-mobile-clear" onclick="clearMobilePosSearch()" aria-label="Hapus pencarian">×</button>
+              </div>
+              <button type="button" class="pos-mobile-scan" onclick="togglePosScanner()" aria-label="Scan barcode">▣</button>
+            </div>
+            <div id="posMobileCategories" class="pos-mobile-cats"></div>
+            <div id="posMobileList" class="pos-mobile-list"></div>
+            <button type="button" class="pos-mobile-bottom" onclick="prosesCheckout()">
+              <span class="pos-mobile-bottom-count"><strong id="posMobileItemCount">0</strong><span>Barang</span></span>
+              <span class="pos-mobile-bottom-next">LANJUT <span style="font-size:28px;line-height:1;">›</span></span>
+            </button>
+          </div>
+
+
           <!-- LAYOUT BARU: Kiri (Best Seller), Kanan (Search + Cart) -->
           <!-- Di HP urutannya ditukar via CSS agar Search+Cart ada di ATAS -->
           <div class="pos-grid" style="display: grid; grid-template-columns: 1.2fr 2fr; gap: 20px;">
@@ -1272,7 +1275,7 @@
   <script>
     window.AS_POS_CONFIG = window.AS_POS_CONFIG || {
       // GANTI dengan URL deployment Web App GAS yang berakhiran /exec.
-      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbw2aKVLnwmqAn7SR5O4OicU-wBo21vtdTSP0Q5TCmCyorJrdXm_Lpk-S43jR8D35JEw/exec"
+      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbxvlXRCtFPIBLmTmwKlWOS58ftRUWaEo4WS8etrSWubKRH3nK9yNj8FgXo5ArxguLZK/exec"
     };
 
     (function installGasBridge() {
@@ -1541,7 +1544,6 @@
           console.error(err);
           if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty" style="color:#dc3545;">Gagal memuat dashboard: ' + escapeDashboardHtml(err && err.message ? err.message : err) + '</td></tr>';
           if (btn) { btn.disabled = false; btn.innerText = 'Tampilkan'; }
-          alert('Gagal memuat Dashboard: ' + (err && err.message ? err.message : err));
         })
         .getDashboardData(date, date);
     }
@@ -3535,20 +3537,40 @@
         });
       };
       window.togglePosScanner = function() {
-        startScannerInstance('readerPos', 'html5QrCodePos', function(value) {
-          const el = document.getElementById('searchPos');
+        const isMobile = window.innerWidth <= 768;
+        const readerId = isMobile ? 'readerPosMobile' : 'readerPos';
+        const inputId = isMobile ? 'searchPosMobile' : 'searchPos';
+        startScannerInstance(readerId, 'html5QrCodePos', function(value) {
+          const el = document.getElementById(inputId);
           if (el) {
             el.value = value;
             el.dispatchEvent(new Event('input', { bubbles: true }));
           }
-          if (typeof handlePosInput === 'function') handlePosInput();
+          if (isMobile && typeof handlePosInputMobile === 'function') handlePosInputMobile();
+          else if (typeof handlePosInput === 'function') handlePosInput();
         });
       };
 
       window.stopScanner = function() { stopScannerGeneric('reader', 'html5QrCode', 'isScanning'); };
       window.stopMasukScanner = function() { stopScannerGeneric('readerMasuk', 'html5QrCodeMasuk', 'isMasukScanning'); };
       window.stopReturScanner = function() { stopScannerGeneric('readerRetur', 'html5QrCodeRetur', 'isReturScanning'); };
-      window.stopPosScanner = function() { stopScannerGeneric('readerPos', 'html5QrCodePos', 'isPosScanning'); };
+      window.stopPosScanner = function() {
+        const mobileReader = document.getElementById('readerPosMobile');
+        const desktopReader = document.getElementById('readerPos');
+        const scanner = window.html5QrCodePos;
+        window.isPosScanning = false;
+        if (scanner && typeof scanner.stop === 'function') {
+          scanner.stop().catch(function() {}).finally(function() {
+            [mobileReader, desktopReader].forEach(function(el) {
+              if (el) { el.style.display = 'none'; el.innerHTML = ''; }
+            });
+          });
+        } else {
+          [mobileReader, desktopReader].forEach(function(el) {
+            if (el) { el.style.display = 'none'; el.innerHTML = ''; }
+          });
+        }
+      };
       window.stopAllScanners = function() {
         window.stopScanner(); window.stopMasukScanner(); window.stopReturScanner(); window.stopPosScanner();
       };
