@@ -156,6 +156,49 @@
       font-weight: bold;
     }
 
+    /* === POS MOBILE - gaya katalog kasir seperti referensi === */
+    .pos-mobile-shell { display:none; }
+    .pos-mobile-header { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+    .pos-mobile-title { font-size:24px; font-weight:700; color:#146c4a; margin:0; }
+    .pos-mobile-menu-icon { font-size:28px; color:#16815a; line-height:1; }
+    .pos-mobile-search-row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+    .pos-mobile-search-wrap { flex:1; position:relative; }
+    .pos-mobile-search { width:100%; box-sizing:border-box; border:2px solid #11a97f; border-radius:8px; padding:12px 42px 12px 14px; font-size:16px; background:#fff; }
+    .pos-mobile-clear { position:absolute; right:10px; top:50%; transform:translateY(-50%); border:0; background:transparent; color:#169a76; font-size:27px; cursor:pointer; }
+    .pos-mobile-scan { flex:0 0 48px; height:48px; border:2px solid #169a76; border-radius:9px; background:#fff; font-size:22px; cursor:pointer; }
+    .pos-mobile-cats { display:flex; gap:8px; overflow-x:auto; padding:3px 0 10px; scrollbar-width:none; }
+    .pos-mobile-cats::-webkit-scrollbar { display:none; }
+    .pos-mobile-cat { flex:0 0 auto; border:1px solid #16a77e; border-radius:10px; background:#fff; color:#15926f; padding:9px 15px; font-size:13px; font-weight:600; cursor:pointer; }
+    .pos-mobile-cat.active { background:#dcfce9; border-width:2px; }
+    .pos-mobile-list { min-height:55vh; padding-bottom:88px; }
+    .pos-mobile-item { display:flex; align-items:center; gap:12px; padding:12px 2px; border-bottom:1px solid #edf0f1; background:#fff; cursor:pointer; }
+    .pos-mobile-img { width:64px; height:64px; flex:0 0 64px; object-fit:cover; border-radius:9px; background:#f0f3f5; display:flex; align-items:center; justify-content:center; color:#a0a7ad; font-weight:700; }
+    .pos-mobile-info { min-width:0; flex:1; }
+    .pos-mobile-name { font-size:16px; line-height:1.25; font-weight:700; color:#202124; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .pos-mobile-meta { margin-top:6px; font-size:13px; color:#73787d; }
+    .pos-mobile-price { margin-top:3px; font-size:14px; font-weight:700; color:#16815a; }
+    .pos-mobile-empty { padding:35px 10px; text-align:center; color:#8b9298; }
+    .pos-mobile-bottom { position:fixed; left:16px; right:16px; bottom:12px; z-index:3000; display:flex; align-items:center; justify-content:space-between; min-height:58px; border:0; border-radius:32px; background:#10b487; color:#fff; box-shadow:0 5px 18px rgba(0,0,0,.2); padding:0 18px; cursor:pointer; }
+    .pos-mobile-bottom-count { display:flex; align-items:center; gap:9px; font-size:14px; font-weight:700; }
+    .pos-mobile-bottom-count strong { font-size:25px; }
+    .pos-mobile-bottom-next { display:flex; align-items:center; gap:8px; font-size:17px; font-weight:800; }
+    .pos-mobile-back { display:none; margin-bottom:8px; border:0; background:transparent; color:#16815a; font-weight:700; font-size:14px; padding:5px 0; cursor:pointer; }
+    .pos-mobile-cart-head { display:flex; justify-content:space-between; align-items:center; margin:8px 0 12px; }
+    .pos-mobile-cart-title { font-size:22px; font-weight:800; margin:0; }
+    .pos-mobile-cart-item { display:flex; justify-content:space-between; gap:8px; padding:12px 0; border-bottom:1px solid #eee; }
+    .pos-mobile-cart-actions { display:flex; align-items:center; gap:6px; margin-top:6px; }
+    .pos-mobile-qty-btn { width:30px; height:30px; border:1px solid #16a77e; border-radius:7px; background:#fff; color:#16815a; font-weight:800; }
+    .pos-mobile-cart-qty { min-width:24px; text-align:center; font-weight:700; }
+    .pos-mobile-cart-remove { border:0; background:#fff0f0; color:#dc3545; border-radius:6px; padding:5px 8px; }
+    @media screen and (max-width: 768px) {
+      .pos-grid { display:none !important; }
+      .pos-mobile-shell { display:block; }
+      #sec-posKasir { padding:0 !important; background:#fff; }
+      #sec-posKasir > .pos-mobile-shell { margin:-4px -2px 0; }
+      #sec-posKasir .card { box-shadow:none; border:0; }
+      body.pos-mobile-cart-open .pos-mobile-bottom { display:none; }
+    }
+
     @media screen and (max-width: 992px) {
       #hamburger-btn { display: inline-block; }
       
@@ -286,6 +329,29 @@
             ⚠️ <b>Mode Retur & Tukar Transaksi:</b> Gunakan tombol mode untuk memasukkan barang yang dikembalikan pembeli (Qty Otomatis Negatif / Menambah Stok) atau barang pengganti baru (Qty Positif / Mengurangi Stok).
           </div>
           
+          <!-- POS MOBILE: katalog utama seperti referensi -->
+          <div class="pos-mobile-shell" id="posMobileShell">
+            <div class="pos-mobile-header">
+              <button type="button" class="pos-mobile-menu-icon" onclick="openSidebarMobile()" aria-label="Menu">☰</button>
+              <h2 class="pos-mobile-title">Transaksi</h2>
+              <span style="width:28px;"></span>
+            </div>
+            <div id="readerPosMobile"></div>
+            <div class="pos-mobile-search-row">
+              <div class="pos-mobile-search-wrap">
+                <input id="searchPosMobile" class="pos-mobile-search" type="text" placeholder="Cari nama atau kode" autocomplete="off" oninput="handlePosInputMobile()">
+                <button type="button" class="pos-mobile-clear" onclick="clearMobilePosSearch()" aria-label="Hapus pencarian">×</button>
+              </div>
+              <button type="button" class="pos-mobile-scan" onclick="togglePosScanner()" aria-label="Scan barcode">▣</button>
+            </div>
+            <div id="posMobileCategories" class="pos-mobile-cats"></div>
+            <div id="posMobileList" class="pos-mobile-list"></div>
+            <button type="button" class="pos-mobile-bottom" onclick="prosesCheckout()">
+              <span class="pos-mobile-bottom-count"><strong id="posMobileItemCount">0</strong><span>Barang</span></span>
+              <span class="pos-mobile-bottom-next">LANJUT <span style="font-size:28px;line-height:1;">›</span></span>
+            </button>
+          </div>
+
           <div class="pos-grid" style="display: grid; grid-template-columns: 1.2fr 2fr; gap: 20px;">
             
             <!-- PANEL KIRI: KATALOG / PENCARIAN CEPAT -->
@@ -1699,10 +1765,15 @@
 
     function loadPosKatalog() {
       google.script.run.withSuccessHandler(function(data) {
-        globalDataBarang = data;
+        globalDataBarang = Array.isArray(data) ? data : [];
         document.getElementById("searchPos").value = "";
         let suggestionBox = document.getElementById("suggestionBox");
         if(suggestionBox) suggestionBox.style.display = "none";
+        let mobileSearch = document.getElementById("searchPosMobile");
+        if(mobileSearch) mobileSearch.value = "";
+        renderMobileCategories();
+        renderMobileCatalog(globalDataBarang);
+        renderMobileCartBar();
       }).getBarang();
 
       google.script.run.withSuccessHandler(function(bestList) {
@@ -1729,6 +1800,101 @@
         `;
         grid.appendChild(div);
       });
+    }
+
+    let mobilePosCategory = 'Semua';
+
+    function escapePosMobile(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+
+    function renderMobileCategories() {
+      const box = document.getElementById('posMobileCategories');
+      if (!box) return;
+      const cats = Array.from(new Set((globalDataBarang || [])
+        .filter(x => x.status !== 'Tidak Aktif')
+        .map(x => String(x.kategori || '').trim())
+        .filter(Boolean))).sort((a,b) => a.localeCompare(b,'id'));
+      if (mobilePosCategory !== 'Semua' && !cats.includes(mobilePosCategory)) mobilePosCategory = 'Semua';
+      box.innerHTML = '';
+      ['Semua'].concat(cats).forEach(cat => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'pos-mobile-cat' + (mobilePosCategory === cat ? ' active' : '');
+        b.textContent = cat;
+        b.onclick = function(){ mobilePosCategory = cat; renderMobileCategories(); renderMobileCatalog(globalDataBarang); };
+        box.appendChild(b);
+      });
+    }
+
+    function renderMobileCatalog(data) {
+      const box = document.getElementById('posMobileList');
+      if (!box) return;
+      const keywordEl = document.getElementById('searchPosMobile');
+      const keyword = keywordEl ? keywordEl.value.trim().toLowerCase() : '';
+      const words = keyword.split(/\s+/).filter(Boolean);
+      let list = (Array.isArray(data) ? data : []).filter(item => item.status !== 'Tidak Aktif');
+      if (mobilePosCategory !== 'Semua') list = list.filter(item => String(item.kategori || '').trim() === mobilePosCategory);
+      if (words.length) {
+        list = list.filter(item => {
+          const nama = String(item.nama_barang || '').toLowerCase();
+          const id = String(item.id_barang || '').toLowerCase();
+          return words.every(w => nama.includes(w) || id.includes(w));
+        });
+      }
+      const maxShow = 300;
+      box.innerHTML = '';
+      if (!list.length) {
+        box.innerHTML = '<div class="pos-mobile-empty">Barang tidak ditemukan.</div>';
+        return;
+      }
+      if (list.length > maxShow) list = list.slice(0,maxShow);
+      const frag = document.createDocumentFragment();
+      list.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'pos-mobile-item';
+        row.onclick = function(){ tambahKeKeranjang(item); };
+        const img = item.gambar ? escapePosMobile(item.gambar) : '';
+        row.innerHTML =
+          '<div class="pos-mobile-img">' +
+            (img ? '<img src="'+img+'" style="width:64px;height:64px;object-fit:cover;border-radius:9px;" onerror="this.style.display=\'none\';">' : '▣') +
+          '</div>' +
+          '<div class="pos-mobile-info">' +
+            '<div class="pos-mobile-name">'+escapePosMobile(item.nama_barang || item.id_barang)+'</div>' +
+            '<div class="pos-mobile-meta">sisa '+Number(item.stok || 0).toLocaleString('id-ID')+'</div>' +
+            '<div class="pos-mobile-price">Rp '+Number(item.harga_jual || 0).toLocaleString('id-ID')+'</div>' +
+          '</div>';
+        frag.appendChild(row);
+      });
+      box.appendChild(frag);
+    }
+
+    function handlePosInputMobile() {
+      const input = document.getElementById('searchPosMobile');
+      const keyword = input ? input.value.trim().toLowerCase() : '';
+      if (!keyword) { renderMobileCatalog(globalDataBarang); return; }
+      const exact = (globalDataBarang || []).find(item => item.status !== 'Tidak Aktif' && String(item.id_barang || '').toLowerCase() === keyword);
+      if (exact) {
+        tambahKeKeranjang(exact);
+        input.value = '';
+        renderMobileCatalog(globalDataBarang);
+        return;
+      }
+      renderMobileCatalog(globalDataBarang);
+    }
+
+    function clearMobilePosSearch() {
+      const input = document.getElementById('searchPosMobile');
+      if (input) { input.value = ''; input.focus(); }
+      renderMobileCatalog(globalDataBarang);
+    }
+
+    function renderMobileCartBar() {
+      const count = (keranjang || []).reduce((sum,item) => sum + Number(item.qty || 0), 0);
+      const el = document.getElementById('posMobileItemCount');
+      if (el) el.textContent = count.toLocaleString('id-ID');
     }
 
     function handlePosInput() {
@@ -1961,6 +2127,7 @@
 
       let netSubtotal = subtotalKotor - totalDiskonItem;
       document.getElementById("posTotalBayar").innerText = "Rp " + netSubtotal.toLocaleString('id-ID');
+      renderMobileCartBar();
     }
 
     function prosesCheckout() {
@@ -2567,13 +2734,22 @@
     }
 
     function togglePosScanner() {
-      var readerDiv = document.getElementById("readerPos");
+      var mobile = window.innerWidth <= 768;
+      var readerId = mobile ? "readerPosMobile" : "readerPos";
+      var inputId = mobile ? "searchPosMobile" : "searchPos";
+      var readerDiv = document.getElementById(readerId);
+      if (!readerDiv) return;
       if (!isPosScanning) {
         readerDiv.style.display = "block";
-        html5QrCodePos = new Html5Qrcode("readerPos");
+        html5QrCodePos = new Html5Qrcode(readerId);
         html5QrCodePos.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 100 } },
-          function(decodedText) { document.getElementById("searchPos").value = decodedText; handlePosInput(); stopPosScanner(); }, function() {}
-        ).catch(err => { alert("Kamera error: " + err); readerDiv.style.display = "none"; });
+          function(decodedText) {
+            var input = document.getElementById(inputId);
+            if (input) input.value = decodedText;
+            if (mobile) handlePosInputMobile(); else handlePosInput();
+            stopPosScanner();
+          }, function() {}
+        ).catch(err => { alert("Kamera error: " + err); readerDiv.style.display = "none"; isPosScanning = false; });
         isPosScanning = true;
       } else { stopPosScanner(); }
     }
@@ -2594,8 +2770,23 @@
     }
 
     function stopPosScanner() {
-      if (html5QrCodePos && isPosScanning) { html5QrCodePos.stop().then(() => { document.getElementById("readerPos").style.display = "none"; isPosScanning = false; }).catch(() => { document.getElementById("readerPos").style.display = "none"; isPosScanning = false; });
-      } else { document.getElementById("readerPos").style.display = "none"; isPosScanning = false; }
+      var reader = document.getElementById("readerPos");
+      var readerMobile = document.getElementById("readerPosMobile");
+      if (html5QrCodePos && isPosScanning) {
+        html5QrCodePos.stop().then(() => {
+          if (reader) reader.style.display = "none";
+          if (readerMobile) readerMobile.style.display = "none";
+          isPosScanning = false;
+        }).catch(() => {
+          if (reader) reader.style.display = "none";
+          if (readerMobile) readerMobile.style.display = "none";
+          isPosScanning = false;
+        });
+      } else {
+        if (reader) reader.style.display = "none";
+        if (readerMobile) readerMobile.style.display = "none";
+        isPosScanning = false;
+      }
     }
 
     function stopAllScanners() {
