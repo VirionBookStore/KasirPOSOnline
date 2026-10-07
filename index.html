@@ -10,6 +10,30 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
+
+    /* --- STYLING LIST KERANJANG & BADGE QTY --- */
+.pos-item-qty-badge {
+    background: #fff; border: 1px solid #495057; color: #333; font-weight: bold;
+    border-radius: 4px; padding: 4px 10px; font-size: 13px; margin-left: auto;
+}
+.cart-item-row {
+    display: flex; gap: 12px; align-items: center; background: #fff; padding: 12px;
+    border-radius: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e9ecef;
+}
+.cart-item-img {
+    width: 55px; height: 55px; border-radius: 8px; object-fit: cover; border: 1px solid #dee2e6; background: #f8f9fa;
+}
+.cart-item-info { flex: 1; }
+.cart-item-title { font-weight: bold; font-size: 13px; color: #212529; margin-bottom: 4px; line-height: 1.3; }
+.cart-item-price { font-size: 12px; color: #6c757d; }
+.cart-item-controls { display: flex; align-items: center; gap: 10px; }
+.btn-trash { background: none; border: none; color: #dc3545; cursor: pointer; padding: 5px; display: flex; align-items: center; }
+.qty-control { display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 6px; overflow: hidden; }
+.qty-btn { background: #f8f9fa; border: none; padding: 6px 12px; cursor: pointer; font-weight: bold; color: #495057; }
+.qty-btn:active { background: #e9ecef; }
+.qty-input { width: 35px; border: none; border-left: 1px solid #ced4da; border-right: 1px solid #ced4da; text-align: center; font-size: 13px; padding: 6px 0; -moz-appearance: textfield; font-weight: bold; }
+.qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    
     /* --- STYLING KHUSUS POS MOBILE/LIST --- */
 .pos-mobile-container {
   display: flex; flex-direction: column; height: calc(100vh - 120px); background: #fff; position: relative;
@@ -682,37 +706,30 @@
   </div>
 </div>
 
-<!-- MODAL KERANJANG BELANJA (Dipindah dari panel kanan sebelumnya) -->
+<!-- MODAL KERANJANG BELANJA BARU -->
 <div id="modalKeranjangPos" class="modal">
-  <div class="modal-content" style="max-width: 500px;">
+  <div class="modal-content" style="max-width: 500px; max-height: 85vh; border-radius: 12px;">
     <div class="modal-header" style="background-color: var(--primary-color);">
       <h3 style="margin:0; font-size:16px;">Keranjang Belanja</h3>
       <button class="close-btn" onclick="tutupModalKeranjang()">&times;</button>
     </div>
-    <div class="modal-body">
-      <div style="max-height: 350px; overflow-y: auto; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 4px;">
-        <table id="tabelKeranjang" style="font-size: 11.5px; margin: 0; width: 100%;">
-          <thead>
-            <tr><th>Item</th><th>Qty</th><th>Subtotal</th><th style="text-align:right;">Diskon / Aksi</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+    
+    <div class="modal-body" style="padding: 0; display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+      
+      <!-- Daftar Item Keranjang (Bentuk List) -->
+      <div id="posCartList" style="flex: 1; overflow-y: auto; padding: 15px; background: #f8f9fa;">
+        <!-- Diisi otomatis via JS -->
       </div>
-      <div style="border-top: 1px solid var(--border-color); padding-top: 10px;">
-        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 10px;">
+
+      <!-- Footer Keranjang (Total & Tombol Bayar) -->
+      <div style="background: #fff; padding: 15px 20px; border-top: 1px solid var(--border-color); box-shadow: 0 -4px 10px rgba(0,0,0,0.03);">
+        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-bottom: 15px;">
           <span>Total Tagihan:</span>
           <span id="posTotalBayar" style="color: var(--primary-color);">Rp 0</span>
         </div>
-        <div class="form-group">
-          <label>Metode Pembayaran:</label>
-          <select id="posMetode" class="form-control">
-            <option value="Tunai">Tunai (Cash)</option>
-            <option value="QRIS">QRIS</option>
-            <option value="Transfer Bank">Transfer Bank</option>
-          </select>
-        </div>
-        <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 20px;" onclick="prosesCheckout()">Bayar & Cetak Nota</button>
+        <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px;" onclick="prosesCheckout()">BAYAR</button>
       </div>
+
     </div>
   </div>
 </div>
@@ -1749,8 +1766,6 @@ function loadPosKatalog() {
   google.script.run.withSuccessHandler(function(data) {
     globalDataBarang = data;
     document.getElementById("searchPosMobile").value = "";
-    renderPosSuppliers();
-    renderPosProductList();
   }).getBarang();
 }
 
@@ -1809,6 +1824,7 @@ function tutupModalKeranjang() {
 }
 
 // 3. Buat fungsi Render List Produk dengan Filter Supplier
+// --- 1. RENDER LIST PRODUK KASIR (Ada Gambar & Badge Qty) ---
 function renderPosProductList() {
   let listWrapper = document.getElementById("posProductList");
   let keyword = document.getElementById("searchPosMobile").value.toLowerCase();
@@ -1816,7 +1832,7 @@ function renderPosProductList() {
   
   let activeBarang = globalDataBarang.filter(item => item.status !== "Tidak Aktif");
 
-  // Filter berdasarkan Supplier dan Pencarian Teks
+  // Filter berdasarkan Supplier & Search
   let filtered = activeBarang.filter(item => {
     let matchSup = (currentPosSupplier === "Semua") || (String(item.supplier || "").toLowerCase() === currentPosSupplier);
     let matchSearch = String(item.nama_barang || "").toLowerCase().includes(keyword) || String(item.id_barang || "").toLowerCase().includes(keyword);
@@ -1833,21 +1849,24 @@ function renderPosProductList() {
     div.className = "pos-item-row";
     div.onclick = function() { tambahKeKeranjang(item); };
     
-    // Ambil 1-2 huruf pertama untuk Icon
-    let iconChar = (item.nama_barang || "B").substring(0, 1).toLowerCase();
+    // Cek keranjang untuk menampilkan Lencana (Badge) Qty jika sudah dipilih
+    let cartItem = keranjang.find(k => k.id_barang === item.id_barang);
+    let qtyBadge = cartItem ? `<div class="pos-item-qty-badge">${cartItem.qty}</div>` : '';
+    
+    // Ambil gambar produk asli dari database
+    let imgUrl = item.gambar ? item.gambar : 'https://via.placeholder.com/45?text=No+Img';
     
     div.innerHTML = `
-      <div class="pos-item-icon">${iconChar}</div>
+      <img src="${imgUrl}" class="pos-item-icon" style="object-fit:cover; border:1px solid #dee2e6; background:#fff;" onerror="this.onerror=null;this.src='https://via.placeholder.com/45?text=Img';">
       <div class="pos-item-details">
         <div class="pos-item-title">${item.nama_barang}</div>
         <div class="pos-item-meta">sisa ${item.stok} &bull; Rp ${Number(item.harga_jual).toLocaleString('id-ID')}</div>
       </div>
+      ${qtyBadge}
     `;
     listWrapper.appendChild(div);
   });
 }
-
-    
 
 // 4. Update Pencarian Realtime
 function handlePosSearchMobile() {
@@ -1990,43 +2009,49 @@ function handlePosSearchMobile() {
 
     function renderKeranjang() {
   kalkulasiPromoKeranjang();
-  var tbody = document.querySelector("#tabelKeranjang tbody");
-  if(tbody) tbody.innerHTML = "";
+  
+  let cartList = document.getElementById("posCartList");
+  if(cartList) cartList.innerHTML = "";
+  
   subtotalKotor = 0;
   totalDiskonItem = 0;
-  let totalBarangCounter = 0; // Tambahan untuk menghitung total unit barang
+  let totalBarangCounter = 0; 
   
   keranjang.forEach((k, idx) => {
     let bruto = k.harga_jual * k.qty;
     subtotalKotor += bruto;
     let potongan = bruto - k.subtotal;
     totalDiskonItem += potongan;
-    totalBarangCounter += Number(k.qty); // Hitung item
+    totalBarangCounter += Number(k.qty); 
 
-    let promoBadge = (k.promoPotongan > 0) ? `<div style="color:#198754; font-size:9.5px; font-weight:bold;">(Promo - Rp ${k.promoPotongan.toLocaleString('id-ID')})</div>` : '';
+    // Ambil gambar produk dari Master Data
+    let itemMaster = globalDataBarang.find(b => b.id_barang === k.id_barang);
+    let imgUrl = itemMaster && itemMaster.gambar ? itemMaster.gambar : 'https://via.placeholder.com/55?text=Img';
 
-    if(tbody) {
-      var tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>
-          <div style="font-weight:600;">${k.nama_barang}</div>
-          <div style="color:#6c757d; font-size:10px;">Rp ${k.harga_jual.toLocaleString('id-ID')} /item</div>
+    if(cartList) {
+      let promoBadge = (k.promoPotongan > 0) ? `<div style="color:#198754; font-size:11px; font-weight:bold; margin-top:2px;">(Diskon: -Rp ${k.promoPotongan.toLocaleString('id-ID')})</div>` : '';
+
+      var div = document.createElement("div");
+      div.className = "cart-item-row";
+      div.innerHTML = `
+        <img src="${imgUrl}" class="cart-item-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/55';">
+        <div class="cart-item-info">
+          <div class="cart-item-title">${k.nama_barang}</div>
+          <div class="cart-item-price">${k.qty} x Rp ${k.harga_jual.toLocaleString('id-ID')} = <b style="color: var(--primary-color);">Rp ${k.subtotal.toLocaleString('id-ID')}</b></div>
           ${promoBadge}
-        </td>
-        <td><input type="number" class="form-control" style="width:50px; padding:3px;" value="${k.qty}" min="1" onchange="ubahQtyItem(${idx}, this.value)"></td>
-        <td><b>Rp ${k.subtotal.toLocaleString('id-ID')}</b></td>
-        <td style="text-align: right;">
-          <div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">
-            <select class="form-control" style="width: 45px; padding: 2px; font-size: 10px;" onchange="ubahDiscTypeItem(${idx}, this.value)">
-              <option value="Rp" ${k.disc_type==='Rp'?'selected':''}>Rp</option>
-              <option value="%" ${k.disc_type==='%'?'selected':''}>%</option>
-            </select>
-            <input type="number" class="form-control" style="width: 65px; padding: 2px; font-size: 10px;" placeholder="Disc" value="${k.disc_val}" min="0" onchange="ubahDiscValItem(${idx}, this.value)">
-            <button class="btn btn-danger btn-sm" style="padding: 2px 6px;" onclick="keranjang.splice(${idx},1); renderKeranjang();">×</button>
+        </div>
+        <div class="cart-item-controls">
+          <div class="qty-control">
+            <button class="qty-btn" onclick="kurangiQty(${idx})">-</button>
+            <input type="number" class="qty-input" value="${k.qty}" onchange="ubahQtyItem(${idx}, this.value)">
+            <button class="qty-btn" onclick="tambahQty(${idx})">+</button>
           </div>
-        </td>
+          <button class="btn-trash" onclick="hapusDariKeranjang(${idx})" title="Hapus">
+             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </div>
       `;
-      tbody.appendChild(tr);
+      cartList.appendChild(div);
     }
   });
 
@@ -2034,27 +2059,50 @@ function handlePosSearchMobile() {
   let totalBayarEl = document.getElementById("posTotalBayar");
   if(totalBayarEl) totalBayarEl.innerText = "Rp " + netSubtotal.toLocaleString('id-ID');
   
-  // Update angka di tombol hijau melayang
-  let posCartItemCount = document.getElementById("posCartItemCount");
-  if(posCartItemCount) posCartItemCount.innerText = totalBarangCounter;
+  // UPDATE Indikator Qty di Bottom Bar Floating
+  let cartCountEl = document.getElementById("posCartItemCount");
+  if (cartCountEl) cartCountEl.innerText = totalBarangCounter;
+
+  // Render ulang list POS agar Badge indikator di menu utama langsung muncul
+  renderPosProductList();
+}
+
+// --- 3. HELPER BUTTON PLUS/MINUS DI KERANJANG ---
+function tambahQty(idx) {
+    ubahQtyItem(idx, keranjang[idx].qty + 1);
+}
+function kurangiQty(idx) {
+    if (keranjang[idx].qty > 1) {
+        ubahQtyItem(idx, keranjang[idx].qty - 1);
+    } else {
+        hapusDariKeranjang(idx);
+    }
+}
+function hapusDariKeranjang(idx) {
+    keranjang.splice(idx, 1);
+    renderKeranjang();
 }
 
     function prosesCheckout() {
-      if (keranjang.length === 0) {
-        alert("Keranjang masih kosong!");
-        return;
-      }
-      let netSubtotal = subtotalKotor - totalDiskonItem;
-      document.getElementById("paySubtotal").innerText = "Rp " + netSubtotal.toLocaleString('id-ID');
-      document.getElementById("payDiskonItem").innerText = "Rp " + totalDiskonItem.toLocaleString('id-ID');
-      document.getElementById("discGlobalType").value = "Rp";
-      document.getElementById("discGlobalVal").value = "0";
-      hitungGrandTotal();
-      document.getElementById("payMetode").value = document.getElementById("posMetode").value; 
-      toggleCashInput();
-      document.getElementById("modalPembayaran").style.display = "flex";
-    }
-
+  if (keranjang.length === 0) {
+    alert("Keranjang masih kosong!");
+    return;
+  }
+  
+  let netSubtotal = subtotalKotor - totalDiskonItem;
+  document.getElementById("paySubtotal").innerText = "Rp " + netSubtotal.toLocaleString('id-ID');
+  document.getElementById("payDiskonItem").innerText = "Rp " + totalDiskonItem.toLocaleString('id-ID');
+  document.getElementById("discGlobalType").value = "Rp";
+  document.getElementById("discGlobalVal").value = "0";
+  
+  hitungGrandTotal();
+  
+  // PERBAIKAN: Set default langsung ke "Tunai" karena #posMetode sudah dihapus
+  document.getElementById("payMetode").value = "Tunai"; 
+  
+  toggleCashInput();
+  document.getElementById("modalPembayaran").style.display = "flex";
+}
     function hitungGrandTotal() {
       let netSubtotal = subtotalKotor - totalDiskonItem;
       let gType = document.getElementById("discGlobalType").value;
@@ -3062,240 +3110,6 @@ function handlePosSearchMobile() {
 
   <!-- Scanner override: kamera belakang + pemilihan kamera + format barcode umum -->
   <script>
-    let keranjangRetur = [];
-    let currentReturMode = 'retur'; // 'retur' (qty negatif) atau 'beli' (qty positif)
-
-    function initReturPos() {
-      google.script.run.withSuccessHandler(function(data) {
-        globalDataBarang = data;
-        renderReturProductGrid(data);
-        document.getElementById("searchReturPos").value = "";
-      }).getBarang();
-    }
-
-    function setReturMode(mode) {
-      currentReturMode = mode;
-      let btnRetur = document.getElementById("btnModeRetur");
-      let btnBeli = document.getElementById("btnModeBeli");
-      let inputSearch = document.getElementById("searchReturPos");
-
-      if (mode === 'retur') {
-        btnRetur.className = "btn btn-sm btn-primary";
-        btnRetur.style.background = "#dc3545";
-        btnRetur.style.borderColor = "#dc3545";
-        btnRetur.style.color = "#fff";
-        
-        btnBeli.className = "btn btn-sm btn-outline";
-        btnBeli.style.background = "transparent";
-        btnBeli.style.color = "#0f5132";
-        
-        inputSearch.style.borderColor = "#dc3545";
-        inputSearch.placeholder = "Scan/Ketik barang yang DIKEMBALIKAN pembeli...";
-      } else {
-        btnBeli.className = "btn btn-sm btn-primary";
-        btnBeli.style.background = "#0f5132";
-        btnBeli.style.borderColor = "#0f5132";
-        btnBeli.style.color = "#fff";
-        
-        btnRetur.className = "btn btn-sm btn-outline";
-        btnRetur.style.background = "transparent";
-        btnRetur.style.color = "#dc3545";
-        
-        inputSearch.style.borderColor = "#0f5132";
-        inputSearch.placeholder = "Scan/Ketik barang PENGGANTI baru...";
-      }
-    }
-
-    function renderReturProductGrid(list) {
-      let grid = document.getElementById("returProductGrid");
-      grid.innerHTML = "";
-      if (!list || list.length === 0) {
-        grid.innerHTML = `<div style="font-size:11px; color:#adb5bd; grid-column: 1/-1; text-align:center; padding: 10px;">Belum ada data barang.</div>`;
-        return;
-      }
-      list.forEach(item => {
-        let div = document.createElement("div");
-        div.className = "best-product-card";
-        let imgUrl = item.gambar ? item.gambar : 'https://via.placeholder.com/45?text=No+Img';
-        div.onclick = function() { tambahKeKeranjangRetur(item); };
-        div.innerHTML = `
-          <img src="${imgUrl}" class="best-product-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/45?text=Img';">
-          <div class="best-product-title" title="${item.nama_barang}">${item.nama_barang}</div>
-          <div class="best-product-price">Rp ${Number(item.harga_jual).toLocaleString('id-ID')}</div>
-        `;
-        grid.appendChild(div);
-      });
-    }
-
-    function filterReturPosKatalog() {
-      let kw = document.getElementById("searchReturPosKatalog").value.toLowerCase();
-      let filtered = globalDataBarang.filter(i => (i.nama_barang && i.nama_barang.toLowerCase().includes(kw)) || (i.id_barang && i.id_barang.toLowerCase().includes(kw)));
-      renderReturProductGrid(filtered);
-    }
-
-    function handleReturPosInput() {
-      let inputEl = document.getElementById("searchReturPos");
-      let keyword = inputEl.value.trim().toLowerCase();
-      let suggestionBox = document.getElementById("suggestionBoxRetur");
-      
-      if (keyword === "") {
-        suggestionBox.style.display = "none";
-        return;
-      }
-
-      let exactMatch = globalDataBarang.find(item => String(item.id_barang || "").toLowerCase() === keyword);
-      if (exactMatch) {
-        tambahKeKeranjangRetur(exactMatch);
-        inputEl.value = "";
-        suggestionBox.style.display = "none";
-        return;
-      }
-
-      let filtered = globalDataBarang.filter(item => {
-        let nama = String(item.nama_barang || "").toLowerCase();
-        let idBarang = String(item.id_barang || "").toLowerCase();
-        return nama.includes(keyword) || idBarang.includes(keyword);
-      });
-
-      if (filtered.length > 0) {
-        suggestionBox.innerHTML = "";
-        filtered.forEach(item => {
-          let div = document.createElement("div");
-          div.style.cssText = "padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center;";
-          div.onclick = function() {
-            tambahKeKeranjangRetur(item);
-            inputEl.value = "";
-            suggestionBox.style.display = "none";
-            inputEl.focus();
-          };
-          div.innerHTML = `
-            <div>
-              <div style="font-weight: 600; font-size: 13px; color: #333;">${item.nama_barang}</div>
-              <div style="font-size: 11px; color: #6c757d;">ID: ${item.id_barang}</div>
-            </div>
-            <div style="font-weight: bold; color: var(--primary-color); font-size: 13px;">Rp ${Number(item.harga_jual).toLocaleString('id-ID')}</div>
-          `;
-          suggestionBox.appendChild(div);
-        });
-        suggestionBox.style.display = "block";
-      } else {
-        suggestionBox.innerHTML = `<div style="padding: 10px; text-align: center; color: #dc3545; font-size: 12px;">Barang tidak ditemukan</div>`;
-        suggestionBox.style.display = "block";
-      }
-    }
-
-    function tambahKeKeranjangRetur(item) {
-      // Jika mode retur, Qty bernilai negatif (-1). Jika beli, positif (+1)
-      let multiplier = (currentReturMode === 'retur') ? -1 : 1;
-      
-      var exist = keranjangRetur.find(k => k.id_barang === item.id_barang && ((k.qty < 0 && currentReturMode === 'retur') || (k.qty > 0 && currentReturMode === 'beli')));
-      if (exist) {
-        exist.qty += multiplier;
-        if (exist.qty === 0) exist.qty = multiplier; // Jangan biarkan 0
-      } else {
-        keranjangRetur.push({
-          id_barang: item.id_barang,
-          nama_barang: item.nama_barang,
-          supplier: item.supplier,
-          harga_jual: Number(item.harga_jual),
-          qty: multiplier,
-          subtotal: Number(item.harga_jual) * multiplier
-        });
-      }
-      renderKeranjangRetur();
-    }
-
-    function renderKeranjangRetur() {
-      var tbody = document.querySelector("#tabelKeranjangRetur tbody");
-      tbody.innerHTML = "";
-      let totalMin = 0;
-      let totalPlus = 0;
-      
-      keranjangRetur.forEach((k, idx) => {
-        k.subtotal = k.harga_jual * k.qty;
-        if (k.qty < 0) {
-          totalMin += Math.abs(k.subtotal);
-        } else {
-          totalPlus += k.subtotal;
-        }
-
-        let badgeType = k.qty < 0 ? 
-          `<span style="background: #dc3545; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 9.5px; font-weight: bold;">RETUR (Masuk)</span>` : 
-          `<span style="background: #198754; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 9.5px; font-weight: bold;">BARU (Keluar)</span>`;
-
-        var tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>
-            <div style="font-weight:600;">${k.nama_barang}</div>
-            <div style="margin-top:2px;">${badgeType}</div>
-          </td>
-          <td><input type="number" class="form-control" style="width:60px; padding:3px;" value="${k.qty}" onchange="ubahQtyRetur(${idx}, this.value)"></td>
-          <td><b>Rp ${k.subtotal.toLocaleString('id-ID')}</b></td>
-          <td style="text-align: right;">
-            <button class="btn btn-danger btn-sm" style="padding: 2px 6px;" onclick="keranjangRetur.splice(${idx},1); renderKeranjangRetur();">×</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      let selisih = totalPlus - totalMin;
-      document.getElementById("returTotalMin").innerText = "Rp " + totalMin.toLocaleString('id-ID');
-      document.getElementById("returTotalPlus").innerText = "Rp " + totalPlus.toLocaleString('id-ID');
-      
-      let lblSelisih = document.getElementById("labelStatusSelisih");
-      let valSelisih = document.getElementById("returGrandTotal");
-      
-      if (selisih > 0) {
-        lblSelisih.innerText = "Kurang Bayar (Pembeli Bayar Lagi):";
-        valSelisih.style.color = "var(--primary-color)";
-        valSelisih.innerText = "Rp " + selisih.toLocaleString('id-ID');
-      } else if (selisih < 0) {
-        lblSelisih.innerText = "Kembalikan Uang ke Pembeli:";
-        valSelisih.style.color = "#dc3545";
-        valSelisih.innerText = "Rp " + Math.abs(selisih).toLocaleString('id-ID');
-      } else {
-        lblSelisih.innerText = "Selisih Transaksi:";
-        valSelisih.style.color = "#333";
-        valSelisih.innerText = "Rp 0 (Tukar Tambah Imbang)";
-      }
-    }
-
-    function ubahQtyRetur(idx, val) {
-      let q = parseInt(val) || 0;
-      if (q === 0) q = 1;
-      keranjangRetur[idx].qty = q;
-      renderKeranjangRetur();
-    }
-
-    function prosesCheckoutRetur() {
-      if (keranjangRetur.length === 0) {
-        alert("Keranjang retur masih kosong!");
-        return;
-      }
-      
-      let totalItemCount = keranjangRetur.reduce((sum, item) => sum + Math.abs(item.qty), 0);
-      let totalBayarSelisih = keranjangRetur.reduce((sum, item) => sum + item.subtotal, 0);
-      let metode = document.getElementById("returMetode").value;
-
-      var payload = {
-        supplier: keranjangRetur[0].supplier || 'Umum',
-        total_item: totalItemCount,
-        total_bayar: totalBayarSelisih,
-        metode_pembayaran: metode + " (Retur/Tukar)",
-        kasir: currentUser ? currentUser.nama : 'Admin',
-        items: keranjangRetur
-      };
-
-      if(confirm("Proses transaksi retur & tukar ini? Stok master akan otomatis disesuaikan.")) {
-        google.script.run.withSuccessHandler(function(res) {
-          alert("Retur berhasil diproses! Nomor Nota: " + res.no_nota);
-          keranjangRetur = [];
-          renderKeranjangRetur();
-          switchMenu('riwayatPenjualan', document.querySelector("a[onclick*='riwayatPenjualan']"));
-        }).simpanTransaksi(payload);
-      }
-    }
-    
     (function installRobustScanner() {
       const formats = (window.Html5QrcodeSupportedFormats) ? [
         Html5QrcodeSupportedFormats.QR_CODE,
