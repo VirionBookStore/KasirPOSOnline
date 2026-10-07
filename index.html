@@ -10,6 +10,48 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
+    /* --- STYLING KHUSUS POS MOBILE/LIST --- */
+.pos-mobile-container {
+  display: flex; flex-direction: column; height: calc(100vh - 120px); background: #fff; position: relative;
+}
+.pos-search-wrapper {
+  display: flex; gap: 10px; padding: 10px 15px; border-bottom: 1px solid var(--border-color); align-items: center;
+}
+.pos-search-input {
+  border: 2px solid #0f5132 !important; border-radius: 4px !important; font-size: 15px !important; padding: 10px !important;
+}
+.btn-scan-mobile {
+  background: transparent; border: 1px solid #0f5132; color: #0f5132; border-radius: 8px; padding: 8px 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.pos-category-wrapper {
+  display: flex; overflow-x: auto; padding: 10px 15px; gap: 8px; white-space: nowrap; border-bottom: 1px solid #f1f3f5; scrollbar-width: none;
+}
+.pos-category-wrapper::-webkit-scrollbar { display: none; }
+.cat-chip {
+  padding: 6px 14px; border: 1px solid var(--primary-color); border-radius: 20px; font-size: 12px; color: var(--primary-color); background: white; cursor: pointer; font-weight: 500;
+}
+.cat-chip.active { background: #d1e7dd; border-color: var(--primary-color); color: var(--primary-color); font-weight: bold; }
+.pos-product-list {
+  flex: 1; overflow-y: auto; padding: 0; background: #fff; padding-bottom: 80px; /* Jarak untuk bottom bar */
+}
+.pos-item-row {
+  display: flex; padding: 12px 15px; border-bottom: 1px solid #f1f3f5; align-items: center; gap: 12px; cursor: pointer; transition: background 0.2s;
+}
+.pos-item-row:hover { background: #f8f9fa; }
+.pos-item-icon {
+  width: 45px; height: 45px; background: #f1f3f5; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #6c757d; font-size: 18px; text-transform: uppercase;
+}
+.pos-item-details { flex: 1; overflow: hidden; }
+.pos-item-title { font-size: 13px; font-weight: bold; color: #212529; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pos-item-meta { font-size: 11px; color: #6c757d; }
+.pos-bottom-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; background: #fff; padding: 10px 15px; border-top: 1px solid #dee2e6; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); display: flex; align-items: center;
+}
+.cart-floating-btn {
+  flex: 1; background: #00a65a; color: white; border-radius: 30px; display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.cart-count { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+.cart-count span { background: white; color: #00a65a; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
     :root {
       --primary-color: #0f5132;
       --primary-hover: #157347;
@@ -154,51 +196,6 @@
       font-size: 16px;
       cursor: pointer;
       font-weight: bold;
-    }
-
-    /* === POS MOBILE - gaya katalog kasir seperti referensi === */
-    .pos-mobile-shell { display:none; }
-    .pos-mobile-header { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-    .pos-mobile-title { font-size:24px; font-weight:700; color:#146c4a; margin:0; }
-    .pos-mobile-menu-icon { font-size:28px; color:#16815a; line-height:1; }
-    .pos-mobile-search-row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
-    .pos-mobile-search-wrap { flex:1; position:relative; }
-    .pos-mobile-search { width:100%; box-sizing:border-box; border:2px solid #11a97f; border-radius:8px; padding:12px 42px 12px 14px; font-size:16px; background:#fff; }
-    .pos-mobile-clear { position:absolute; right:10px; top:50%; transform:translateY(-50%); border:0; background:transparent; color:#169a76; font-size:27px; cursor:pointer; }
-    .pos-mobile-scan { flex:0 0 48px; height:48px; border:2px solid #169a76; border-radius:9px; background:#fff; font-size:22px; cursor:pointer; }
-    .pos-mobile-cats { display:flex; gap:8px; overflow-x:auto; padding:3px 0 10px; scrollbar-width:none; }
-    .pos-mobile-cats::-webkit-scrollbar { display:none; }
-    .pos-mobile-cat { flex:0 0 auto; border:1px solid #16a77e; border-radius:10px; background:#fff; color:#15926f; padding:9px 15px; font-size:13px; font-weight:600; cursor:pointer; }
-    .pos-mobile-cat.active { background:#dcfce9; border-width:2px; }
-    .pos-mobile-list { min-height:55vh; padding-bottom:88px; }
-    .pos-mobile-item { display:flex; align-items:center; gap:12px; padding:12px 2px; border-bottom:1px solid #edf0f1; background:#fff; cursor:pointer; }
-    .pos-mobile-img { width:64px; height:64px; flex:0 0 64px; object-fit:cover; border-radius:9px; background:#f0f3f5; display:flex; align-items:center; justify-content:center; color:#a0a7ad; font-weight:700; }
-    .pos-mobile-info { min-width:0; flex:1; }
-    .pos-mobile-name { font-size:16px; line-height:1.25; font-weight:700; color:#202124; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-    .pos-mobile-meta { margin-top:6px; font-size:13px; color:#73787d; }
-    .pos-mobile-price { margin-top:3px; font-size:14px; font-weight:700; color:#16815a; }
-    .pos-mobile-empty { padding:35px 10px; text-align:center; color:#8b9298; }
-    .pos-mobile-bottom { position:fixed; left:16px; right:16px; bottom:12px; z-index:3000; display:flex; align-items:center; justify-content:space-between; min-height:58px; border:0; border-radius:32px; background:#10b487; color:#fff; box-shadow:0 5px 18px rgba(0,0,0,.2); padding:0 18px; cursor:pointer; }
-    .pos-mobile-bottom-count { display:flex; align-items:center; gap:9px; font-size:14px; font-weight:700; }
-    .pos-mobile-bottom-count strong { font-size:25px; }
-    .pos-mobile-bottom-next { display:flex; align-items:center; gap:8px; font-size:17px; font-weight:800; }
-    .pos-mobile-back { display:none; margin-bottom:8px; border:0; background:transparent; color:#16815a; font-weight:700; font-size:14px; padding:5px 0; cursor:pointer; }
-    .pos-mobile-cart-head { display:flex; justify-content:space-between; align-items:center; margin:8px 0 12px; }
-    .pos-mobile-cart-title { font-size:22px; font-weight:800; margin:0; }
-    .pos-mobile-cart-item { display:flex; justify-content:space-between; gap:8px; padding:12px 0; border-bottom:1px solid #eee; }
-    .pos-mobile-cart-actions { display:flex; align-items:center; gap:6px; margin-top:6px; }
-    .pos-mobile-qty-btn { width:30px; height:30px; border:1px solid #16a77e; border-radius:7px; background:#fff; color:#16815a; font-weight:800; }
-    .pos-mobile-cart-qty { min-width:24px; text-align:center; font-weight:700; }
-    .pos-mobile-cart-remove { border:0; background:#fff0f0; color:#dc3545; border-radius:6px; padding:5px 8px; }
-    @media screen and (max-width: 768px) {
-      .pos-grid { display:none !important; }
-      .pos-mobile-shell { display:block; }
-      #sec-posKasir { padding:0 !important; background:#fff; }
-      #sec-posKasir > .pos-mobile-shell { margin:-4px -2px 0; }
-      #sec-posKasir .card { box-shadow:none; border:0; }
-      body.pos-mobile-cart-open .pos-mobile-bottom { display:none; }
-      body:has(#sec-posKasir.active) .header-container { display:none !important; }
-      body:has(#sec-posKasir.active) .content-body { padding:12px 10px 84px !important; }
     }
 
     @media screen and (max-width: 992px) {
@@ -653,93 +650,72 @@
 
         <!-- KASIR (POS) -->
         <div id="sec-posKasir" class="page-section">
-          <!-- POS MOBILE: katalog utama seperti referensi -->
-          <div class="pos-mobile-shell" id="posMobileShell">
-            <div class="pos-mobile-header">
-              <button type="button" class="pos-mobile-menu-icon" onclick="toggleSidebar()" aria-label="Menu">☰</button>
-              <h2 class="pos-mobile-title">Transaksi</h2>
-              <span style="width:28px;"></span>
-            </div>
-            <div id="readerPosMobile"></div>
-            <div class="pos-mobile-search-row">
-              <div class="pos-mobile-search-wrap">
-                <input id="searchPosMobile" class="pos-mobile-search" type="text" placeholder="Cari nama atau kode" autocomplete="off" oninput="handlePosInputMobile()">
-                <button type="button" class="pos-mobile-clear" onclick="clearMobilePosSearch()" aria-label="Hapus pencarian">×</button>
-              </div>
-              <button type="button" class="pos-mobile-scan" onclick="togglePosScanner()" aria-label="Scan barcode">▣</button>
-            </div>
-            <div id="posMobileCategories" class="pos-mobile-cats"></div>
-            <div id="posMobileList" class="pos-mobile-list"></div>
-            <button type="button" class="pos-mobile-bottom" onclick="prosesCheckout()">
-              <span class="pos-mobile-bottom-count"><strong id="posMobileItemCount">0</strong><span>Barang</span></span>
-              <span class="pos-mobile-bottom-next">LANJUT <span style="font-size:28px;line-height:1;">›</span></span>
-            </button>
-          </div>
+  <div class="pos-mobile-container">
+    
+    <!-- Bagian Search & Scanner -->
+    <div class="pos-search-wrapper">
+      <input type="text" id="searchPosMobile" class="form-control pos-search-input" placeholder="Cari nama atau kode" oninput="handlePosSearchMobile()" autocomplete="off">
+      <button class="btn-scan-mobile" onclick="togglePosScanner()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h3M17 4h3v3M4 17v3h3M17 20h3v-3M9 9h6v6H9z"/></svg>
+      </button>
+    </div>
+    <div id="readerPos"></div>
 
+    <!-- Filter Kategori Kapsul (Chips) -->
+    <div id="posCategoryWrapper" class="pos-category-wrapper">
+      <!-- Diisi otomatis oleh JavaScript -->
+    </div>
 
-          <!-- LAYOUT BARU: Kiri (Best Seller), Kanan (Search + Cart) -->
-          <!-- Di HP urutannya ditukar via CSS agar Search+Cart ada di ATAS -->
-          <div class="pos-grid" style="display: grid; grid-template-columns: 1.2fr 2fr; gap: 20px;">
-            
-            <!-- PANEL KIRI: BEST SELLER -->
-            <div class="card pos-left-panel" style="padding: 15px; height: fit-content; overflow: hidden;">
-              <div style="font-size: 12px; font-weight: bold; color: #6c757d; margin-bottom: 8px;">★ PRODUK UNGGULAN (BEST SELLER)</div>
-              <div id="bestProductGrid" class="best-product-container">
-                <!-- Diisi secara dinamis via JS -->
-              </div>
-            </div>
+    <!-- Daftar Produk Vertical -->
+    <div id="posProductList" class="pos-product-list">
+      <!-- Diisi otomatis oleh JavaScript -->
+    </div>
 
-            <!-- PANEL KANAN: INPUT & KERANJANG -->
-            <div class="card pos-right-panel" style="padding: 15px; display: flex; flex-direction: column; overflow: visible;">
-              
-              <!-- Bagian Input / Search -->
-              <div style="margin-bottom: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                  <h3 style="margin:0; font-size:16px;">Input Penjualan</h3>
-                  <button class="btn btn-outline btn-sm" onclick="togglePosScanner()">📷 Scan Barcode</button>
-                </div>
-                <div id="readerPos"></div>
-                <div style="position: relative;">
-                  <input type="text" id="searchPos" class="form-control" placeholder="Ketik nama barang atau scan barcode..." oninput="handlePosInput()" autocomplete="off" style="width:100%; box-sizing: border-box; padding: 10px; font-size: 14px; border: 2px solid var(--primary-color);">
-                  <div id="suggestionBox" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ced4da; border-radius: 4px; max-height: 250px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></div>
-                </div>
-              </div>
+    <!-- Bottom Navigation / Floating Cart Bar -->
+    <div class="pos-bottom-bar">
+      <div class="cart-floating-btn" onclick="bukaModalKeranjang()">
+        <div class="cart-count"><span id="posCartItemCount">0</span> Barang</div>
+        <div class="cart-action">LANJUT &gt;</div>
+      </div>
+    </div>
 
-              <!-- Bagian Keranjang Belanja -->
-              <div style="display: flex; flex-direction: column; flex: 1;">
-                <h3 style="margin:0 0 10px 0; font-size:16px;">Keranjang Belanja</h3>
-                <div style="max-height: 350px; overflow-y: auto; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 4px;">
-                  <table id="tabelKeranjang" style="font-size: 11.5px; margin: 0;">
-                    <thead>
-                      <tr><th>Item</th><th>Qty</th><th>Subtotal</th><th style="text-align:right;">Diskon / Aksi</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                </div>
-              </div>
+  </div>
+</div>
 
-              <!-- Bagian Checkout / Bayar -->
-              <div style="border-top: 1px solid var(--border-color); padding-top: 10px;">
-                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 10px;">
-                  <span>Total Tagihan:</span>
-                  <span id="posTotalBayar" style="color: var(--primary-color);">Rp 0</span>
-                </div>
-                <div class="form-group">
-                  <label>Metode Pembayaran:</label>
-                  <select id="posMetode" class="form-control">
-                    <option value="Tunai">Tunai (Cash)</option>
-                    <option value="QRIS">QRIS</option>
-                    <option value="Transfer Bank">Transfer Bank</option>
-                  </select>
-                </div>
-                <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 10px; font-size: 14px;" onclick="prosesCheckout()">Bayar & Cetak Nota</button>
-              </div>
-
-            </div>
-
-          </div>
+<!-- MODAL KERANJANG BELANJA (Dipindah dari panel kanan sebelumnya) -->
+<div id="modalKeranjangPos" class="modal">
+  <div class="modal-content" style="max-width: 500px;">
+    <div class="modal-header" style="background-color: var(--primary-color);">
+      <h3 style="margin:0; font-size:16px;">Keranjang Belanja</h3>
+      <button class="close-btn" onclick="tutupModalKeranjang()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="max-height: 350px; overflow-y: auto; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 4px;">
+        <table id="tabelKeranjang" style="font-size: 11.5px; margin: 0; width: 100%;">
+          <thead>
+            <tr><th>Item</th><th>Qty</th><th>Subtotal</th><th style="text-align:right;">Diskon / Aksi</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div style="border-top: 1px solid var(--border-color); padding-top: 10px;">
+        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 10px;">
+          <span>Total Tagihan:</span>
+          <span id="posTotalBayar" style="color: var(--primary-color);">Rp 0</span>
         </div>
-
+        <div class="form-group">
+          <label>Metode Pembayaran:</label>
+          <select id="posMetode" class="form-control">
+            <option value="Tunai">Tunai (Cash)</option>
+            <option value="QRIS">QRIS</option>
+            <option value="Transfer Bank">Transfer Bank</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 20px;" onclick="prosesCheckout()">Bayar & Cetak Nota</button>
+      </div>
+    </div>
+  </div>
+</div>
         <!-- RIWAYAT PENJUALAN (PER TRANSAKSI) -->
         <div id="sec-riwayatPenjualan" class="page-section">
           <div class="card">
@@ -1275,7 +1251,7 @@
   <script>
     window.AS_POS_CONFIG = window.AS_POS_CONFIG || {
       // GANTI dengan URL deployment Web App GAS yang berakhiran /exec.
-      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbxvlXRCtFPIBLmTmwKlWOS58ftRUWaEo4WS8etrSWubKRH3nK9yNj8FgXo5ArxguLZK/exec"
+      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbw2aKVLnwmqAn7SR5O4OicU-wBo21vtdTSP0Q5TCmCyorJrdXm_Lpk-S43jR8D35JEw/exec"
     };
 
     (function installGasBridge() {
@@ -1544,6 +1520,7 @@
           console.error(err);
           if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="dashboard-empty" style="color:#dc3545;">Gagal memuat dashboard: ' + escapeDashboardHtml(err && err.message ? err.message : err) + '</td></tr>';
           if (btn) { btn.disabled = false; btn.innerText = 'Tampilkan'; }
+          alert('Gagal memuat Dashboard: ' + (err && err.message ? err.message : err));
         })
         .getDashboardData(date, date);
     }
@@ -1765,196 +1742,118 @@
       }
     }
 
-    function loadPosKatalog() {
-      google.script.run.withSuccessHandler(function(data) {
-        globalDataBarang = Array.isArray(data) ? data : [];
-        document.getElementById("searchPos").value = "";
-        let suggestionBox = document.getElementById("suggestionBox");
-        if(suggestionBox) suggestionBox.style.display = "none";
-        let mobileSearch = document.getElementById("searchPosMobile");
-        if(mobileSearch) mobileSearch.value = "";
-        renderMobileCategories();
-        renderMobileCatalog(globalDataBarang);
-        renderMobileCartBar();
-      }).getBarang();
+    let currentPosSupplier = "Semua";
 
-      google.script.run.withSuccessHandler(function(bestList) {
-        renderProductBestGrid(bestList);
-      }).getProductBest();
+// 1. Timpa fungsi loadPosKatalog
+function loadPosKatalog() {
+  google.script.run.withSuccessHandler(function(data) {
+    globalDataBarang = data;
+    document.getElementById("searchPosMobile").value = "";
+    renderPosSuppliers();
+    renderPosProductList();
+  }).getBarang();
+}
+
+// 2. Buat fungsi Render Supplier (Chips horizontal)
+function renderPosSuppliers() {
+  // Tetap menggunakan ID posCategoryWrapper yang ada di HTML sebelumnya
+  let wrapper = document.getElementById("posCategoryWrapper");
+  wrapper.innerHTML = "";
+  
+  // Ambil supplier unik dari master barang
+  let supplierSet = new Set();
+  globalDataBarang.forEach(item => {
+    if(item.supplier && item.status !== "Tidak Aktif") {
+      supplierSet.add(item.supplier.trim().toLowerCase());
     }
+  });
+  
+  // Tombol "Semua"
+  let btnSemua = document.createElement("div");
+  btnSemua.className = `cat-chip ${currentPosSupplier === 'Semua' ? 'active' : ''}`;
+  btnSemua.innerText = "Semua";
+  btnSemua.onclick = function() { 
+    currentPosSupplier = "Semua"; 
+    renderPosSuppliers(); 
+    renderPosProductList(); 
+  };
 
-    function renderProductBestGrid(list) {
-      let grid = document.getElementById("bestProductGrid");
-      grid.innerHTML = "";
-      if (!list || list.length === 0) {
-        grid.innerHTML = `<div style="font-size:11px; color:#adb5bd; grid-column: 1/-1; text-align:center; padding: 10px;">Belum ada produk unggulan.</div>`;
-        return;
-      }
-      list.forEach(item => {
-        let div = document.createElement("div");
-        div.className = "best-product-card";
-        let imgUrl = item.gambar ? item.gambar : 'https://via.placeholder.com/45?text=No+Img';
-        div.onclick = function() { tambahKeKeranjang(item); };
-        div.innerHTML = `
-          <img src="${imgUrl}" class="best-product-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/45?text=Img';">
-          <div class="best-product-title" title="${item.nama_barang}">${item.nama_barang}</div>
-          <div class="best-product-price">Rp ${Number(item.harga_jual).toLocaleString('id-ID')}</div>
-        `;
-        grid.appendChild(div);
-      });
-    }
+  
+  wrapper.appendChild(btnSemua);
 
-    let mobilePosCategory = 'Semua';
+  // Render supplier lainnya sesuai data database
+  supplierSet.forEach(sup => {
+    if(!sup) return;
+    let btn = document.createElement("div");
+    btn.className = `cat-chip ${currentPosSupplier === sup ? 'active' : ''}`;
+    btn.innerText = sup; 
+    btn.onclick = function() { 
+      currentPosSupplier = sup; 
+      renderPosSuppliers(); 
+      renderPosProductList(); 
+    };
+    wrapper.appendChild(btn);
+  });
+}
+    
+    function bukaModalKeranjang() {
+  if(keranjang.length === 0) { 
+    alert("Keranjang masih kosong! Silakan pilih produk terlebih dahulu."); 
+    return; 
+  }
+  document.getElementById("modalKeranjangPos").style.display = "flex";
+}
 
-    function escapePosMobile(value) {
-      return String(value == null ? '' : value)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-    }
+function tutupModalKeranjang() {
+  document.getElementById("modalKeranjangPos").style.display = "none";
+}
 
-    function renderMobileCategories() {
-      const box = document.getElementById('posMobileCategories');
-      if (!box) return;
-      const cats = Array.from(new Set((globalDataBarang || [])
-        .filter(x => x.status !== 'Tidak Aktif')
-        .map(x => String(x.kategori || '').trim())
-        .filter(Boolean))).sort((a,b) => a.localeCompare(b,'id'));
-      if (mobilePosCategory !== 'Semua' && !cats.includes(mobilePosCategory)) mobilePosCategory = 'Semua';
-      box.innerHTML = '';
-      ['Semua'].concat(cats).forEach(cat => {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'pos-mobile-cat' + (mobilePosCategory === cat ? ' active' : '');
-        b.textContent = cat;
-        b.onclick = function(){ mobilePosCategory = cat; renderMobileCategories(); renderMobileCatalog(globalDataBarang); };
-        box.appendChild(b);
-      });
-    }
+// 3. Buat fungsi Render List Produk dengan Filter Supplier
+function renderPosProductList() {
+  let listWrapper = document.getElementById("posProductList");
+  let keyword = document.getElementById("searchPosMobile").value.toLowerCase();
+  listWrapper.innerHTML = "";
+  
+  let activeBarang = globalDataBarang.filter(item => item.status !== "Tidak Aktif");
 
-    function renderMobileCatalog(data) {
-      const box = document.getElementById('posMobileList');
-      if (!box) return;
-      const keywordEl = document.getElementById('searchPosMobile');
-      const keyword = keywordEl ? keywordEl.value.trim().toLowerCase() : '';
-      const words = keyword.split(/\s+/).filter(Boolean);
-      let list = (Array.isArray(data) ? data : []).filter(item => item.status !== 'Tidak Aktif');
-      if (mobilePosCategory !== 'Semua') list = list.filter(item => String(item.kategori || '').trim() === mobilePosCategory);
-      if (words.length) {
-        list = list.filter(item => {
-          const nama = String(item.nama_barang || '').toLowerCase();
-          const id = String(item.id_barang || '').toLowerCase();
-          return words.every(w => nama.includes(w) || id.includes(w));
-        });
-      }
-      const maxShow = 300;
-      box.innerHTML = '';
-      if (!list.length) {
-        box.innerHTML = '<div class="pos-mobile-empty">Barang tidak ditemukan.</div>';
-        return;
-      }
-      if (list.length > maxShow) list = list.slice(0,maxShow);
-      const frag = document.createDocumentFragment();
-      list.forEach(item => {
-        const row = document.createElement('div');
-        row.className = 'pos-mobile-item';
-        row.onclick = function(){ tambahKeKeranjang(item); };
-        const img = item.gambar ? escapePosMobile(item.gambar) : '';
-        row.innerHTML =
-          '<div class="pos-mobile-img">' +
-            (img ? '<img src="'+img+'" style="width:64px;height:64px;object-fit:cover;border-radius:9px;" onerror="this.style.display=\'none\';">' : '▣') +
-          '</div>' +
-          '<div class="pos-mobile-info">' +
-            '<div class="pos-mobile-name">'+escapePosMobile(item.nama_barang || item.id_barang)+'</div>' +
-            '<div class="pos-mobile-meta">sisa '+Number(item.stok || 0).toLocaleString('id-ID')+'</div>' +
-            '<div class="pos-mobile-price">Rp '+Number(item.harga_jual || 0).toLocaleString('id-ID')+'</div>' +
-          '</div>';
-        frag.appendChild(row);
-      });
-      box.appendChild(frag);
-    }
+  // Filter berdasarkan Supplier dan Pencarian Teks
+  let filtered = activeBarang.filter(item => {
+    let matchSup = (currentPosSupplier === "Semua") || (String(item.supplier || "").toLowerCase() === currentPosSupplier);
+    let matchSearch = String(item.nama_barang || "").toLowerCase().includes(keyword) || String(item.id_barang || "").toLowerCase().includes(keyword);
+    return matchSup && matchSearch;
+  });
 
-    function handlePosInputMobile() {
-      const input = document.getElementById('searchPosMobile');
-      const keyword = input ? input.value.trim().toLowerCase() : '';
-      if (!keyword) { renderMobileCatalog(globalDataBarang); return; }
-      const exact = (globalDataBarang || []).find(item => item.status !== 'Tidak Aktif' && String(item.id_barang || '').toLowerCase() === keyword);
-      if (exact) {
-        tambahKeKeranjang(exact);
-        input.value = '';
-        renderMobileCatalog(globalDataBarang);
-        return;
-      }
-      renderMobileCatalog(globalDataBarang);
-    }
+  if (filtered.length === 0) {
+    listWrapper.innerHTML = `<div style="text-align:center; padding:20px; color:#adb5bd; font-size:13px;">Barang tidak ditemukan.</div>`;
+    return;
+  }
 
-    function clearMobilePosSearch() {
-      const input = document.getElementById('searchPosMobile');
-      if (input) { input.value = ''; input.focus(); }
-      renderMobileCatalog(globalDataBarang);
-    }
+  filtered.forEach(item => {
+    let div = document.createElement("div");
+    div.className = "pos-item-row";
+    div.onclick = function() { tambahKeKeranjang(item); };
+    
+    // Ambil 1-2 huruf pertama untuk Icon
+    let iconChar = (item.nama_barang || "B").substring(0, 1).toLowerCase();
+    
+    div.innerHTML = `
+      <div class="pos-item-icon">${iconChar}</div>
+      <div class="pos-item-details">
+        <div class="pos-item-title">${item.nama_barang}</div>
+        <div class="pos-item-meta">sisa ${item.stok} &bull; Rp ${Number(item.harga_jual).toLocaleString('id-ID')}</div>
+      </div>
+    `;
+    listWrapper.appendChild(div);
+  });
+}
 
-    function renderMobileCartBar() {
-      const count = (keranjang || []).reduce((sum,item) => sum + Number(item.qty || 0), 0);
-      const el = document.getElementById('posMobileItemCount');
-      if (el) el.textContent = count.toLocaleString('id-ID');
-    }
+    
 
-    function handlePosInput() {
-      let inputEl = document.getElementById("searchPos");
-      let keyword = inputEl.value.trim().toLowerCase();
-      let suggestionBox = document.getElementById("suggestionBox");
-      
-      if (keyword === "") {
-        suggestionBox.style.display = "none";
-        return;
-      }
-
-      let activeBarang = globalDataBarang.filter(item => item.status !== "Tidak Aktif");
-
-      let exactMatch = activeBarang.find(item => String(item.id_barang || "").toLowerCase() === keyword);
-      if (exactMatch) {
-        tambahKeKeranjang(exactMatch);
-        inputEl.value = "";
-        suggestionBox.style.display = "none";
-        return;
-      }
-
-      let keywords = keyword.split(" ").filter(k => k.length > 0);
-      let filtered = activeBarang.filter(item => {
-        let nama = String(item.nama_barang || "").toLowerCase();
-        let idBarang = String(item.id_barang || "").toLowerCase();
-        return keywords.every(kw => nama.includes(kw) || idBarang.includes(kw));
-      });
-
-      if (filtered.length > 0) {
-        suggestionBox.innerHTML = "";
-        filtered.forEach(item => {
-          let div = document.createElement("div");
-          div.style.cssText = "padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center;";
-          div.onmouseover = function() { this.style.background = "#f8f9fa"; };
-          div.onmouseout = function() { this.style.background = "white"; };
-          div.onclick = function() {
-            tambahKeKeranjang(item);
-            inputEl.value = "";
-            suggestionBox.style.display = "none";
-            inputEl.focus();
-          };
-          div.innerHTML = `
-            <div>
-              <div style="font-weight: 600; font-size: 13px; color: #333;">${item.nama_barang}</div>
-              <div style="font-size: 11px; color: #6c757d;">ID: ${item.id_barang} | Stok: <b>${item.stok}</b></div>
-            </div>
-            <div style="font-weight: bold; color: var(--primary-color); font-size: 13px;">Rp ${Number(item.harga_jual).toLocaleString('id-ID')}</div>
-          `;
-          suggestionBox.appendChild(div);
-        });
-        suggestionBox.style.display = "block";
-      } else {
-        suggestionBox.innerHTML = `<div style="padding: 10px; text-align: center; color: #dc3545; font-size: 12px;">Barang tidak ditemukan atau tidak aktif</div>`;
-        suggestionBox.style.display = "block";
-      }
-    }
-
+// 4. Update Pencarian Realtime
+function handlePosSearchMobile() {
+  renderPosProductList();
+}
+    
     document.addEventListener('click', function(e) {
       if (e.target.id !== 'searchPos') {
         let box = document.getElementById("suggestionBox");
@@ -2090,47 +1989,55 @@
     }
 
     function renderKeranjang() {
-      kalkulasiPromoKeranjang();
-      var tbody = document.querySelector("#tabelKeranjang tbody");
-      tbody.innerHTML = "";
-      subtotalKotor = 0;
-      totalDiskonItem = 0;
-      
-      keranjang.forEach((k, idx) => {
-        let bruto = k.harga_jual * k.qty;
-        subtotalKotor += bruto;
-        let potongan = bruto - k.subtotal;
-        totalDiskonItem += potongan;
+  kalkulasiPromoKeranjang();
+  var tbody = document.querySelector("#tabelKeranjang tbody");
+  if(tbody) tbody.innerHTML = "";
+  subtotalKotor = 0;
+  totalDiskonItem = 0;
+  let totalBarangCounter = 0; // Tambahan untuk menghitung total unit barang
+  
+  keranjang.forEach((k, idx) => {
+    let bruto = k.harga_jual * k.qty;
+    subtotalKotor += bruto;
+    let potongan = bruto - k.subtotal;
+    totalDiskonItem += potongan;
+    totalBarangCounter += Number(k.qty); // Hitung item
 
-        let promoBadge = (k.promoPotongan > 0) ? `<div style="color:#198754; font-size:9.5px; font-weight:bold;">(Promo - Rp ${k.promoPotongan.toLocaleString('id-ID')})</div>` : '';
+    let promoBadge = (k.promoPotongan > 0) ? `<div style="color:#198754; font-size:9.5px; font-weight:bold;">(Promo - Rp ${k.promoPotongan.toLocaleString('id-ID')})</div>` : '';
 
-        var tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>
-            <div style="font-weight:600;">${k.nama_barang}</div>
-            <div style="color:#6c757d; font-size:10px;">Rp ${k.harga_jual.toLocaleString('id-ID')} /item</div>
-            ${promoBadge}
-          </td>
-          <td><input type="number" class="form-control" style="width:50px; padding:3px;" value="${k.qty}" min="1" onchange="ubahQtyItem(${idx}, this.value)"></td>
-          <td><b>Rp ${k.subtotal.toLocaleString('id-ID')}</b></td>
-          <td style="text-align: right;">
-            <div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">
-              <select class="form-control" style="width: 45px; padding: 2px; font-size: 10px;" onchange="ubahDiscTypeItem(${idx}, this.value)">
-                <option value="Rp" ${k.disc_type==='Rp'?'selected':''}>Rp</option>
-                <option value="%" ${k.disc_type==='%'?'selected':''}>%</option>
-              </select>
-              <input type="number" class="form-control" style="width: 65px; padding: 2px; font-size: 10px;" placeholder="Disc" value="${k.disc_val}" min="0" onchange="ubahDiscValItem(${idx}, this.value)" title="Ketik diskon lalu klik di luar">
-              <button class="btn btn-danger btn-sm" style="padding: 2px 6px;" onclick="keranjang.splice(${idx},1); renderKeranjang();" title="Hapus item">×</button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      let netSubtotal = subtotalKotor - totalDiskonItem;
-      document.getElementById("posTotalBayar").innerText = "Rp " + netSubtotal.toLocaleString('id-ID');
-      renderMobileCartBar();
+    if(tbody) {
+      var tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>
+          <div style="font-weight:600;">${k.nama_barang}</div>
+          <div style="color:#6c757d; font-size:10px;">Rp ${k.harga_jual.toLocaleString('id-ID')} /item</div>
+          ${promoBadge}
+        </td>
+        <td><input type="number" class="form-control" style="width:50px; padding:3px;" value="${k.qty}" min="1" onchange="ubahQtyItem(${idx}, this.value)"></td>
+        <td><b>Rp ${k.subtotal.toLocaleString('id-ID')}</b></td>
+        <td style="text-align: right;">
+          <div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">
+            <select class="form-control" style="width: 45px; padding: 2px; font-size: 10px;" onchange="ubahDiscTypeItem(${idx}, this.value)">
+              <option value="Rp" ${k.disc_type==='Rp'?'selected':''}>Rp</option>
+              <option value="%" ${k.disc_type==='%'?'selected':''}>%</option>
+            </select>
+            <input type="number" class="form-control" style="width: 65px; padding: 2px; font-size: 10px;" placeholder="Disc" value="${k.disc_val}" min="0" onchange="ubahDiscValItem(${idx}, this.value)">
+            <button class="btn btn-danger btn-sm" style="padding: 2px 6px;" onclick="keranjang.splice(${idx},1); renderKeranjang();">×</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
     }
+  });
+
+  let netSubtotal = subtotalKotor - totalDiskonItem;
+  let totalBayarEl = document.getElementById("posTotalBayar");
+  if(totalBayarEl) totalBayarEl.innerText = "Rp " + netSubtotal.toLocaleString('id-ID');
+  
+  // Update angka di tombol hijau melayang
+  let posCartItemCount = document.getElementById("posCartItemCount");
+  if(posCartItemCount) posCartItemCount.innerText = totalBarangCounter;
+}
 
     function prosesCheckout() {
       if (keranjang.length === 0) {
@@ -2233,6 +2140,7 @@
       keranjang = [];
       renderKeranjang();
       loadPosKatalog();
+      tutupModalKeranjang();
 
       google.script.run.withSuccessHandler(function(res) {
         if(res && res.no_nota) {
@@ -2736,22 +2644,13 @@
     }
 
     function togglePosScanner() {
-      var mobile = window.innerWidth <= 768;
-      var readerId = mobile ? "readerPosMobile" : "readerPos";
-      var inputId = mobile ? "searchPosMobile" : "searchPos";
-      var readerDiv = document.getElementById(readerId);
-      if (!readerDiv) return;
+      var readerDiv = document.getElementById("readerPos");
       if (!isPosScanning) {
         readerDiv.style.display = "block";
-        html5QrCodePos = new Html5Qrcode(readerId);
+        html5QrCodePos = new Html5Qrcode("readerPos");
         html5QrCodePos.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 100 } },
-          function(decodedText) {
-            var input = document.getElementById(inputId);
-            if (input) input.value = decodedText;
-            if (mobile) handlePosInputMobile(); else handlePosInput();
-            stopPosScanner();
-          }, function() {}
-        ).catch(err => { alert("Kamera error: " + err); readerDiv.style.display = "none"; isPosScanning = false; });
+          function(decodedText) { document.getElementById("searchPos").value = decodedText; handlePosInput(); stopPosScanner(); }, function() {}
+        ).catch(err => { alert("Kamera error: " + err); readerDiv.style.display = "none"; });
         isPosScanning = true;
       } else { stopPosScanner(); }
     }
@@ -2772,23 +2671,8 @@
     }
 
     function stopPosScanner() {
-      var reader = document.getElementById("readerPos");
-      var readerMobile = document.getElementById("readerPosMobile");
-      if (html5QrCodePos && isPosScanning) {
-        html5QrCodePos.stop().then(() => {
-          if (reader) reader.style.display = "none";
-          if (readerMobile) readerMobile.style.display = "none";
-          isPosScanning = false;
-        }).catch(() => {
-          if (reader) reader.style.display = "none";
-          if (readerMobile) readerMobile.style.display = "none";
-          isPosScanning = false;
-        });
-      } else {
-        if (reader) reader.style.display = "none";
-        if (readerMobile) readerMobile.style.display = "none";
-        isPosScanning = false;
-      }
+      if (html5QrCodePos && isPosScanning) { html5QrCodePos.stop().then(() => { document.getElementById("readerPos").style.display = "none"; isPosScanning = false; }).catch(() => { document.getElementById("readerPos").style.display = "none"; isPosScanning = false; });
+      } else { document.getElementById("readerPos").style.display = "none"; isPosScanning = false; }
     }
 
     function stopAllScanners() {
@@ -3537,40 +3421,21 @@
         });
       };
       window.togglePosScanner = function() {
-        const isMobile = window.innerWidth <= 768;
-        const readerId = isMobile ? 'readerPosMobile' : 'readerPos';
-        const inputId = isMobile ? 'searchPosMobile' : 'searchPos';
-        startScannerInstance(readerId, 'html5QrCodePos', function(value) {
-          const el = document.getElementById(inputId);
-          if (el) {
-            el.value = value;
-            el.dispatchEvent(new Event('input', { bubbles: true }));
-          }
-          if (isMobile && typeof handlePosInputMobile === 'function') handlePosInputMobile();
-          else if (typeof handlePosInput === 'function') handlePosInput();
-        });
-      };
+  startScannerInstance('readerPos', 'html5QrCodePos', function(value) {
+    // Ubah ID dan Fungsi ke versi Mobile terbaru
+    const el = document.getElementById('searchPosMobile');
+    if (el) {
+      el.value = value;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    if (typeof handlePosSearchMobile === 'function') handlePosSearchMobile();
+  });
+};
 
       window.stopScanner = function() { stopScannerGeneric('reader', 'html5QrCode', 'isScanning'); };
       window.stopMasukScanner = function() { stopScannerGeneric('readerMasuk', 'html5QrCodeMasuk', 'isMasukScanning'); };
       window.stopReturScanner = function() { stopScannerGeneric('readerRetur', 'html5QrCodeRetur', 'isReturScanning'); };
-      window.stopPosScanner = function() {
-        const mobileReader = document.getElementById('readerPosMobile');
-        const desktopReader = document.getElementById('readerPos');
-        const scanner = window.html5QrCodePos;
-        window.isPosScanning = false;
-        if (scanner && typeof scanner.stop === 'function') {
-          scanner.stop().catch(function() {}).finally(function() {
-            [mobileReader, desktopReader].forEach(function(el) {
-              if (el) { el.style.display = 'none'; el.innerHTML = ''; }
-            });
-          });
-        } else {
-          [mobileReader, desktopReader].forEach(function(el) {
-            if (el) { el.style.display = 'none'; el.innerHTML = ''; }
-          });
-        }
-      };
+      window.stopPosScanner = function() { stopScannerGeneric('readerPos', 'html5QrCodePos', 'isPosScanning'); };
       window.stopAllScanners = function() {
         window.stopScanner(); window.stopMasukScanner(); window.stopReturScanner(); window.stopPosScanner();
       };
