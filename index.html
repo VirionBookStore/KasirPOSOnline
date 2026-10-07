@@ -3393,8 +3393,108 @@ function hapusDariKeranjang(idx) {
       };
       reader.readAsText(file);
     }
+  </script>
 
-      // Override global functions yang dipanggil oleh tombol HTML.
+  <!-- Scanner override: kamera belakang + pemilihan kamera + format barcode umum -->
+  <script>
+    (function installRobustScanner() {
+      const formats = (window.Html5QrcodeSupportedFormats) ? [
+        Html5QrcodeSupportedFormats.QR_CODE,
+        Html5QrcodeSupportedFormats.CODE_128,
+        Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.CODE_93,
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.ITF,
+        Html5QrcodeSupportedFormats.CODABAR
+      ] : undefined;
+
+      const scanConfig = {
+        fps: 12,
+        qrbox: function(viewfinderWidth, viewfinderHeight) {
+          const width = Math.min(Math.floor(viewfinderWidth * 0.86), 360);
+          const height = Math.min(Math.floor(viewfinderHeight * 0.42), 180);
+          return { width: Math.max(width, 220), height: Math.max(height, 100) };
+        },
+        aspectRatio: 1.777778,
+        disableFlip: false
+      };
+      if (formats) scanConfig.formatsToSupport = formats;
+
+      async function chooseCamera() {
+        const cameras = await Html5Qrcode.getCameras();
+        if (!cameras || !cameras.length) throw new Error('Kamera tidak ditemukan. Pastikan izin kamera sudah diberikan.');
+        const back = cameras.find(c => /back|rear|environment|belakang/i.test(c.label || ''));
+        return (back || cameras[0]).id;
+      }
+
+      async function startScannerInstance(readerId, stateName, onDecoded, accent) {
+        const readerDiv = document.getElementById(readerId);
+        if (!readerDiv) return;
+
+        let scanner = window[stateName];
+        const scanningName = stateName === 'html5QrCode' ? 'isScanning' :
+          stateName === 'html5QrCodeMasuk' ? 'isMasukScanning' :
+          stateName === 'html5QrCodeRetur' ? 'isReturScanning' : 'isPosScanning';
+
+        if (window[scanningName]) {
+          const stopFn = window['stop' + (stateName === 'html5QrCode' ? 'Scanner' : stateName === 'html5QrCodeMasuk' ? 'MasukScanner' : stateName === 'html5QrCodeRetur' ? 'ReturScanner' : 'PosScanner')];
+          if (typeof stopFn === 'function') stopFn();
+          return;
+        }
+
+        readerDiv.style.display = 'block';
+        readerDiv.innerHTML = '<div style="padding:12px;text-align:center;color:#6c757d;font-size:12px;">Meminta izin kamera...</div>';
+
+        try {
+          await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+          const cameraId = await chooseCamera();
+          readerDiv.innerHTML = '';
+          scanner = new Html5Qrcode(readerId, { verbose: false });
+          window[stateName] = scanner;
+          window[scanningName] = true;
+
+          await scanner.start(
+            cameraId,
+            scanConfig,
+            function(decodedText) {
+              const value = String(decodedText || '').trim();
+              if (!value) return;
+              const stopPromise = scanner.stop().catch(function() {});
+              Promise.resolve(stopPromise).finally(function() {
+                window[scanningName] = false;
+                readerDiv.style.display = 'none';
+                readerDiv.innerHTML = '';
+                onDecoded(value);
+              });
+            },
+            function() {}
+          );
+        } catch (err) {
+          console.error('Scanner error', err);
+          window[scanningName] = false;
+          readerDiv.style.display = 'none';
+          readerDiv.innerHTML = '';
+          const message = String(err && err.message ? err.message : err);
+          alert('Kamera tidak dapat digunakan.\n\n' + message + '\n\nPastikan:\n1. Website dibuka melalui HTTPS (GitHub Pages).\n2. Izin kamera di browser diizinkan.\n3. Kamera tidak sedang dipakai aplikasi lain.');
+        }
+      }
+
+      function stopScannerGeneric(readerId, stateName, scanningName) {
+        const readerDiv = document.getElementById(readerId);
+        const scanner = window[stateName];
+        window[scanningName] = false;
+        if (scanner && typeof scanner.stop === 'function') {
+          scanner.stop().catch(function() {}).finally(function() {
+            if (readerDiv) { readerDiv.style.display = 'none'; readerDiv.innerHTML = ''; }
+          });
+        } else if (readerDiv) {
+          readerDiv.style.display = 'none'; readerDiv.innerHTML = '';
+        }
+      }
+
       window.toggleScanner = function() {
         startScannerInstance('reader', 'html5QrCode', function(value) {
           const el = document.getElementById('idBarangInput');
@@ -3416,16 +3516,15 @@ function hapusDariKeranjang(idx) {
         });
       };
       window.togglePosScanner = function() {
-  startScannerInstance('readerPos', 'html5QrCodePos', function(value) {
-    // Ubah ID dan Fungsi ke versi Mobile terbaru
-    const el = document.getElementById('searchPosMobile');
-    if (el) {
-      el.value = value;
-      el.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    if (typeof handlePosSearchMobile === 'function') handlePosSearchMobile();
-  });
-};
+        startScannerInstance('readerPos', 'html5QrCodePos', function(value) {
+          const el = document.getElementById('searchPosMobile');
+          if (el) {
+            el.value = value;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          if (typeof handlePosSearchMobile === 'function') handlePosSearchMobile();
+        });
+      };
 
       window.stopScanner = function() { stopScannerGeneric('reader', 'html5QrCode', 'isScanning'); };
       window.stopMasukScanner = function() { stopScannerGeneric('readerMasuk', 'html5QrCodeMasuk', 'isMasukScanning'); };
