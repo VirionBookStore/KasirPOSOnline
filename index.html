@@ -4199,7 +4199,7 @@ function prosesCheckoutReturFinal() {
               }
 
               if(btn) btn.innerText='✅ Restore berhasil';
-              if(txtDbStatus) txtDbStatus.innerHTML = '<b style="color:#198754;">Restore berhasil.</b><br>Database lokal sudah dipulihkan dari file backup.';
+              const statusEl = document.getElementById('txtDbStatus'); if(statusEl) statusEl.innerHTML = '<b style="color:#198754;">Restore berhasil.</b><br>Database lokal sudah dipulihkan dari file backup.';
               setTimeout(function(){
                 if(btn) { btn.innerText='Restore Data'; btn.disabled=false; }
                 checkLocalDbStatus();
