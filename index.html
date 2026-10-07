@@ -1422,6 +1422,9 @@
     let lastTransaksi = null;
 
     window.onload = function() {
+      initIndexedDB(async () => {
+          await checkLocalDbStatus();
+      });
       loadLogoToko();
       var savedUser = localStorage.getItem("as_pos_current_user");
       if (savedUser) {
@@ -1531,8 +1534,10 @@ window.loadBarang = function(isLocalOnly = false) {
       if (menuId === 'dashboard') loadDashboardStats();
       if (menuId === 'returPos') initReturPos();
       
-      if (menuId === 'manajemenData') {
-          setTimeout(() => { checkLocalDbStatus(); }, 200);
+      if (menuId === 'manajemenData' || menuId === 'syncBackup') {
+          if (typeof checkLocalDbStatus === 'function') {
+              checkLocalDbStatus();
+          }
       }
       
       closeSidebarMobile();
