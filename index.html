@@ -1300,7 +1300,7 @@
   <script>
     window.AS_POS_CONFIG = window.AS_POS_CONFIG || {
       // GANTI dengan URL deployment Web App GAS yang berakhiran /exec.
-      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwtZruYiclTcc3yeND61MmaBY28O8aH2nGqg1dXliS5sIq6FyTOgME8LEbZUDtmNyh3/exec"
+      GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwu7zetMt7d92HtGpLCNZVSji9Fn3vzf8qzxhzbc_2wNJi2QTtvPCpRomPvnUgIHhx6/exec"
     };
 
     (function installGasBridge() {
@@ -3302,21 +3302,29 @@ function hapusDariKeranjang(idx) {
       request.onsuccess = function() { callback(request.result || []); };
     }
 
-    // 4. Load Barang Hibrida (Lokal-First + Background Sync)
+    // Perbarui fungsi loadBarang pada AS-Pos agar instan seperti aplikasi SO
     function loadBarang(isLocalOnly = false) {
-      loadFromStore('masterBarang', function(localData) {
-        if (localData.length > 0) {
-          globalDataBarang = localData;
-          renderTabelBarang(localData);
-        }
-        if (!isLocalOnly) {
-          google.script.run.withSuccessHandler(function(serverData) {
-            saveToStore('masterBarang', serverData);
+      // 1. Muat dari Cache Lokal terlebih dahulu agar langsung muncul instan
+      let cachedBarang = localStorage.getItem('as_pos_cache_barang');
+      if (cachedBarang) {
+        try {
+          globalDataBarang = JSON.parse(cachedBarang);
+          renderTabelBarang(globalDataBarang);
+          renderPosProductList(); // Update juga tampilan POS jika di menu kasir
+        } catch(e) {}
+      }
+
+      // 2. Jika tidak hanya lokal, tarik data terbaru dari server GAS di latar belakang
+      if (!isLocalOnly) {
+        google.script.run.withSuccessHandler(function(serverData) {
+          if (serverData && serverData.length > 0) {
             globalDataBarang = serverData;
+            localStorage.setItem('as_pos_cache_barang', JSON.stringify(serverData));
             renderTabelBarang(serverData);
-          }).getBarang();
-        }
-      });
+            renderPosProductList();
+          }
+        }).getBarang();
+      }
     }
 
     // =========================================================================
