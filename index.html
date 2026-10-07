@@ -1531,7 +1531,10 @@ window.loadBarang = function(isLocalOnly = false) {
       if (menuId === 'dashboard') loadDashboardStats();
       if (menuId === 'returPos') initReturPos();
       
-      // Sembunyikan sidebar di mobile setelah menu dipilih
+      if (menuId === 'manajemenData') {
+          setTimeout(() => { checkLocalDbStatus(); }, 200);
+      }
+      
       closeSidebarMobile();
     }
 
@@ -3898,19 +3901,36 @@ function prosesCheckoutReturFinal() {
         let txt = document.getElementById("txtDbStatus");
         if (!txt) return;
 
+        // 1. Deteksi apakah dibuka di Google Script (Iframe)
+        try {
+            if (window.self !== window.top) {
+                txt.innerHTML = "<span style='color:#dc3545; font-weight:bold;'>DIBLOKIR BROWSER!</span><br>Anda membuka aplikasi lewat link script.google.com. Fitur memori lokal dilarang oleh browser. <br><b>Gunakan link GitHub Pages untuk mengakses fitur ini.</b>";
+                return;
+            }
+        } catch (e) {
+            txt.innerHTML = "<span style='color:#dc3545; font-weight:bold;'>DIBLOKIR BROWSER!</span><br>Akses database dilarang di mode Iframe.";
+            return;
+        }
+
+        // 2. Jika aman (dibuka di GitHub Pages), cek isi database
         initIndexedDB((success) => {
             if (!success || !db) {
                 txt.innerHTML = "<span style='color:#dc3545;'>Database lokal tidak tersedia atau diblokir.</span>";
                 return;
             }
-            loadFromStore('masterBarang', (data) => {
-                let lastSync = localStorage.getItem('aspos_last_sync') || 'belum pernah';
-                if (data && data.length > 0) {
-                    txt.innerHTML = `Database lokal: ${data.length.toLocaleString('id-ID')} barang • ${lastSync}`;
-                } else {
-                    txt.innerHTML = "Database lokal: belum ada master";
-                }
-            });
+            
+            try {
+                loadFromStore('masterBarang', (data) => {
+                    let lastSync = localStorage.getItem('aspos_last_sync') || 'Belum pernah';
+                    if (data && data.length > 0) {
+                        txt.innerHTML = `<b>Tersedia:</b> ${data.length.toLocaleString('id-ID')} barang <br><span style='color:#087f8c;'><b>Update Terakhir:</b> ${lastSync}</span>`;
+                    } else {
+                        txt.innerHTML = "<span style='color:#d97706;'>Database lokal: <b>Belum ada master</b> (Silakan klik Sinkronkan Data)</span>";
+                    }
+                });
+            } catch (err) {
+                txt.innerHTML = "<span style='color:#dc3545;'>Gagal membaca data dari memori.</span>";
+            }
         });
     }
 
