@@ -1463,7 +1463,29 @@
         currentUser = null;
       }
     }
+// Memaksa fungsi loadBarang ke global agar selalu bisa dipanggil
+window.loadBarang = function(isLocalOnly = false) {
+  let cachedBarang = localStorage.getItem('as_pos_cache_barang');
+  if (cachedBarang) {
+    try {
+      globalDataBarang = JSON.parse(cachedBarang);
+      if (typeof renderTabelBarang === 'function') renderTabelBarang(globalDataBarang);
+      if (typeof renderPosProductList === 'function') renderPosProductList(); 
+    } catch(e) {}
+  }
 
+  if (!isLocalOnly) {
+    google.script.run.withSuccessHandler(function(serverData) {
+      if (serverData && serverData.length > 0) {
+        globalDataBarang = serverData;
+        localStorage.setItem('as_pos_cache_barang', JSON.stringify(serverData));
+        if (typeof renderTabelBarang === 'function') renderTabelBarang(serverData);
+        if (typeof renderPosProductList === 'function') renderPosProductList();
+      }
+    }).getBarang();
+  }
+};
+    
     function switchMenu(menuId, el) {
       stopAllScanners();
       document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
