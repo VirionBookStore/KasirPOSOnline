@@ -4127,24 +4127,24 @@ function prosesCheckoutReturFinal() {
           const blob = new Blob([JSON.stringify(exportData)], {type:'application/json;charset=utf-8'});
           const fileName = 'Backup_ASPOS_' + new Date().toISOString().slice(0,10) + '.json';
 
-          // Android/Chrome: gunakan Web Share bila tersedia agar file bisa
-          // dibagikan atau disimpan melalui aplikasi Files. Fallback ke download.
-          const file = new File([blob], fileName, {type:'application/json'});
-          if (navigator.canShare && navigator.canShare({files:[file]})) {
-            await navigator.share({title:'Backup AS-Pos', text:'Backup database AS-Pos', files:[file]});
-          } else {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            a.rel = 'noopener';
-            document.body.appendChild(a);
-            a.click();
+          // Tombol "Download Backup" harus benar-benar mengunduh file.
+          // Jangan gunakan navigator.share di sini karena pada Android ia hanya
+          // membuka menu berbagi dan tidak selalu memberi opsi Simpan File.
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function(){
             a.remove();
-            setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
-          }
+            URL.revokeObjectURL(url);
+          }, 3000);
 
-          if(btn) btn.innerText='✅ Backup berhasil';
+          if(btn) btn.innerText='✅ File backup dibuat';
           setTimeout(function(){ if(btn){btn.innerText='Download Backup';btn.disabled=false;} },2000);
         } catch(err) {
           console.error('[AS-Pos] backup', err);
