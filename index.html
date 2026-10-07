@@ -3336,7 +3336,7 @@ function hapusDariKeranjang(idx) {
     }
 
     // Perbarui fungsi loadBarang pada AS-Pos agar instan seperti aplikasi SO
-    function loadBarang(isLocalOnly = false) {
+    window.loadBarang = function(isLocalOnly = false) {
       // 1. Muat dari Cache Lokal terlebih dahulu agar langsung muncul instan
       let cachedBarang = localStorage.getItem('as_pos_cache_barang');
       if (cachedBarang) {
@@ -3467,6 +3467,8 @@ function hapusDariKeranjang(idx) {
       async function chooseCamera() {
         const cameras = await Html5Qrcode.getCameras();
         if (!cameras || !cameras.length) throw new Error('Kamera tidak ditemukan. Pastikan izin kamera sudah diberikan.');
+
+        // Prioritaskan kamera belakang pada HP.
         const back = cameras.find(c => /back|rear|environment|belakang/i.test(c.label || ''));
         return (back || cameras[0]).id;
       }
@@ -3490,6 +3492,8 @@ function hapusDariKeranjang(idx) {
         readerDiv.innerHTML = '<div style="padding:12px;text-align:center;color:#6c757d;font-size:12px;">Meminta izin kamera...</div>';
 
         try {
+          // Minta izin kamera lebih dulu. Ini membantu browser/GitHub Pages
+          // menampilkan prompt permission dengan benar.
           await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
           const cameraId = await chooseCamera();
           readerDiv.innerHTML = '';
@@ -3503,6 +3507,7 @@ function hapusDariKeranjang(idx) {
             function(decodedText) {
               const value = String(decodedText || '').trim();
               if (!value) return;
+              // Hentikan scanner lebih dahulu agar satu barcode tidak masuk berkali-kali.
               const stopPromise = scanner.stop().catch(function() {});
               Promise.resolve(stopPromise).finally(function() {
                 window[scanningName] = false;
@@ -3523,7 +3528,7 @@ function hapusDariKeranjang(idx) {
         }
       }
 
-      function stopScannerGeneric(readerId, stateName, scanningName) {
+      window.stopScannerGeneric = function(readerId, stateName, scanningName) {
         const readerDiv = document.getElementById(readerId);
         const scanner = window[stateName];
         window[scanningName] = false;
@@ -3534,8 +3539,8 @@ function hapusDariKeranjang(idx) {
         } else if (readerDiv) {
           readerDiv.style.display = 'none'; readerDiv.innerHTML = '';
         }
-      }
-
+      };
+      
       window.toggleScanner = function() {
         startScannerInstance('reader', 'html5QrCode', function(value) {
           const el = document.getElementById('idBarangInput');
@@ -3567,14 +3572,213 @@ function hapusDariKeranjang(idx) {
         });
       };
 
-      window.stopScanner = function() { stopScannerGeneric('reader', 'html5QrCode', 'isScanning'); };
-      window.stopMasukScanner = function() { stopScannerGeneric('readerMasuk', 'html5QrCodeMasuk', 'isMasukScanning'); };
-      window.stopReturScanner = function() { stopScannerGeneric('readerRetur', 'html5QrCodeRetur', 'isReturScanning'); };
-      window.stopPosScanner = function() { stopScannerGeneric('readerPos', 'html5QrCodePos', 'isPosScanning'); };
+      window.stopScanner = function() { window.stopScannerGeneric('reader', 'html5QrCode', 'isScanning'); };
+      window.stopMasukScanner = function() { window.stopScannerGeneric('readerMasuk', 'html5QrCodeMasuk', 'isMasukScanning'); };
+      window.stopReturScanner = function() { window.stopScannerGeneric('readerRetur', 'html5QrCodeRetur', 'isReturScanning'); };
+      window.stopPosScanner = function() { window.stopScannerGeneric('readerPos', 'html5QrCodePos', 'isPosScanning'); };
       window.stopAllScanners = function() {
         window.stopScanner(); window.stopMasukScanner(); window.stopReturScanner(); window.stopPosScanner();
       };
-    })();
+    })(); // <-- INI ADALAH PENUTUP FUNGSI SCANNER YANG DIPINDAH KE SINI AGAR TIDAK MENGURUNG KODE LAIN
+    
+    // =========================================================================
+    // ENGINE INDEXEDDB: LOCAL-FIRST ARCHITECTURE
+    // =========================================================================
+    const dbName = "AS_POS_DB";
+    const dbVersion = 2; 
+    let db;
+    let dbFailed = false; // Tambahan: Flag untuk mendeteksi pemblokiran DB
+
+    const dbStores = {
+      'masterBarang': 'id_barang',
+      'supplier': 'id_supplier',
+      'promo': 'id_barang',
+      'stokMasuk': 'id_transaksi',
+      'returBarang': 'id_retur',
+      'riwayatPenjualan': 'no_nota',
+      'pengaturan': 'kunci'
+    };
+
+    // 1. Inisialisasi Database Tunggal (Multi-Store)
+    function initIndexedDB(callback) {
+      if (db) { if (callback) callback(true); return; }
+      if (dbFailed) { if (callback) callback(false); return; } // Bypass jika DB diblokir
+
+      try {
+        let request = indexedDB.open(dbName, dbVersion);
+        
+        request.onupgradeneeded = function(event) {
+          let database = event.target.result;
+          for (const [storeName, keyPath] of Object.entries(dbStores)) {
+            if (!database.objectStoreNames.contains(storeName)) {
+              database.createObjectStore(storeName, { keyPath: keyPath });
+            }
+          }
+        };
+        
+        request.onsuccess = function(event) {
+          db = event.target.result;
+          if (callback) callback(true);
+        };
+        
+        request.onerror = function(event) {
+          console.error("Gagal membuka IndexedDB (Diblokir browser):", event.target.error);
+          dbFailed = true;
+          if (callback) callback(false); // Lanjutkan dengan status false
+        };
+      } catch (err) {
+        dbFailed = true;
+        if (callback) callback(false);
+      }
+    }
+
+    // 2. Fungsi Helper: Simpan Array ke IndexedDB
+    function saveToStore(storeName, dataArray, callback) {
+      if (dbFailed) { if(callback) callback(); return; }
+      if (!db) { 
+        initIndexedDB((success) => {
+            if (!success) { if(callback) callback(); return; }
+            saveToStore(storeName, dataArray, callback);
+        }); 
+        return; 
+      }
+      try {
+        let tx = db.transaction(storeName, "readwrite");
+        let store = tx.objectStore(storeName);
+        store.clear();
+        dataArray.forEach(item => store.put(item));
+        tx.oncomplete = function() { if(callback) callback(); };
+      } catch(e) {
+         if(callback) callback();
+      }
+    }
+
+    // 3. Fungsi Helper: Baca dari IndexedDB
+    function loadFromStore(storeName, callback) {
+      if (dbFailed) { callback([]); return; } // Fallback: Kembalikan array kosong jika DB mati
+      if (!db) { 
+        initIndexedDB((success) => {
+            if (!success) { callback([]); return; }
+            loadFromStore(storeName, callback);
+        }); 
+        return; 
+      }
+      try {
+        let tx = db.transaction(storeName, "readonly");
+        let store = tx.objectStore(storeName);
+        let request = store.getAll();
+        request.onsuccess = function() { callback(request.result || []); };
+        request.onerror = function() { callback([]); };
+      } catch(e) {
+        callback([]); // Fallback jika transaksi error
+      }
+    }
+
+    // Perbarui fungsi loadBarang pada AS-Pos agar instan seperti aplikasi SO
+    window.loadBarang = function(isLocalOnly = false) {
+      // 1. Muat dari Cache Lokal terlebih dahulu agar langsung muncul instan
+      let cachedBarang = localStorage.getItem('as_pos_cache_barang');
+      if (cachedBarang) {
+        try {
+          globalDataBarang = JSON.parse(cachedBarang);
+          if (typeof renderTabelBarang === 'function') renderTabelBarang(globalDataBarang);
+          if (typeof renderPosProductList === 'function') renderPosProductList(); // Update juga tampilan POS jika di menu kasir
+        } catch(e) {}
+      }
+
+      // 2. Jika tidak hanya lokal, tarik data terbaru dari server GAS di latar belakang
+      if (!isLocalOnly) {
+        google.script.run.withSuccessHandler(function(serverData) {
+          if (serverData && serverData.length > 0) {
+            globalDataBarang = serverData;
+            localStorage.setItem('as_pos_cache_barang', JSON.stringify(serverData));
+            if (typeof renderTabelBarang === 'function') renderTabelBarang(serverData);
+            if (typeof renderPosProductList === 'function') renderPosProductList();
+          }
+        }).getBarang();
+      }
+    }
+
+    // =========================================================================
+    // SINKRONISASI MANUAL & BACKUP/RESTORE
+    // =========================================================================
+    window.syncAllDataManual = function() {
+      let btn = document.getElementById("btnSyncManual");
+      let status = document.getElementById("syncStatus");
+      if (btn) btn.disabled = true;
+      if (status) {
+        status.innerText = "⏳ Sedang menarik data dari server...";
+        status.style.color = "#d97706";
+      }
+
+      initIndexedDB(() => {
+        Promise.all([
+          new Promise(res => google.script.run.withSuccessHandler(data => { saveToStore('masterBarang', data, res); globalDataBarang = data; if(typeof renderTabelBarang === 'function') renderTabelBarang(data); }).getBarang()),
+          new Promise(res => google.script.run.withSuccessHandler(data => { saveToStore('supplier', data, res); globalDataSupplier = data; if(typeof loadSupplier === 'function') loadSupplier(true); }).getSupplier()),
+          new Promise(res => google.script.run.withSuccessHandler(data => { saveToStore('promo', data, res); globalPromoData = data; if(typeof loadPromoManajemen === 'function') loadPromoManajemen(true); }).getPromoList()),
+          new Promise(res => google.script.run.withSuccessHandler(data => { saveToStore('stokMasuk', data, res); globalStokMasukData = data; if(typeof renderTabelStokMasuk === 'function') renderTabelStokMasuk(data); }).getStokMasuk()),
+          new Promise(res => google.script.run.withSuccessHandler(data => { saveToStore('returBarang', data, res); globalReturData = data; if(typeof renderTabelRetur === 'function') renderTabelRetur(data); }).getReturBarang()),
+          new Promise(res => google.script.run.withSuccessHandler(data => { saveToStore('riwayatPenjualan', data, res); globalRiwayatData = data; if(typeof renderTabelRiwayat === 'function') renderTabelRiwayat(data); }).getPenjualan())
+        ]).then(() => {
+          if (btn) btn.disabled = false;
+          if (status) {
+            status.innerText = "✅ Sinkronisasi Selesai!";
+            status.style.color = "#198754";
+            setTimeout(() => { status.innerText = ""; }, 3000);
+          }
+        }).catch(err => {
+          if (btn) btn.disabled = false;
+          if (status) {
+            status.innerText = "❌ Gagal: " + err.message;
+            status.style.color = "#dc3545";
+          }
+        });
+      });
+    }
+
+    window.backupIndexedDB = async function() {
+      if (!db) return alert("Database belum siap!");
+      let exportData = {};
+      for (const storeName of Object.keys(dbStores)) {
+        exportData[storeName] = await new Promise(resolve => {
+          loadFromStore(storeName, data => resolve(data));
+        });
+      }
+      let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData));
+      let downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", "Backup_ASPOS_" + new Date().toISOString().split('T')[0] + ".json");
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    }
+
+    window.restoreIndexedDB = function() {
+      let fileInput = document.getElementById('fileRestore');
+      if (!fileInput || fileInput.files.length === 0) return alert("Pilih file backup (.json) terlebih dahulu!");
+      let file = fileInput.files[0];
+      let reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          let importedData = JSON.parse(event.target.result);
+          let promises = [];
+          for (const storeName of Object.keys(dbStores)) {
+            if (importedData[storeName]) {
+              promises.push(new Promise(resolve => {
+                saveToStore(storeName, importedData[storeName], resolve);
+              }));
+            }
+          }
+          Promise.all(promises).then(() => {
+            alert("Restore berhasil! Aplikasi akan dimuat ulang.");
+            location.reload();
+          });
+        } catch (e) {
+          alert("Format file tidak valid atau rusak!");
+        }
+      };
+      reader.readAsText(file);
+    }
   </script>
 </body>
 </html>
