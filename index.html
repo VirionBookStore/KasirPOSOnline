@@ -3817,12 +3817,13 @@ function prosesCheckoutReturFinal() {
     })(); // <-- INI ADALAH PENUTUP FUNGSI SCANNER YANG DIPINDAH KE SINI AGAR TIDAK MENGURUNG KODE LAIN
     
     // =========================================================================
-    // ENGINE INDEXEDDB: LOCAL-FIRST ARCHITECTURE (GAS FIX VERSION)
+    // ENGINE INDEXEDDB: LOCAL-FIRST ARCHITECTURE (ROBUST VERSION)
     // =========================================================================
     const dbName = "AS_POS_DB";
-    const dbVersion = 4; // Reset memori yang mungkin rusak sebelumnya
-    let db;
+    const dbVersion = 5;
+    let db = null;
     let dbFailed = false;
+    let dbOpening = null;
 
     const dbStores = {
       'masterBarang': 'id_barang',
@@ -3835,279 +3836,389 @@ function prosesCheckoutReturFinal() {
 
     function initIndexedDB(callback) {
       if (db) { if (callback) callback(true); return; }
-      if (dbFailed) { if (callback) callback(false); return; }
-      if (!window.indexedDB) { dbFailed = true; if(callback) callback(false); return; }
-
-      try {
-        let request = window.indexedDB.open(dbName, dbVersion);
-        
-        request.onupgradeneeded = function(event) {
-          let database = event.target.result;
-          for (const [storeName, keyPath] of Object.entries(dbStores)) {
-            if (!database.objectStoreNames.contains(storeName)) {
-              database.createObjectStore(storeName, { keyPath: keyPath });
-            }
-          }
-        };
-        
-        request.onsuccess = function(event) {
-          db = event.target.result;
-          if (callback) callback(true);
-        };
-        
-        request.onerror = function(event) {
-          dbFailed = true;
-          if (callback) callback(false);
-        };
-      } catch (err) {
+      if (dbOpening) {
+        dbOpening.then(function(ok){ if(callback) callback(ok); });
+        return;
+      }
+      if (!window.indexedDB) {
         dbFailed = true;
         if (callback) callback(false);
+        return;
       }
+
+      dbOpening = new Promise(function(resolve) {
+        let settled = false;
+        function finish(ok) {
+          if (settled) return;
+          settled = true;
+          dbOpening = null;
+          resolve(ok);
+          if (callback) callback(ok);
+        }
+
+        let timer = setTimeout(function() {
+          dbFailed = true;
+          finish(false);
+        }, 8000);
+
+        try {
+          const request = window.indexedDB.open(dbName, dbVersion);
+
+          request.onupgradeneeded = function(event) {
+            const database = event.target.result;
+            Object.entries(dbStores).forEach(function(entry) {
+              const storeName = entry[0];
+              const keyPath = entry[1];
+              if (!database.objectStoreNames.contains(storeName)) {
+                database.createObjectStore(storeName, { keyPath: keyPath });
+              }
+            });
+          };
+
+          request.onsuccess = function(event) {
+            clearTimeout(timer);
+            db = event.target.result;
+            dbFailed = false;
+
+            db.onversionchange = function() {
+              try { db.close(); } catch(e) {}
+              db = null;
+            };
+
+            finish(true);
+          };
+
+          request.onerror = function(event) {
+            clearTimeout(timer);
+            console.error('[AS-Pos IndexedDB] open error', event.target.error);
+            dbFailed = true;
+            finish(false);
+          };
+
+          request.onblocked = function() {
+            console.warn('[AS-Pos IndexedDB] open blocked');
+            // Jangan biarkan layar selamanya "memeriksa...".
+            // Biasanya ada tab/aplikasi lain yang masih memegang koneksi database.
+          };
+        } catch (err) {
+          clearTimeout(timer);
+          console.error('[AS-Pos IndexedDB] exception', err);
+          dbFailed = true;
+          finish(false);
+        }
+      });
     }
 
-    function saveToStore(storeName, dataArray, callback) {
-      if (dbFailed || !db) { if(callback) callback(); return; }
-      try {
-        let tx = db.transaction(storeName, "readwrite");
-        let store = tx.objectStore(storeName);
-        store.clear();
-        if (Array.isArray(dataArray)) {
-          let key = store.keyPath;
-          dataArray.forEach(item => {
-             if (item && item[key] != null && item[key] !== "") store.put(item);
-          });
+    function getAllFromStore(storeName) {
+      return new Promise(function(resolve, reject) {
+        if (!db) return reject(new Error('Database lokal belum terbuka.'));
+        try {
+          const tx = db.transaction(storeName, 'readonly');
+          const request = tx.objectStore(storeName).getAll();
+          request.onsuccess = function(){ resolve(request.result || []); };
+          request.onerror = function(){ reject(request.error || new Error('Gagal membaca '+storeName)); };
+          tx.onerror = function(){ reject(tx.error || new Error('Transaksi baca '+storeName+' gagal')); };
+        } catch(e) {
+          reject(e);
         }
-        tx.oncomplete = function() { if(callback) callback(); };
-        tx.onerror = function() { if(callback) callback(); };
-      } catch(e) {
-         if(callback) callback();
-      }
+      });
+    }
+
+    function replaceStore(storeName, dataArray) {
+      return new Promise(function(resolve, reject) {
+        if (!db) return reject(new Error('Database lokal belum terbuka.'));
+        if (!Array.isArray(dataArray)) return reject(new Error('Data '+storeName+' bukan array.'));
+
+        try {
+          const tx = db.transaction(storeName, 'readwrite');
+          const store = tx.objectStore(storeName);
+          const key = store.keyPath;
+          store.clear();
+
+          let skipped = 0;
+          dataArray.forEach(function(item) {
+            if (item && item[key] !== undefined && item[key] !== null && String(item[key]) !== '') {
+              store.put(item);
+            } else {
+              skipped++;
+            }
+          });
+
+          tx.oncomplete = function() {
+            if (skipped > 0) {
+              console.warn('[AS-Pos IndexedDB] '+storeName+': '+skipped+' data dilewati karena keyPath '+key+' kosong.');
+            }
+            resolve({count: dataArray.length - skipped, skipped: skipped});
+          };
+          tx.onerror = function(){ reject(tx.error || new Error('Gagal menyimpan '+storeName)); };
+          tx.onabort = function(){ reject(tx.error || new Error('Transaksi '+storeName+' dibatalkan')); };
+        } catch(e) {
+          reject(e);
+        }
+      });
+    }
+
+    // Kompatibilitas dengan kode lama.
+    function saveToStore(storeName, dataArray, callback) {
+      replaceStore(storeName, dataArray)
+        .then(function(){ if(callback) callback(true); })
+        .catch(function(err){ console.error(err); if(callback) callback(false, err); });
     }
 
     function loadFromStore(storeName, callback) {
-      if (dbFailed || !db) { callback([]); return; }
-      try {
-        let tx = db.transaction(storeName, "readonly");
-        let store = tx.objectStore(storeName);
-        let request = store.getAll();
-        request.onsuccess = function() { callback(request.result || []); };
-        request.onerror = function() { callback([]); };
-      } catch(e) {
-        callback([]);
-      }
+      getAllFromStore(storeName)
+        .then(function(data){ callback(data); })
+        .catch(function(err){ console.error(err); callback([]); });
     }
 
-    /// =========================================================================
-    // SINKRONISASI MANUAL & BACKUP/RESTORE (Diadaptasi dari Virion SO)
-    // =========================================================================
-
-    // Cek Status (Jumlah Barang & Waktu Update)
     window.checkLocalDbStatus = function() {
-        let txt = document.getElementById("txtDbStatus");
-        if (!txt) return;
+      const txt = document.getElementById('txtDbStatus');
+      if (!txt) return;
 
-        // 1. Deteksi apakah dibuka di Google Script (Iframe)
-        try {
-            if (window.self !== window.top) {
-                txt.innerHTML = "<span style='color:#dc3545; font-weight:bold;'>DIBLOKIR BROWSER!</span><br>Anda membuka aplikasi lewat link script.google.com. Fitur memori lokal dilarang oleh browser. <br><b>Gunakan link GitHub Pages untuk mengakses fitur ini.</b>";
-                return;
-            }
-        } catch (e) {
-            txt.innerHTML = "<span style='color:#dc3545; font-weight:bold;'>DIBLOKIR BROWSER!</span><br>Akses database dilarang di mode Iframe.";
-            return;
+      txt.innerHTML = '<span style="color:#64748b;">Database lokal: memeriksa...</span>';
+
+      if (window.self !== window.top) {
+        txt.innerHTML = '<span style="color:#dc3545;font-weight:bold;">Database lokal tidak dapat digunakan di iframe.</span><br>Gunakan link GitHub Pages langsung.';
+        return;
+      }
+
+      initIndexedDB(async function(success) {
+        if (!success || !db) {
+          txt.innerHTML = '<span style="color:#dc3545;font-weight:bold;">Database lokal gagal dibuka.</span><br>Silakan tutup tab aplikasi lain yang sedang membuka POS, lalu muat ulang halaman.';
+          return;
         }
 
-        // 2. Jika aman (dibuka di GitHub Pages), cek isi database
-        initIndexedDB((success) => {
-            if (!success || !db) {
-                txt.innerHTML = "<span style='color:#dc3545;'>Database lokal tidak tersedia atau diblokir.</span>";
-                return;
-            }
-            
-            try {
-                loadFromStore('masterBarang', (data) => {
-                    let lastSync = localStorage.getItem('aspos_last_sync') || 'Belum pernah';
-                    if (data && data.length > 0) {
-                        txt.innerHTML = `<b>Tersedia:</b> ${data.length.toLocaleString('id-ID')} barang <br><span style='color:#087f8c;'><b>Update Terakhir:</b> ${lastSync}</span>`;
-                    } else {
-                        txt.innerHTML = "<span style='color:#d97706;'>Database lokal: <b>Belum ada master</b> (Silakan klik Sinkronkan Data)</span>";
-                    }
-                });
-            } catch (err) {
-                txt.innerHTML = "<span style='color:#dc3545;'>Gagal membaca data dari memori.</span>";
-            }
-        });
-    }
+        try {
+          const results = await Promise.all(Object.keys(dbStores).map(function(name) {
+            return getAllFromStore(name).then(function(data){ return {name:name,count:data.length}; });
+          }));
+          const total = results.reduce(function(sum,r){ return sum + r.count; }, 0);
+          const barang = results.find(function(r){ return r.name === 'masterBarang'; });
+          const lastSync = localStorage.getItem('aspos_last_sync') || 'Belum pernah';
 
-    // Fungsi Sync dengan Persentase di dalam Tombol
+          if (total > 0) {
+            txt.innerHTML =
+              '<b style="color:#198754;">Database lokal AKTIF</b><br>' +
+              'Total data tersimpan: <b>' + total.toLocaleString('id-ID') + '</b> record' +
+              ' &nbsp;•&nbsp; Master barang: <b>' + (barang ? barang.count : 0).toLocaleString('id-ID') + '</b>' +
+              '<br><span style="color:#087f8c;"><b>Sinkronisasi terakhir:</b> ' + lastSync + '</span>';
+          } else {
+            txt.innerHTML =
+              '<span style="color:#d97706;"><b>Database lokal AKTIF, tetapi masih kosong.</b></span><br>' +
+              'Silakan klik <b>Sinkronkan Data</b> untuk mengambil data dari Google Sheets.';
+          }
+        } catch(err) {
+          console.error('[AS-Pos] status DB', err);
+          txt.innerHTML = '<span style="color:#dc3545;">Database terbuka, tetapi gagal membaca isi database.</span>';
+        }
+      });
+    };
+
     window.syncAllDataManual = function() {
-      let btn = document.getElementById("btnSyncManual");
-      if (btn) { btn.disabled = true; btn.innerText = "⏳ 0%"; }
+      const btn = document.getElementById('btnSyncManual');
+      const txt = document.getElementById('txtDbStatus');
+      if (btn) { btn.disabled = true; btn.innerText = '⏳ 0%'; }
 
-      initIndexedDB(async (success) => {
-        if (!success) {
-           if (btn) { btn.disabled = false; btn.innerText = "🔄 Sinkronkan Data"; }
-           alert("Gagal: Memori lokal diblokir browser! Pastikan menggunakan link GitHub Pages.");
-           return;
+      initIndexedDB(async function(success) {
+        if (!success || !db) {
+          if (btn) { btn.disabled = false; btn.innerText = '🔄 Sinkronkan Data'; }
+          alert('Database lokal tidak dapat dibuka. Tutup tab POS lain lalu muat ulang halaman.');
+          return;
         }
 
-        let totalTasks = 6;
+        const tasks = [
+          ['masterBarang','getBarang'],
+          ['supplier','getSupplier'],
+          ['promo','getPromoList'],
+          ['stokMasuk','getStokMasuk'],
+          ['returBarang','getReturBarang'],
+          ['riwayatPenjualan','getPenjualan']
+        ];
+
         let completed = 0;
-
-        // Update teks tombol sesuai persentase
-        function updateProgress() {
-          completed++;
-          let percent = Math.round((completed / totalTasks) * 100);
-          if (btn) btn.innerText = "⏳ " + percent + "%";
-        }
-
         try {
-          // Tarik data secara berurutan agar Google tidak memblokir (Failed to fetch)
-          let dataBarang = await new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej).getBarang());
-          await new Promise(res => saveToStore('masterBarang', dataBarang, res));
-          updateProgress();
+          for (const task of tasks) {
+            const storeName = task[0];
+            const fnName = task[1];
 
-          let dataSupplier = await new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej).getSupplier());
-          await new Promise(res => saveToStore('supplier', dataSupplier, res));
-          updateProgress();
+            const data = await new Promise(function(resolve, reject) {
+              if (!window.google || !google.script || !google.script.run) {
+                reject(new Error('Jembatan Google Apps Script tidak tersedia.'));
+                return;
+              }
+              google.script.run
+                .withSuccessHandler(resolve)
+                .withFailureHandler(reject)[fnName]();
+            });
 
-          let dataPromo = await new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej).getPromoList());
-          await new Promise(res => saveToStore('promo', dataPromo, res));
-          updateProgress();
+            const result = await replaceStore(storeName, Array.isArray(data) ? data : []);
+            completed++;
+            if (btn) btn.innerText = '⏳ ' + Math.round(completed / tasks.length * 100) + '%';
+            if (result.skipped > 0) {
+              console.warn(storeName + ': ' + result.skipped + ' record dilewati.');
+            }
+          }
 
-          let dataMasuk = await new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej).getStokMasuk());
-          await new Promise(res => saveToStore('stokMasuk', dataMasuk, res));
-          updateProgress();
-
-          let dataRetur = await new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej).getReturBarang());
-          await new Promise(res => saveToStore('returBarang', dataRetur, res));
-          updateProgress();
-
-          let dataRiwayat = await new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej).getPenjualan());
-          await new Promise(res => saveToStore('riwayatPenjualan', dataRiwayat, res));
-          updateProgress();
-
-          // Simpan waktu timestamp seperti di aplikasi SO
-          let now = new Date();
-          let timeString = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}, ${String(now.getHours()).padStart(2,'0')}.${String(now.getMinutes()).padStart(2,'0')}.${String(now.getSeconds()).padStart(2,'0')}`;
+          const now = new Date();
+          const timeString = now.toLocaleString('id-ID', {
+            day:'2-digit', month:'2-digit', year:'numeric',
+            hour:'2-digit', minute:'2-digit', second:'2-digit'
+          }).replace(/:/g,'.');
           localStorage.setItem('aspos_last_sync', timeString);
 
-          if (btn) { btn.innerText = "✅ 100% Selesai"; btn.style.backgroundColor = "#10b981"; btn.style.borderColor = "#10b981"; }
-          
-          setTimeout(() => { 
-             alert("Sinkronisasi Selesai! Data berhasil diperbarui.");
-             location.reload(); // Muat ulang agar seluruh tabel langsung membaca database terbaru
-          }, 1000);
+          if (btn) {
+            btn.innerText = '✅ 100% Selesai';
+            btn.style.backgroundColor = '#10b981';
+            btn.style.borderColor = '#10b981';
+          }
+          if (txt) txt.innerHTML = '<b style="color:#198754;">Sinkronisasi berhasil.</b><br>Data lokal sudah diperbarui pada <b>' + timeString + '</b>.';
 
-        } catch (err) {
-          if (btn) { btn.innerText = "❌ Gagal"; btn.disabled = false; btn.style.backgroundColor = "#ef4444"; }
-          alert("Gagal Sinkronisasi: " + (err.message || "Koneksi terputus"));
+          setTimeout(function(){
+            if (btn) {
+              btn.disabled = false;
+              btn.innerText = '🔄 Sinkronkan Data';
+              btn.style.backgroundColor = '';
+              btn.style.borderColor = '';
+            }
+            checkLocalDbStatus();
+          }, 1500);
+        } catch(err) {
+          console.error('[AS-Pos] sync', err);
+          if (btn) {
+            btn.disabled = false;
+            btn.innerText = '❌ Sinkronisasi Gagal';
+            btn.style.backgroundColor = '#dc3545';
+          }
+          if (txt) txt.innerHTML = '<span style="color:#dc3545;"><b>Sinkronisasi gagal:</b> ' + String(err && err.message ? err.message : err) + '</span>';
+          alert('Gagal Sinkronisasi:\n\n' + (err && err.message ? err.message : err));
+          setTimeout(function(){
+            if(btn) { btn.innerText='🔄 Sinkronkan Data'; btn.style.backgroundColor=''; }
+          }, 2500);
         }
       });
-    }
+    };
 
-    // Fungsi Backup dengan Persentase di dalam Tombol
     window.backupIndexedDB = function() {
-      let btn = document.getElementById("btnBackup");
-      if(btn) { btn.innerText = "⏳ Mempersiapkan..."; btn.disabled = true; }
+      const btn = document.getElementById('btnBackup');
+      if (btn) { btn.innerText='⏳ Mempersiapkan...'; btn.disabled=true; }
 
-      initIndexedDB(async (success) => {
+      initIndexedDB(async function(success) {
         if (!success || !db) {
-            if(btn) { btn.innerText = "Download Backup"; btn.disabled = false; }
-            return alert("Gagal: Database diblokir browser!");
+          if(btn) { btn.innerText='Download Backup'; btn.disabled=false; }
+          alert('Database lokal tidak dapat dibuka. Tutup tab POS lain lalu muat ulang halaman.');
+          return;
         }
 
         try {
-          let exportData = {};
-          let storeNames = Object.keys(dbStores);
-          let total = storeNames.length;
-          let done = 0;
+          const exportData = { _meta: {
+            app: 'AS-Pos',
+            dbName: dbName,
+            dbVersion: dbVersion,
+            createdAt: new Date().toISOString()
+          }};
 
-          for (const storeName of storeNames) {
-            exportData[storeName] = await new Promise(resolve => {
-              loadFromStore(storeName, data => resolve(data));
-            });
-            done++;
-            let percent = Math.round((done / total) * 100);
-            if(btn) btn.innerText = "⏳ Ekstrak " + percent + "%";
+          const names = Object.keys(dbStores);
+          for (let i=0; i<names.length; i++) {
+            const name = names[i];
+            exportData[name] = await getAllFromStore(name);
+            if(btn) btn.innerText='⏳ Ekstrak '+Math.round((i+1)/names.length*100)+'%';
           }
-          
-          let blob = new Blob([JSON.stringify(exportData, null, 2)], {type: "application/json"});
-          let url = URL.createObjectURL(blob);
-          
-          let downloadAnchorNode = document.createElement('a');
-          downloadAnchorNode.setAttribute("href", url);
-          downloadAnchorNode.setAttribute("download", "Backup_ASPOS_" + new Date().toISOString().split('T')[0] + ".json");
-          document.body.appendChild(downloadAnchorNode);
-          downloadAnchorNode.click();
-          downloadAnchorNode.remove();
-          
-          setTimeout(() => URL.revokeObjectURL(url), 1000);
-          if(btn) { btn.innerText = "✅ Berhasil"; }
-          setTimeout(() => { if(btn){ btn.innerText = "Download Backup"; btn.disabled = false; } }, 2000);
-        } catch (err) {
-          if(btn) { btn.innerText = "Download Backup"; btn.disabled = false; }
-          alert("Gagal melakukan backup: " + err.message);
+
+          const blob = new Blob([JSON.stringify(exportData)], {type:'application/json;charset=utf-8'});
+          const fileName = 'Backup_ASPOS_' + new Date().toISOString().slice(0,10) + '.json';
+
+          // Android/Chrome: gunakan Web Share bila tersedia agar file bisa
+          // dibagikan atau disimpan melalui aplikasi Files. Fallback ke download.
+          const file = new File([blob], fileName, {type:'application/json'});
+          if (navigator.canShare && navigator.canShare({files:[file]})) {
+            await navigator.share({title:'Backup AS-Pos', text:'Backup database AS-Pos', files:[file]});
+          } else {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.rel = 'noopener';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+          }
+
+          if(btn) btn.innerText='✅ Backup berhasil';
+          setTimeout(function(){ if(btn){btn.innerText='Download Backup';btn.disabled=false;} },2000);
+        } catch(err) {
+          console.error('[AS-Pos] backup', err);
+          if(btn) { btn.innerText='Download Backup'; btn.disabled=false; }
+          if (err && err.name === 'AbortError') return;
+          alert('Gagal melakukan backup:\n\n' + (err && err.message ? err.message : err));
         }
       });
-    }
+    };
 
-    // Fungsi Restore dengan indikator Tombol
     window.restoreIndexedDB = function() {
-      let fileInput = document.getElementById('fileRestore');
-      let btn = document.getElementById("btnRestore");
+      const fileInput = document.getElementById('fileRestore');
+      const btn = document.getElementById('btnRestore');
 
-      if (!fileInput || fileInput.files.length === 0) return alert("Pilih file backup (.json) terlebih dahulu!");
-      
-      if(btn) { btn.innerText = "⏳ Membaca file..."; btn.disabled = true; }
+      if (!fileInput || !fileInput.files || !fileInput.files.length) {
+        alert('Pilih file backup (.json) terlebih dahulu!');
+        return;
+      }
 
-      let file = fileInput.files[0];
-      let reader = new FileReader();
-      
+      if(btn) { btn.innerText='⏳ Membaca file...'; btn.disabled=true; }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onerror = function(){
+        if(btn) { btn.innerText='Restore Data'; btn.disabled=false; }
+        alert('File backup tidak dapat dibaca.');
+      };
+
       reader.onload = function(event) {
         try {
-          let importedData = JSON.parse(event.target.result);
-          
-          initIndexedDB((success) => {
-            if (!success || !db) {
-               if(btn) { btn.innerText = "Restore Data"; btn.disabled = false; }
-               return alert("Gagal Restore: Akses database ditolak.");
-            }
-            
-            if(btn) { btn.innerText = "⏳ Menyimpan 0%"; }
-            let promises = [];
-            let storeNames = Object.keys(dbStores);
-            let total = storeNames.length;
-            let done = 0;
-
-            for (const storeName of storeNames) {
-              if (importedData[storeName] && Array.isArray(importedData[storeName])) {
-                promises.push(new Promise(resolve => {
-                  saveToStore(storeName, importedData[storeName], () => {
-                     done++;
-                     let percent = Math.round((done / total) * 100);
-                     if(btn) btn.innerText = "⏳ Menyimpan " + percent + "%";
-                     resolve();
-                  });
-                }));
-              } else {
-                  done++;
-              }
-            }
-            
-            Promise.all(promises).then(() => {
-              if(btn) { btn.innerText = "✅ Selesai"; }
-              alert("Restore berhasil! Aplikasi akan dimuat ulang.");
-              location.reload();
-            });
+          const importedData = JSON.parse(event.target.result);
+          const validStores = Object.keys(dbStores).filter(function(name){
+            return Array.isArray(importedData[name]);
           });
-        } catch (e) {
-          if(btn) { btn.innerText = "Restore Data"; btn.disabled = false; }
-          alert("File backup tidak valid atau rusak!");
+
+          if (!validStores.length) throw new Error('Format backup tidak dikenali. Pastikan file berasal dari fitur Backup AS-Pos.');
+
+          initIndexedDB(async function(success) {
+            if (!success || !db) {
+              if(btn) { btn.innerText='Restore Data'; btn.disabled=false; }
+              alert('Database lokal tidak dapat dibuka.');
+              return;
+            }
+
+            try {
+              for (let i=0; i<validStores.length; i++) {
+                const name = validStores[i];
+                const result = await replaceStore(name, importedData[name]);
+                if(btn) btn.innerText='⏳ Menyimpan '+Math.round((i+1)/validStores.length*100)+'%';
+                if(result.skipped > 0) console.warn(name+': '+result.skipped+' record dilewati.');
+              }
+
+              if(btn) btn.innerText='✅ Restore berhasil';
+              if(txtDbStatus) txtDbStatus.innerHTML = '<b style="color:#198754;">Restore berhasil.</b><br>Database lokal sudah dipulihkan dari file backup.';
+              setTimeout(function(){
+                if(btn) { btn.innerText='Restore Data'; btn.disabled=false; }
+                checkLocalDbStatus();
+              },1500);
+              fileInput.value='';
+            } catch(err) {
+              console.error('[AS-Pos] restore', err);
+              if(btn) { btn.innerText='Restore Data'; btn.disabled=false; }
+              alert('Gagal Restore:\n\n' + (err && err.message ? err.message : err));
+            }
+          });
+        } catch(e) {
+          if(btn) { btn.innerText='Restore Data'; btn.disabled=false; }
+          alert('File backup tidak valid atau rusak.');
         }
       };
       reader.readAsText(file);
-    }
+    };
+
   </script>
   <!-- MODAL KERANJANG & PEMBAYARAN RETUR -->
 <div id="modalKeranjangRetur" class="modal">
