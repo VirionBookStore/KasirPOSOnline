@@ -3235,10 +3235,6 @@ function simpanEditItemModal() {
       }
 
       try {
-        // Pastikan proses simpan tidak pernah memanggil stop scanner.
-        // Scanner yang sudah membaca barcode boleh berhenti sendiri.
-        isScanning = false;
-
         var payload = {
           id_barang: String(form.elements["id_barang"].value || "").trim(),
           supplier: String(form.elements["supplier"].value || "").trim(),
@@ -3256,46 +3252,26 @@ function simpanEditItemModal() {
           throw new Error("ID Barang, Supplier, dan Nama Barang wajib diisi.");
         }
 
+        // Upload gambar diproses terpisah dan dikompres agar payload ke GAS tetap ringan.
         var fileInput = document.getElementById("fileInput");
         if (uploadMode === "upload" && fileInput && fileInput.files && fileInput.files.length > 0) {
-          // Baca file langsung. Tidak menggunakan scanner dan tidak memanggil stop().
           var file = fileInput.files[0];
-          var reader = new FileReader();
-
           payload.file_gambar = await new Promise(function(resolve, reject) {
-            reader.onload = function(e) {
-              try {
-                resolve({
-                  bytes: Array.from(new Uint8Array(e.target.result)),
-                  type: file.type || "image/jpeg",
-                  name: file.name || "produk.jpg"
-                });
-              } catch (err) {
-                reject(err);
-              }
-            };
-            reader.onerror = function() {
-              reject(new Error("Gagal membaca file gambar."));
-            };
-            reader.readAsArrayBuffer(file);
+            compressImageForUpload(file, resolve, reject);
           });
         }
 
+        // Jalur simpan langsung ke GAS. Tidak memanggil fungsi scanner sama sekali.
         var response = await fetch(window.AS_POS_CONFIG.GAS_WEB_APP_URL, {
           method: "POST",
           redirect: "follow",
           cache: "no-store",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({
-            functionName: "tambahBarang",
-            args: [payload]
-          })
+          body: JSON.stringify({ functionName: "tambahBarang", args: [payload] })
         });
 
         var raw = await response.text();
-        if (!response.ok) {
-          throw new Error("HTTP " + response.status + " dari GAS.");
-        }
+        if (!response.ok) throw new Error("HTTP " + response.status + " dari GAS.");
 
         var result;
         try {
@@ -3308,35 +3284,41 @@ function simpanEditItemModal() {
           throw new Error((result && result.message) || "GAS menolak penyimpanan barang.");
         }
 
-        // Simpan sudah berhasil. Tutup modal secara aman setelah pengguna membaca pesan.
         alert(result.data || "Berhasil menambahkan barang baru!");
 
-        try {
-          closeModal();
-        } catch (closeErr) {
-          console.warn("[AS-Pos] closeModal:", closeErr);
-          var modal = document.getElementById("modalTambah");
-          if (modal) modal.style.display = "none";
+        // Tutup modal secara manual. Jangan memanggil stopScanner/closeModal,
+        // karena barcode scanner mungkin sudah berhenti otomatis.
+        var reader = document.getElementById("reader");
+        if (reader) {
+          reader.style.display = "none";
+          reader.innerHTML = "";
+        }
+        var modal = document.getElementById("modalTambah");
+        if (modal) modal.style.display = "none";
+        if (form) form.reset();
+
+        // Reset status tombol dan scanner tanpa memanggil stop().
+        isScanning = false;
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = "Simpan Barang";
         }
 
-        // Refresh daftar tidak boleh mengubah status simpan menjadi gagal.
         try {
           loadBarang();
         } catch (loadErr) {
-          console.warn("[AS-Pos] loadBarang:", loadErr);
+          console.warn("[AS-Pos] refresh barang:", loadErr);
         }
 
       } catch (err) {
         console.error("[AS-Pos] simpanBarangMobile", err);
         alert("Gagal menyimpan barang:\n\n" + (err && err.message ? err.message : String(err)));
-      } finally {
         if (btn) {
           btn.disabled = false;
           btn.innerText = "Simpan Barang";
         }
       }
     }
-
     function handleFormSubmit(event) {
       try {
         if (event && typeof event.preventDefault === "function") event.preventDefault();
