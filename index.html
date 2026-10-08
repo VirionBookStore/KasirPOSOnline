@@ -2891,7 +2891,32 @@ function simpanEditItemModal() {
     }
 
     function openModal() { document.getElementById("modalTambah").style.display = "flex"; }
-    function closeModal() { stopScanner(); document.getElementById("modalTambah").style.display = "none"; document.getElementById("formBarang").reset(); }
+    function closeModal() {
+      // Tutup modal tanpa memaksa html5-qrcode.stop().
+      // Scanner bisa sudah berhenti otomatis setelah barcode terbaca.
+      try {
+        var reader = document.getElementById("reader");
+        if (reader) {
+          reader.style.display = "none";
+          reader.innerHTML = "";
+        }
+        isScanning = false;
+      } catch (err) {
+        console.warn("[AS-Pos] cleanup scanner:", err);
+      }
+
+      var modal = document.getElementById("modalTambah");
+      if (modal) modal.style.display = "none";
+
+      var form = document.getElementById("formBarang");
+      if (form) form.reset();
+
+      var btn = document.getElementById("btnSimpan");
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = "Simpan Barang";
+      }
+    }
     
     function bukaModalEdit(id_barang) {
       var item = globalDataBarang.find(b => b.id_barang === id_barang);
