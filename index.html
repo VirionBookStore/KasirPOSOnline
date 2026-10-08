@@ -2518,12 +2518,18 @@ function simpanEditItemModal() {
       loadPosKatalog();
       tutupModalKeranjang();
 
-      google.script.run.withSuccessHandler(function(res) {
-        if(res && res.no_nota) {
-           lastTransaksi.no_nota = res.no_nota;
-           document.getElementById("strukNoNota").innerText = res.no_nota;
+      // LOCAL-FIRST: simpan transaksi ke IndexedDB terlebih dahulu.
+      // Dengan begitu transaksi tetap aman walaupun internet sedang putus.
+      saveTransactionLocalFirst(payload, lastTransaksi).then(function(result) {
+        if (result && result.no_nota) {
+          lastTransaksi.no_nota = result.no_nota;
+          var notaEl = document.getElementById("strukNoNota");
+          if (notaEl) notaEl.innerText = result.no_nota;
         }
-      }).simpanTransaksi(payload);
+      }).catch(function(err) {
+        console.error('[AS-Pos] transaksi lokal gagal', err);
+        alert('Transaksi belum dapat disimpan ke database lokal. Transaksi TIDAK dikirim ke server.\\n\\n' + (err && err.message ? err.message : err));
+      });
     }
 
     function tampilkanStruk(data) {
@@ -4143,7 +4149,7 @@ function prosesCheckoutReturFinal() {
     // ENGINE INDEXEDDB: LOCAL-FIRST ARCHITECTURE (ROBUST VERSION)
     // =========================================================================
     const dbName = "AS_POS_DB";
-    const dbVersion = 5;
+    const dbVersion = 6;
     let db = null;
     let dbFailed = false;
     let dbOpening = null;
@@ -4154,7 +4160,8 @@ function prosesCheckoutReturFinal() {
       'promo': 'id_barang',
       'stokMasuk': 'id_transaksi',
       'returBarang': 'id_retur',
-      'riwayatPenjualan': 'no_nota'
+      'riwayatPenjualan': 'no_nota',
+      'pendingTransactions': 'clientTransactionId'
     };
 
     function initIndexedDB(callback) {
@@ -4288,6 +4295,215 @@ function prosesCheckoutReturFinal() {
         return putStoreBatch(storeName, dataArray);
       });
     }
+
+    // ============================================================
+    // OFFLINE TRANSACTION OUTBOX - LOCAL FIRST
+    // ============================================================
+    function asposCreateClientTransactionId() {
+      return 'TRX-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10).toUpperCase();
+    }
+
+    function asposIsOnline() {
+      return navigator.onLine !== false;
+    }
+
+    function asposLocalTransactionNo(id) {
+      return 'LOCAL-' + String(id || '').replace(/[^A-Za-z0-9-]/g,'').slice(-18);
+    }
+
+    function putStore(storeName, item) {
+      return new Promise(function(resolve, reject) {
+        if (!db) return reject(new Error('Database lokal belum terbuka.'));
+        try {
+          const tx = db.transaction(storeName, 'readwrite');
+          tx.objectStore(storeName).put(item);
+          tx.oncomplete = function(){ resolve(item); };
+          tx.onerror = function(){ reject(tx.error || new Error('Gagal menyimpan '+storeName)); };
+          tx.onabort = function(){ reject(tx.error || new Error('Penyimpanan '+storeName+' dibatalkan')); };
+        } catch(e) { reject(e); }
+      });
+    }
+
+    function deleteStoreItem(storeName, key) {
+      return new Promise(function(resolve, reject) {
+        if (!db) return reject(new Error('Database lokal belum terbuka.'));
+        try {
+          const tx = db.transaction(storeName, 'readwrite');
+          tx.objectStore(storeName).delete(key);
+          tx.oncomplete = function(){ resolve(true); };
+          tx.onerror = function(){ reject(tx.error || new Error('Gagal menghapus '+storeName)); };
+        } catch(e) { reject(e); }
+      });
+    }
+
+    function getStoreItem(storeName, key) {
+      return new Promise(function(resolve, reject) {
+        if (!db) return reject(new Error('Database lokal belum terbuka.'));
+        try {
+          const tx = db.transaction(storeName, 'readonly');
+          const req = tx.objectStore(storeName).get(key);
+          req.onsuccess = function(){ resolve(req.result || null); };
+          req.onerror = function(){ reject(req.error || new Error('Gagal membaca '+storeName)); };
+        } catch(e) { reject(e); }
+      });
+    }
+
+    function updateLocalStockAfterTransaction(items) {
+      return getAllFromStore('masterBarang').then(function(rows) {
+        const qtyMap = {};
+        (items || []).forEach(function(item) {
+          const id = String(item.id_barang || '').trim();
+          if (id) qtyMap[id] = (qtyMap[id] || 0) + (Number(item.qty) || 0);
+        });
+        rows.forEach(function(row) {
+          const id = String(row.id_barang || '').trim();
+          if (qtyMap[id] !== undefined) {
+            row.stok = (Number(row.stok) || 0) - qtyMap[id];
+          }
+        });
+        return replaceStore('masterBarang', rows);
+      });
+    }
+
+    function asposGasCallPromise(fn, args) {
+      return new Promise(function(resolve, reject) {
+        if (!window.google || !google.script || !google.script.run) {
+          reject(new Error('Jembatan Google Apps Script tidak tersedia.'));
+          return;
+        }
+        const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+        runner[fn].apply(runner, Array.isArray(args) ? args : []);
+      });
+    }
+
+    async function saveTransactionLocalFirst(payload, displayData) {
+      await new Promise(function(resolve, reject) {
+        initIndexedDB(function(ok){ ok ? resolve() : reject(new Error('Database lokal tidak dapat dibuka.')); });
+      });
+
+      const clientTransactionId = asposCreateClientTransactionId();
+      const localNoNota = asposLocalTransactionNo(clientTransactionId);
+      const pending = {
+        clientTransactionId: clientTransactionId,
+        no_nota: localNoNota,
+        payload: JSON.parse(JSON.stringify(payload || {})),
+        displayData: JSON.parse(JSON.stringify(displayData || {})),
+        status: 'PENDING',
+        createdAt: new Date().toISOString(),
+        retryCount: 0,
+        lastError: ''
+      };
+      pending.payload.clientTransactionId = clientTransactionId;
+
+      await putStore('pendingTransactions', pending);
+
+      // Simpan juga ke riwayat lokal agar nota langsung dapat dilihat.
+      const localHistory = Object.assign({}, displayData || {}, {
+        no_nota: localNoNota,
+        clientTransactionId: clientTransactionId,
+        sync_status: 'PENDING',
+        tanggal: (displayData && displayData.tanggal) || new Date().toLocaleString('id-ID')
+      });
+      await putStore('riwayatPenjualan', localHistory);
+
+      // Kurangi stok lokal segera. Google Sheets baru diperbarui saat berhasil upload.
+      await updateLocalStockAfterTransaction(payload.items || []);
+
+      if (displayData) {
+        displayData.no_nota = localNoNota;
+        displayData.sync_status = 'PENDING';
+      }
+      updateOfflineTransactionStatus();
+
+      if (asposIsOnline()) {
+        // Jangan membuat transaksi hilang jika server gagal; tetap PENDING untuk retry.
+        syncPendingTransactions();
+      }
+      return { no_nota: localNoNota, clientTransactionId: clientTransactionId, status: 'PENDING' };
+    }
+
+    async function syncOnePendingTransaction(item) {
+      const payload = Object.assign({}, item.payload || {}, {
+        clientTransactionId: item.clientTransactionId
+      });
+      try {
+        const res = await asposGasCallPromise('simpanTransaksi', [payload]);
+        const serverNota = res && res.no_nota ? res.no_nota : '';
+        if (!serverNota) throw new Error('Server tidak mengembalikan nomor nota.');
+
+        await deleteStoreItem('pendingTransactions', item.clientTransactionId);
+
+        const history = await getStoreItem('riwayatPenjualan', item.no_nota);
+        if (history) {
+          history.no_nota = serverNota;
+          history.sync_status = 'SYNCED';
+          history.server_no_nota = serverNota;
+          await deleteStoreItem('riwayatPenjualan', item.no_nota);
+          await putStore('riwayatPenjualan', history);
+        }
+        return true;
+      } catch(err) {
+        item.retryCount = Number(item.retryCount || 0) + 1;
+        item.lastError = String(err && err.message ? err.message : err);
+        item.status = 'PENDING';
+        await putStore('pendingTransactions', item);
+        return false;
+      }
+    }
+
+    let asposPendingSyncRunning = false;
+    async function syncPendingTransactions() {
+      if (asposPendingSyncRunning || !asposIsOnline()) return;
+      asposPendingSyncRunning = true;
+      try {
+        await new Promise(function(resolve, reject) {
+          initIndexedDB(function(ok){ ok ? resolve() : reject(new Error('Database lokal tidak dapat dibuka.')); });
+        });
+        const list = await getAllFromStore('pendingTransactions');
+        list.sort(function(a,b){ return String(a.createdAt).localeCompare(String(b.createdAt)); });
+        for (const item of list) {
+          if (!asposIsOnline()) break;
+          await syncOnePendingTransaction(item);
+        }
+      } catch(err) {
+        console.warn('[AS-Pos] pending sync:', err);
+      } finally {
+        asposPendingSyncRunning = false;
+        updateOfflineTransactionStatus();
+      }
+    }
+
+    function updateOfflineTransactionStatus() {
+      initIndexedDB(function(ok) {
+        if (!ok || !db) return;
+        getAllFromStore('pendingTransactions').then(function(list) {
+          let el = document.getElementById('asposOfflineStatus');
+          if (!el) {
+            el = document.createElement('div');
+            el.id = 'asposOfflineStatus';
+            el.style.cssText = 'position:fixed;right:10px;bottom:10px;z-index:99999;padding:7px 11px;border-radius:20px;background:#fff;border:1px solid #dee2e6;box-shadow:0 2px 8px rgba(0,0,0,.12);font-size:11px;font-weight:700;';
+            document.body.appendChild(el);
+          }
+          if (list.length) {
+            el.style.color = '#d97706';
+            el.innerText = '⏳ ' + list.length + ' transaksi menunggu sinkronisasi';
+          } else {
+            el.style.color = asposIsOnline() ? '#198754' : '#dc3545';
+            el.innerText = asposIsOnline() ? '🟢 Online • Tersinkron' : '🔴 Offline';
+          }
+        }).catch(function(){});
+      });
+    }
+
+    window.addEventListener('online', function() {
+      updateOfflineTransactionStatus();
+      syncPendingTransactions();
+    });
+    window.addEventListener('offline', updateOfflineTransactionStatus);
+    setInterval(function() {
+      updateOfflineTransactionStatus();
+      if (asposIsOnline()) syncPendingTransactions();
+    }, 60000);
 
     function getLocalStoreCount(storeName) {
       return new Promise(function(resolve, reject) {
