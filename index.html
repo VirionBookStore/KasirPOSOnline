@@ -1657,9 +1657,9 @@ window.loadBarang = function(isLocalOnly = false) {
       loadDashboardByDate();
     }
 
-    // Konfigurasi Database Lokal
-const storeName = "master_barang";
-let db;
+    // Konfigurasi database lama tidak lagi memakai variabel global.
+// Engine IndexedDB utama didefinisikan di bawah agar tidak terjadi benturan
+// deklarasi global dengan engine IndexedDB v1.0.
 
     function renderTabelBarang(data) {
       var tbody = document.querySelector("#tabelBarang tbody");
