@@ -868,7 +868,7 @@
           </div>
           <div class="modal-footer" style="margin: -20px -20px -20px -20px; margin-top: 15px;">
             <button type="button" class="btn btn-outline" onclick="closeModal()">Batal</button>
-            <button type="submit" class="btn btn-primary" id="btnSimpan">Simpan Barang</button>
+            <button type="button" class="btn btn-primary" id="btnSimpan" onclick="handleFormSubmit(event)">Simpan Barang</button>
           </div>
         </form>
       </div>
@@ -3173,9 +3173,11 @@ function simpanEditItemModal() {
     }
 
     function handleFormSubmit(event) {
-      event.preventDefault();
-      stopScanner();
-      var form = document.getElementById("formBarang");
+      try {
+        if (event && typeof event.preventDefault === "function") event.preventDefault();
+        stopScanner();
+        var form = document.getElementById("formBarang");
+        if (!form) throw new Error("Form Tambah Produk tidak ditemukan.");
       var btn = document.getElementById("btnSimpan");
       if (btn) {
         btn.disabled = true;
@@ -3218,6 +3220,15 @@ function simpanEditItemModal() {
       }
 
       kirimBarang(payload, btn);
+      } catch (err) {
+        console.error("[AS-Pos] handleFormSubmit", err);
+        var failBtn = document.getElementById("btnSimpan");
+        if (failBtn) {
+          failBtn.disabled = false;
+          failBtn.innerText = "Simpan Barang";
+        }
+        alert("Gagal memulai proses simpan:\n\n" + (err && err.message ? err.message : String(err)));
+      }
     }
 
     function compressImageForUpload(file, done, failed) {
