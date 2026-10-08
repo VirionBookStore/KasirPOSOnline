@@ -4389,5 +4389,107 @@ function prosesCheckoutReturFinal() {
     </div>
   </div>
 </div>
+
+<script>
+/* =========================================================
+   AS-POS IndexedDB v1.0 - DIAGNOSTIC FALLBACK
+   Pemeriksaan ini sengaja berdiri sendiri agar status database
+   tetap bisa diperiksa walaupun engine utama gagal dimuat.
+   ========================================================= */
+(function(){
+  const ASDB_VERSION = 5;
+  const ASDB_STORES = {
+    masterBarang:'id_barang',
+    supplier:'id_supplier',
+    promo:'id_barang',
+    stokMasuk:'id_transaksi',
+    returBarang:'id_retur',
+    riwayatPenjualan:'no_nota'
+  };
+
+  function setStatus(html){
+    const el=document.getElementById('txtDbStatus');
+    if(el) el.innerHTML=html;
+  }
+
+  function openDbFallback(){
+    return new Promise(function(resolve,reject){
+      if(!window.indexedDB) return reject(new Error('Browser ini tidak mendukung IndexedDB.'));
+      let done=false;
+      const finish=function(fn,value){
+        if(done)return;
+        done=true;
+        fn(value);
+      };
+      let req;
+      try{
+        req=indexedDB.open('AS_POS_DB',ASDB_VERSION);
+        req.onupgradeneeded=function(e){
+          const d=e.target.result;
+          Object.keys(ASDB_STORES).forEach(function(name){
+            if(!d.objectStoreNames.contains(name)){
+              d.createObjectStore(name,{keyPath:ASDB_STORES[name]});
+            }
+          });
+        };
+        req.onsuccess=function(e){ finish(resolve,e.target.result); };
+        req.onerror=function(e){ finish(reject,e.target.error||new Error('IndexedDB gagal dibuka.')); };
+        req.onblocked=function(){ console.warn('[AS-POS DB v1.0] open blocked'); };
+      }catch(err){ finish(reject,err); }
+    });
+  }
+
+  function countStore(db,name){
+    return new Promise(function(resolve,reject){
+      try{
+        const tx=db.transaction(name,'readonly');
+        const req=tx.objectStore(name).count();
+        req.onsuccess=function(){resolve(req.result||0);};
+        req.onerror=function(){reject(req.error||new Error('Gagal membaca '+name));};
+      }catch(err){reject(err);}
+    });
+  }
+
+  async function diagnostic(){
+    setStatus('<span style="color:#64748b;">Database lokal: memeriksa IndexedDB v1.0...</span>');
+    try{
+      const database=await openDbFallback();
+      const names=Object.keys(ASDB_STORES);
+      const counts={};
+      for(const name of names) counts[name]=await countStore(database,name);
+      const total=names.reduce(function(s,n){return s+counts[n];},0);
+      database.close();
+
+      if(total>0){
+        setStatus(
+          '<b style="color:#198754;">✅ Database lokal AKTIF — IndexedDB v1.0</b><br>'+
+          'Total data: <b>'+total.toLocaleString('id-ID')+'</b> record<br>'+
+          'Master Barang: <b>'+counts.masterBarang.toLocaleString('id-ID')+'</b> • '+
+          'Supplier: <b>'+counts.supplier.toLocaleString('id-ID')+'</b><br>'+
+          '<span style="color:#087f8c;">Database berhasil dibuka oleh pemeriksaan cadangan.</span>'
+        );
+      }else{
+        setStatus(
+          '<b style="color:#d97706;">⚠️ Database lokal AKTIF — IndexedDB v1.0</b><br>'+
+          'Database berhasil dibuka tetapi masih kosong.<br>'+
+          'Silakan tekan <b>Sinkronkan Data</b> untuk mengambil data dari Google Sheets.'
+        );
+      }
+    }catch(err){
+      console.error('[AS-POS DB v1.0] diagnostic',err);
+      setStatus(
+        '<b style="color:#dc3545;">❌ IndexedDB v1.0 gagal dibuka</b><br>'+
+        String(err&&err.message?err.message:err)
+      );
+    }
+  }
+
+  window.asposDbDiagnosticV1=diagnostic;
+
+  setTimeout(function(){
+    diagnostic();
+  },1500);
+})();
+</script>
 </body>
 </html>
