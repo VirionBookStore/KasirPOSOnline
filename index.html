@@ -3924,17 +3924,27 @@ function prosesCheckoutReturFinal() {
       });
     }
 
-    function replaceStore(storeName, dataArray) {
+    function clearStore(storeName) {
+      return new Promise(function(resolve, reject) {
+        if (!db) return reject(new Error('Database lokal belum terbuka.'));
+        try {
+          const tx = db.transaction(storeName, 'readwrite');
+          tx.objectStore(storeName).clear();
+          tx.oncomplete = function(){ resolve(true); };
+          tx.onerror = function(){ reject(tx.error || new Error('Gagal mengosongkan '+storeName)); };
+          tx.onabort = function(){ reject(tx.error || new Error('Transaksi '+storeName+' dibatalkan')); };
+        } catch(e) { reject(e); }
+      });
+    }
+
+    function putStoreBatch(storeName, dataArray) {
       return new Promise(function(resolve, reject) {
         if (!db) return reject(new Error('Database lokal belum terbuka.'));
         if (!Array.isArray(dataArray)) return reject(new Error('Data '+storeName+' bukan array.'));
-
         try {
           const tx = db.transaction(storeName, 'readwrite');
           const store = tx.objectStore(storeName);
           const key = store.keyPath;
-          store.clear();
-
           let skipped = 0;
           dataArray.forEach(function(item) {
             if (item && item[key] !== undefined && item[key] !== null && String(item[key]) !== '') {
@@ -3943,18 +3953,29 @@ function prosesCheckoutReturFinal() {
               skipped++;
             }
           });
+          tx.oncomplete = function(){ resolve({count:dataArray.length-skipped, skipped:skipped}); };
+          tx.onerror = function(){ reject(tx.error || new Error('Gagal menyimpan batch '+storeName)); };
+          tx.onabort = function(){ reject(tx.error || new Error('Transaksi batch '+storeName+' dibatalkan')); };
+        } catch(e) { reject(e); }
+      });
+    }
 
-          tx.oncomplete = function() {
-            if (skipped > 0) {
-              console.warn('[AS-Pos IndexedDB] '+storeName+': '+skipped+' data dilewati karena keyPath '+key+' kosong.');
-            }
-            resolve({count: dataArray.length - skipped, skipped: skipped});
-          };
-          tx.onerror = function(){ reject(tx.error || new Error('Gagal menyimpan '+storeName)); };
-          tx.onabort = function(){ reject(tx.error || new Error('Transaksi '+storeName+' dibatalkan')); };
-        } catch(e) {
-          reject(e);
-        }
+    function replaceStore(storeName, dataArray) {
+      return clearStore(storeName).then(function(){
+        return putStoreBatch(storeName, dataArray);
+      });
+    }
+
+    function getLocalStoreCount(storeName) {
+      return new Promise(function(resolve, reject) {
+        if (!db) return reject(new Error('Database lokal belum terbuka.'));
+        try {
+          const tx = db.transaction(storeName, 'readonly');
+          const req = tx.objectStore(storeName).count();
+          req.onsuccess = function(){ resolve(req.result || 0); };
+          req.onerror = function(){ reject(req.error || new Error('Gagal menghitung '+storeName)); };
+          tx.onerror = function(){ reject(tx.error || new Error('Gagal membaca jumlah '+storeName)); };
+        } catch(e) { reject(e); }
       });
     }
 
@@ -4017,7 +4038,7 @@ function prosesCheckoutReturFinal() {
     window.syncAllDataManual = function() {
       const btn = document.getElementById('btnSyncManual');
       const txt = document.getElementById('txtDbStatus');
-      if (btn) { btn.disabled = true; btn.innerText = '⏳ 0%'; }
+      if (btn) { btn.disabled = true; btn.innerText = '⏳ Menyiapkan...'; }
 
       initIndexedDB(async function(success) {
         if (!success || !db) {
@@ -4026,8 +4047,18 @@ function prosesCheckoutReturFinal() {
           return;
         }
 
-        const tasks = [
-          ['masterBarang','getBarang'],
+        function gasCall(fn, args) {
+          return new Promise(function(resolve, reject) {
+            if (!window.google || !google.script || !google.script.run) {
+              reject(new Error('Jembatan Google Apps Script tidak tersedia.'));
+              return;
+            }
+            let runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+            runner[fn].apply(runner, Array.isArray(args) ? args : []);
+          });
+        }
+
+        const normalTasks = [
           ['supplier','getSupplier'],
           ['promo','getPromoList'],
           ['stokMasuk','getStokMasuk'],
@@ -4035,28 +4066,66 @@ function prosesCheckoutReturFinal() {
           ['riwayatPenjualan','getPenjualan']
         ];
 
-        let completed = 0;
+        const storeLabels = {
+          masterBarang:'Master Barang',
+          supplier:'Supplier',
+          promo:'Promo',
+          stokMasuk:'Stok Masuk',
+          returBarang:'Retur Barang',
+          riwayatPenjualan:'Riwayat Penjualan'
+        };
+
         try {
-          for (const task of tasks) {
-            const storeName = task[0];
-            const fnName = task[1];
+          // 1) Master barang diambil per 1000 record agar aman untuk data besar.
+          if (txt) txt.innerHTML = '<b style="color:#087f8c;">Mengambil jumlah master barang dari Google Sheets...</b>';
+          const totalBarang = Number(await gasCall('getBarangTotalCount', [])) || 0;
+          await clearStore('masterBarang');
 
-            const data = await new Promise(function(resolve, reject) {
-              if (!window.google || !google.script || !google.script.run) {
-                reject(new Error('Jembatan Google Apps Script tidak tersedia.'));
-                return;
-              }
-              google.script.run
-                .withSuccessHandler(resolve)
-                .withFailureHandler(reject)[fnName]();
-            });
-
-            const result = await replaceStore(storeName, Array.isArray(data) ? data : []);
-            completed++;
-            if (btn) btn.innerText = '⏳ ' + Math.round(completed / tasks.length * 100) + '%';
-            if (result.skipped > 0) {
-              console.warn(storeName + ': ' + result.skipped + ' record dilewati.');
+          let receivedBarang = 0;
+          const batchSize = 1000;
+          for (let offset = 0; offset < totalBarang; offset += batchSize) {
+            const batchResult = await gasCall('getBarangBatch', [offset, batchSize]);
+            const batch = Array.isArray(batchResult) ? batchResult :
+              (batchResult && Array.isArray(batchResult.data) ? batchResult.data : []);
+            if (!batch.length && offset < totalBarang) {
+              throw new Error('Batch Master Barang kosong pada posisi '+offset+' padahal total sumber '+totalBarang+'.');
             }
+            const saved = await putStoreBatch('masterBarang', batch);
+            if (saved.skipped) throw new Error('Master Barang: '+saved.skipped+' record tidak memiliki ID Barang.');
+            receivedBarang += saved.count;
+            const pct = totalBarang ? Math.min(99, Math.round(receivedBarang / totalBarang * 70)) : 10;
+            if (btn) btn.innerText = '⏳ '+pct+'%';
+            if (txt) txt.innerHTML = '<b style="color:#087f8c;">Sinkron Master Barang...</b><br>'+receivedBarang.toLocaleString('id-ID')+' / '+totalBarang.toLocaleString('id-ID')+' record';
+          }
+
+          // 2) Data lain tetap satu kali panggil karena ukurannya jauh lebih kecil.
+          for (let i=0; i<normalTasks.length; i++) {
+            const storeName = normalTasks[i][0];
+            const fnName = normalTasks[i][1];
+            if (txt) txt.innerHTML = '<b style="color:#087f8c;">Sinkron '+storeLabels[storeName]+'...</b>';
+            const data = await gasCall(fnName, []);
+            if (!Array.isArray(data)) throw new Error(storeLabels[storeName]+' dari GAS bukan array.');
+            const result = await replaceStore(storeName, data);
+            if (result.skipped) throw new Error(storeLabels[storeName]+': '+result.skipped+' record tidak memiliki key yang valid.');
+            const pct = 70 + Math.round((i+1) / normalTasks.length * 25);
+            if (btn) btn.innerText = '⏳ '+Math.min(95,pct)+'%';
+          }
+
+          // 3) Verifikasi jumlah lokal setelah seluruh proses.
+          const expected = {
+            masterBarang: totalBarang,
+            supplier: null,
+            promo: null,
+            stokMasuk: null,
+            returBarang: null,
+            riwayatPenjualan: null
+          };
+          const verify = {};
+          for (const name of Object.keys(dbStores)) {
+            verify[name] = await getLocalStoreCount(name);
+          }
+          if (verify.masterBarang !== expected.masterBarang) {
+            throw new Error('Verifikasi Master Barang gagal: lokal '+verify.masterBarang+', sumber '+expected.masterBarang+'.');
           }
 
           const now = new Date();
@@ -4071,7 +4140,17 @@ function prosesCheckoutReturFinal() {
             btn.style.backgroundColor = '#10b981';
             btn.style.borderColor = '#10b981';
           }
-          if (txt) txt.innerHTML = '<b style="color:#198754;">Sinkronisasi berhasil.</b><br>Data lokal sudah diperbarui pada <b>' + timeString + '</b>.';
+          if (txt) {
+            txt.innerHTML =
+              '<b style="color:#198754;">✅ Sinkronisasi berhasil dan sudah diverifikasi.</b><br>' +
+              'Master Barang: <b>'+verify.masterBarang.toLocaleString('id-ID')+'</b><br>' +
+              'Supplier: <b>'+verify.supplier.toLocaleString('id-ID')+'</b> • ' +
+              'Promo: <b>'+verify.promo.toLocaleString('id-ID')+'</b><br>' +
+              'Stok Masuk: <b>'+verify.stokMasuk.toLocaleString('id-ID')+'</b> • ' +
+              'Retur: <b>'+verify.returBarang.toLocaleString('id-ID')+'</b> • ' +
+              'Penjualan: <b>'+verify.riwayatPenjualan.toLocaleString('id-ID')+'</b><br>' +
+              '<span style="color:#087f8c;">Terakhir sinkron: '+timeString+'</span>';
+          }
 
           setTimeout(function(){
             if (btn) {
@@ -4080,8 +4159,7 @@ function prosesCheckoutReturFinal() {
               btn.style.backgroundColor = '';
               btn.style.borderColor = '';
             }
-            checkLocalDbStatus();
-          }, 1500);
+          }, 2500);
         } catch(err) {
           console.error('[AS-Pos] sync', err);
           if (btn) {
@@ -4089,11 +4167,9 @@ function prosesCheckoutReturFinal() {
             btn.innerText = '❌ Sinkronisasi Gagal';
             btn.style.backgroundColor = '#dc3545';
           }
-          if (txt) txt.innerHTML = '<span style="color:#dc3545;"><b>Sinkronisasi gagal:</b> ' + String(err && err.message ? err.message : err) + '</span>';
+          if (txt) txt.innerHTML = '<span style="color:#dc3545;"><b>Sinkronisasi gagal:</b> '+String(err && err.message ? err.message : err)+'</span>';
           alert('Gagal Sinkronisasi:\n\n' + (err && err.message ? err.message : err));
-          setTimeout(function(){
-            if(btn) { btn.innerText='🔄 Sinkronkan Data'; btn.style.backgroundColor=''; }
-          }, 2500);
+          setTimeout(function(){ if(btn){ btn.innerText='🔄 Sinkronkan Data'; btn.style.backgroundColor=''; btn.style.borderColor=''; } },3000);
         }
       });
     };
@@ -4114,7 +4190,8 @@ function prosesCheckoutReturFinal() {
             app: 'AS-Pos',
             dbName: dbName,
             dbVersion: dbVersion,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            formatVersion: 2
           }};
 
           const names = Object.keys(dbStores);
@@ -4158,6 +4235,7 @@ function prosesCheckoutReturFinal() {
     window.restoreIndexedDB = function() {
       const fileInput = document.getElementById('fileRestore');
       const btn = document.getElementById('btnRestore');
+      const statusEl = document.getElementById('txtDbStatus');
 
       if (!fileInput || !fileInput.files || !fileInput.files.length) {
         alert('Pilih file backup (.json) terlebih dahulu!');
@@ -4177,12 +4255,13 @@ function prosesCheckoutReturFinal() {
       reader.onload = function(event) {
         try {
           const importedData = JSON.parse(event.target.result);
-          const validStores = Object.keys(dbStores).filter(function(name){
-            return Array.isArray(importedData[name]);
-          });
+          const names = Object.keys(dbStores);
+          const missing = names.filter(function(name){ return !Array.isArray(importedData[name]); });
+          if (missing.length) throw new Error('Backup tidak lengkap. Data yang tidak ditemukan: '+missing.join(', '));
 
-          if (!validStores.length) throw new Error('Format backup tidak dikenali. Pastikan file berasal dari fitur Backup AS-Pos.');
-
+          const meta = importedData._meta || {};
+          if (meta.app && meta.app !== 'AS-Pos') throw new Error('File bukan backup AS-Pos.');
+          
           initIndexedDB(async function(success) {
             if (!success || !db) {
               if(btn) { btn.innerText='Restore Data'; btn.disabled=false; }
@@ -4191,29 +4270,52 @@ function prosesCheckoutReturFinal() {
             }
 
             try {
-              for (let i=0; i<validStores.length; i++) {
-                const name = validStores[i];
+              const sourceCounts = {};
+              names.forEach(function(name){ sourceCounts[name] = importedData[name].length; });
+
+              for (let i=0; i<names.length; i++) {
+                const name = names[i];
                 const result = await replaceStore(name, importedData[name]);
-                if(btn) btn.innerText='⏳ Menyimpan '+Math.round((i+1)/validStores.length*100)+'%';
-                if(result.skipped > 0) console.warn(name+': '+result.skipped+' record dilewati.');
+                if(result.skipped) {
+                  throw new Error(name+': '+result.skipped+' record dilewati karena key kosong.');
+                }
+                if(btn) btn.innerText='⏳ Restore '+Math.round((i+1)/names.length*90)+'%';
               }
 
-              if(btn) btn.innerText='✅ Restore berhasil';
-              const statusEl = document.getElementById('txtDbStatus'); if(statusEl) statusEl.innerHTML = '<b style="color:#198754;">Restore berhasil.</b><br>Database lokal sudah dipulihkan dari file backup.';
+              const actualCounts = {};
+              for (const name of names) actualCounts[name] = await getLocalStoreCount(name);
+
+              const mismatch = names.filter(function(name){ return actualCounts[name] !== sourceCounts[name]; });
+              if (mismatch.length) {
+                throw new Error('Verifikasi restore gagal pada: '+mismatch.join(', '));
+              }
+
+              if(btn) btn.innerText='✅ Restore terverifikasi';
+              if(statusEl) {
+                statusEl.innerHTML =
+                  '<b style="color:#198754;">✅ Restore berhasil dan sudah diverifikasi.</b><br>' +
+                  'Master Barang: <b>'+actualCounts.masterBarang.toLocaleString('id-ID')+'</b> • ' +
+                  'Supplier: <b>'+actualCounts.supplier.toLocaleString('id-ID')+'</b><br>' +
+                  'Promo: <b>'+actualCounts.promo.toLocaleString('id-ID')+'</b> • ' +
+                  'Stok Masuk: <b>'+actualCounts.stokMasuk.toLocaleString('id-ID')+'</b><br>' +
+                  'Retur: <b>'+actualCounts.returBarang.toLocaleString('id-ID')+'</b> • ' +
+                  'Penjualan: <b>'+actualCounts.riwayatPenjualan.toLocaleString('id-ID')+'</b>';
+              }
               setTimeout(function(){
                 if(btn) { btn.innerText='Restore Data'; btn.disabled=false; }
-                checkLocalDbStatus();
-              },1500);
+              },2500);
               fileInput.value='';
             } catch(err) {
               console.error('[AS-Pos] restore', err);
-              if(btn) { btn.innerText='Restore Data'; btn.disabled=false; }
+              if(btn) { btn.innerText='❌ Restore Gagal'; btn.disabled=false; }
+              if(statusEl) statusEl.innerHTML = '<span style="color:#dc3545;"><b>Restore gagal:</b> '+String(err && err.message ? err.message : err)+'</span>';
               alert('Gagal Restore:\n\n' + (err && err.message ? err.message : err));
+              setTimeout(function(){ if(btn){ btn.innerText='Restore Data'; btn.style.backgroundColor=''; } },2500);
             }
           });
         } catch(e) {
           if(btn) { btn.innerText='Restore Data'; btn.disabled=false; }
-          alert('File backup tidak valid atau rusak.');
+          alert('File backup tidak valid atau rusak.\n\n'+e.message);
         }
       };
       reader.readAsText(file);
