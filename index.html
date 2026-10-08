@@ -868,7 +868,7 @@
           </div>
           <div class="modal-footer" style="margin: -20px -20px -20px -20px; margin-top: 15px;">
             <button type="button" class="btn btn-outline" onclick="closeModal()">Batal</button>
-            <button type="button" class="btn btn-primary" id="btnSimpan" onclick="handleFormSubmit(event)">Simpan Barang</button>
+            <button type="button" class="btn btn-primary" id="btnSimpan" onclick="simpanBarangMobile(event)">Simpan Barang</button>
           </div>
         </form>
       </div>
@@ -3170,6 +3170,74 @@ function simpanEditItemModal() {
         }
       };
       reader.readAsArrayBuffer(fileInput.files[0]);
+    }
+
+    // Penyimpanan langsung dari GitHub Pages: bypass submit form dan bridge google.script.run.
+    async function simpanBarangMobile(event) {
+      if (event && typeof event.preventDefault === "function") event.preventDefault();
+      var btn = document.getElementById("btnSimpan");
+      var form = document.getElementById("formBarang");
+      if (!form) return alert("Form Tambah Produk tidak ditemukan.");
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = "Menyimpan...";
+      }
+
+      try {
+        var payload = {
+          id_barang: String(form.elements["id_barang"].value || "").trim(),
+          supplier: String(form.elements["supplier"].value || "").trim(),
+          nama_barang: String(form.elements["nama_barang"].value || "").trim(),
+          harga_beli: form.elements["harga_beli"].value,
+          harga_jual: form.elements["harga_jual"].value,
+          stok: form.elements["stok"].value,
+          lokasi_rak: String(form.elements["lokasi_rak"].value || "").trim(),
+          kategori: String(form.elements["kategori"].value || "").trim(),
+          status: form.elements["status"].value,
+          link_gambar: form.elements["link_gambar"] ? form.elements["link_gambar"].value : ""
+        };
+
+        if (!payload.id_barang || !payload.supplier || !payload.nama_barang) {
+          throw new Error("ID Barang, Supplier, dan Nama Barang wajib diisi.");
+        }
+
+        var fileInput = document.getElementById("fileInput");
+        if (uploadMode === "upload" && fileInput && fileInput.files && fileInput.files.length > 0) {
+          await new Promise(function(resolve, reject) {
+            compressImageForUpload(fileInput.files[0], function(result) {
+              payload.file_gambar = result;
+              resolve();
+            }, reject);
+          });
+        }
+
+        var response = await fetch(window.AS_POS_CONFIG.GAS_WEB_APP_URL, {
+          method: "POST",
+          redirect: "follow",
+          cache: "no-store",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ functionName: "tambahBarang", args: [payload] })
+        });
+
+        var raw = await response.text();
+        if (!response.ok) throw new Error("HTTP " + response.status + " dari GAS.");
+        var result;
+        try { result = JSON.parse(raw); }
+        catch (e) { throw new Error("Respons GAS bukan JSON: " + raw.slice(0, 300)); }
+        if (!result || result.ok !== true) throw new Error((result && result.message) || "GAS menolak penyimpanan barang.");
+
+        alert(result.data || "Berhasil menambahkan barang baru!");
+        closeModal();
+        loadBarang();
+      } catch (err) {
+        console.error("[AS-Pos] simpanBarangMobile", err);
+        alert("Gagal menyimpan barang:\n\n" + (err && err.message ? err.message : String(err)));
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = "Simpan Barang";
+        }
+      }
     }
 
     function handleFormSubmit(event) {
