@@ -524,9 +524,16 @@
               <button class="btn btn-outline" onclick="openEditExcelModal()">✏️ Edit Produk</button>
               <button class="btn btn-outline" onclick="exportDataExcel()">📊 Export Excel</button>
             </div>
-            <div>
-              <input type="text" id="searchInput" class="search-box" placeholder="Cari Barang..." onkeyup="filterTable()">
+            <div style="display:flex; gap:8px; align-items:center; width:100%; max-width:420px;">
+              <input type="text" id="searchInput" class="search-box" placeholder="Cari Barang / Kode..." onkeyup="filterTable()" style="flex:1; min-width:0;">
+              <button type="button" class="btn-scan-mobile" title="Scan Barcode Master Barang" onclick="toggleMasterBarangScanner()" style="flex:0 0 auto;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 7V4h3M17 4h3v3M4 17v3h3M17 20h3v-3M9 9h6v6H9z"/>
+                </svg>
+                <span style="display:none;">Scan</span>
+              </button>
             </div>
+            <div id="readerMasterBarang" style="display:none; width:100%; max-width:420px; margin:8px 0;"></div>
           </div>
           <div class="card">
             <div class="table-responsive">
@@ -3284,7 +3291,7 @@ function simpanEditItemModal() {
           throw new Error((result && result.message) || "GAS menolak penyimpanan barang.");
         }
 
-        alert(result.data || "Berhasil menambahkan barang baru!");
+        // Berhasil disimpan. Tidak perlu alert sukses agar input barang berikutnya lebih cepat.
 
         // Tutup modal secara manual. Jangan memanggil stopScanner/closeModal,
         // karena barcode scanner mungkin sudah berhenti otomatis.
@@ -3299,6 +3306,7 @@ function simpanEditItemModal() {
 
         // Reset status tombol dan scanner tanpa memanggil stop().
         isScanning = false;
+        window.isMasterBarangScanning = false;
         if (btn) {
           btn.disabled = false;
           btn.innerText = "Simpan Barang";
@@ -4076,12 +4084,24 @@ function prosesCheckoutReturFinal() {
         });
       };
 
+      window.toggleMasterBarangScanner = function() {
+        startScannerInstance('readerMasterBarang', 'html5QrCodeMasterBarang', function(value) {
+          const el = document.getElementById('searchInput');
+          if (el) {
+            el.value = value;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          if (typeof filterTable === 'function') filterTable();
+        });
+      };
+
       window.stopScanner = function() { window.stopScannerGeneric('reader', 'html5QrCode', 'isScanning'); };
       window.stopMasukScanner = function() { window.stopScannerGeneric('readerMasuk', 'html5QrCodeMasuk', 'isMasukScanning'); };
       window.stopReturScanner = function() { window.stopScannerGeneric('readerRetur', 'html5QrCodeRetur', 'isReturScanning'); };
       window.stopPosScanner = function() { window.stopScannerGeneric('readerPos', 'html5QrCodePos', 'isPosScanning'); };
       window.stopAllScanners = function() {
         window.stopScanner(); window.stopMasukScanner(); window.stopReturScanner(); window.stopPosScanner();
+        window.stopScannerGeneric('readerMasterBarang', 'html5QrCodeMasterBarang', 'isMasterBarangScanning');
       };
     })(); // <-- INI ADALAH PENUTUP FUNGSI SCANNER YANG DIPINDAH KE SINI AGAR TIDAK MENGURUNG KODE LAIN
     
