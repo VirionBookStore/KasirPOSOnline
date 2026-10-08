@@ -4107,11 +4107,46 @@ function prosesCheckoutReturFinal() {
           const batchSize = 1000;
           for (let offset = 0; offset < totalBarang; offset += batchSize) {
             const batchResult = await gasCall('getBarangBatch', [offset, batchSize]);
-            const batch = Array.isArray(batchResult) ? batchResult :
-              (batchResult && Array.isArray(batchResult.data) ? batchResult.data : []);
-            if (!batch.length && offset < totalBarang) {
-              throw new Error('Batch Master Barang kosong pada posisi '+offset+' padahal total sumber '+totalBarang+'.');
+
+            // GAS dapat mengembalikan batch dalam beberapa bentuk:
+            // 1) array langsung
+            // 2) {data:[...]}
+            // 3) {data:{data:[...]}}
+            // Normalisasi semuanya menjadi array sebelum disimpan.
+            let batch = [];
+            if (Array.isArray(batchResult)) {
+              batch = batchResult;
+            } else if (batchResult && Array.isArray(batchResult.data)) {
+              batch = batchResult.data;
+            } else if (batchResult && batchResult.data && Array.isArray(batchResult.data.data)) {
+              batch = batchResult.data.data;
+            } else if (batchResult && Array.isArray(batchResult.result)) {
+              batch = batchResult.result;
             }
+
+            // Jika API batch pada deployment GAS lama belum mengembalikan
+            // data dengan format yang benar, gunakan getBarang() sebagai
+            // fallback untuk dataset kecil. Ini menjaga sinkronisasi tetap
+            // berjalan sekarang tanpa mengorbankan mode batch untuk data besar.
+            if (!batch.length && offset === 0 && totalBarang <= 5000) {
+              if (txt) txt.innerHTML = '<b style="color:#d97706;">API batch belum mengembalikan data. Menggunakan mode kompatibilitas...</b>';
+              const fallbackData = await gasCall('getBarang', []);
+              if (Array.isArray(fallbackData) && fallbackData.length) {
+                batch = fallbackData;
+              } else if (fallbackData && Array.isArray(fallbackData.data)) {
+                batch = fallbackData.data;
+              }
+              if (batch.length) {
+                // Fallback mengambil seluruh Master Barang sekaligus.
+                // Batasi hanya untuk dataset kecil agar tetap aman untuk 100k+.
+                offset = totalBarang;
+              }
+            }
+
+            if (!batch.length && offset < totalBarang) {
+              throw new Error('Batch Master Barang kosong pada posisi '+offset+' padahal total sumber '+totalBarang+'. Pastikan versi Web App GAS yang berisi getBarangBatch sudah di-deploy ulang.');
+            }
+
             const saved = await putStoreBatch('masterBarang', batch);
             if (saved.skipped) throw new Error('Master Barang: '+saved.skipped+' record tidak memiliki ID Barang.');
             receivedBarang += saved.count;
