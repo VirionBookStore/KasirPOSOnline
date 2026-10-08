@@ -2991,24 +2991,27 @@ function simpanEditItemModal() {
     }
 
     function stopScanner() {
-      var readerEl = document.getElementById("reader");
-      if (readerEl) readerEl.style.display = "none";
-
-      // Jangan memanggil stop() lagi jika scanner sudah berhenti.
-      if (!html5QrCode || !isScanning) {
+      // Aman dipanggil meskipun scanner sudah berhenti / belum pernah berjalan.
+      var reader = document.getElementById("reader");
+      var hideReader = function() {
+        if (reader) reader.style.display = "none";
         isScanning = false;
+      };
+
+      if (!html5QrCode || !isScanning) {
+        hideReader();
         return Promise.resolve();
       }
 
-      isScanning = false;
       try {
-        var stopResult = html5QrCode.stop();
-        if (stopResult && typeof stopResult.catch === "function") {
-          return stopResult.catch(function() { return null; });
-        }
-        return Promise.resolve();
+        return html5QrCode.stop()
+          .catch(function(err) {
+            console.warn("[AS-Pos] scanner sudah berhenti:", err);
+          })
+          .then(hideReader, hideReader);
       } catch (err) {
-        console.warn("[AS-Pos] scanner sudah berhenti:", err);
+        console.warn("[AS-Pos] stopScanner:", err);
+        hideReader();
         return Promise.resolve();
       }
     }
