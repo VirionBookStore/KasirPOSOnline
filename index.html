@@ -4324,7 +4324,8 @@ function prosesCheckoutReturFinal() {
       });
     };
 
-    window.syncAllDataManual = function() {
+    window.syncAllDataManual = function(isAuto) {
+      const autoMode = isAuto === true;
       const btn = document.getElementById('btnSyncManual');
       const txt = document.getElementById('txtDbStatus');
       if (btn) { btn.disabled = true; btn.innerText = '⏳ Menyiapkan...'; }
@@ -4332,7 +4333,7 @@ function prosesCheckoutReturFinal() {
       initIndexedDB(async function(success) {
         if (!success || !db) {
           if (btn) { btn.disabled = false; btn.innerText = '🔄 Sinkronkan Data'; }
-          alert('Database lokal tidak dapat dibuka. Tutup tab POS lain lalu muat ulang halaman.');
+          if (!autoMode) alert('Database lokal tidak dapat dibuka. Tutup tab POS lain lalu muat ulang halaman.');
           return;
         }
 
@@ -4521,11 +4522,50 @@ function prosesCheckoutReturFinal() {
             btn.style.backgroundColor = '#dc3545';
           }
           if (txt) txt.innerHTML = '<span style="color:#dc3545;"><b>Sinkronisasi gagal:</b> '+String(err && err.message ? err.message : err)+'</span>';
-          alert('Gagal Sinkronisasi:\n\n' + (err && err.message ? err.message : err));
+          if (!autoMode) alert('Gagal Sinkronisasi:\n\n' + (err && err.message ? err.message : err));
           setTimeout(function(){ if(btn){ btn.innerText='🔄 Sinkronkan Data'; btn.style.backgroundColor=''; btn.style.borderColor=''; } },3000);
         }
       });
     };
+
+    // Sinkronisasi otomatis: cek data dari GAS saat aplikasi aktif dan setiap 15 menit.
+    // Sinkronisasi manual tetap tersedia dan tetap menjadi pilihan untuk update segera.
+    (function setupAutoSync() {
+      const AUTO_SYNC_INTERVAL = 15 * 60 * 1000;
+      let autoSyncRunning = false;
+
+      window.asposAutoSyncNow = function() {
+        if (autoSyncRunning) return;
+        if (document.hidden) return;
+        if (typeof window.syncAllDataManual !== 'function') return;
+
+        autoSyncRunning = true;
+        Promise.resolve()
+          .then(function() { return window.syncAllDataManual(true); })
+          .catch(function(err) {
+            console.warn('[AS-Pos] Sinkronisasi otomatis gagal:', err);
+          })
+          .finally(function() {
+            autoSyncRunning = false;
+          });
+      };
+
+      // Beri waktu halaman/login selesai dimuat sebelum sinkronisasi pertama.
+      setTimeout(function() {
+        if (!document.hidden) window.asposAutoSyncNow();
+      }, 60000);
+
+      setInterval(function() {
+        if (!document.hidden) window.asposAutoSyncNow();
+      }, AUTO_SYNC_INTERVAL);
+
+      document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+          // Saat kembali ke aplikasi setelah lama ditinggalkan, cek data lagi.
+          window.asposAutoSyncNow();
+        }
+      });
+    })();
 
     window.backupIndexedDB = function() {
       const btn = document.getElementById('btnBackup');
