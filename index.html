@@ -4104,6 +4104,9 @@ function prosesCheckoutReturFinal() {
           await clearStore('masterBarang');
 
           let receivedBarang = 0;
+          let receivedUniqueBarang = 0;
+          const seenBarangIds = new Set();
+          let duplicateBarang = 0;
           const batchSize = 1000;
           for (let offset = 0; offset < totalBarang; offset += batchSize) {
             const batchResult = await gasCall('getBarangBatch', [offset, batchSize]);
@@ -4147,12 +4150,27 @@ function prosesCheckoutReturFinal() {
               throw new Error('Batch Master Barang kosong pada posisi '+offset+' padahal total sumber '+totalBarang+'. Pastikan versi Web App GAS yang berisi getBarangBatch sudah di-deploy ulang.');
             }
 
-            const saved = await putStoreBatch('masterBarang', batch);
+            const validBatch = [];
+            batch.forEach(function(item) {
+              const id = item && item.id_barang !== undefined && item.id_barang !== null
+                ? String(item.id_barang).trim() : '';
+              if (!id) return;
+              if (seenBarangIds.has(id)) {
+                duplicateBarang++;
+                return;
+              }
+              seenBarangIds.add(id);
+              validBatch.push(item);
+            });
+
+            const saved = await putStoreBatch('masterBarang', validBatch);
             if (saved.skipped) throw new Error('Master Barang: '+saved.skipped+' record tidak memiliki ID Barang.');
-            receivedBarang += saved.count;
+            receivedBarang += batch.length;
+            receivedUniqueBarang += saved.count;
             const pct = totalBarang ? Math.min(99, Math.round(receivedBarang / totalBarang * 70)) : 10;
             if (btn) btn.innerText = '⏳ '+pct+'%';
-            if (txt) txt.innerHTML = '<b style="color:#087f8c;">Sinkron Master Barang...</b><br>'+receivedBarang.toLocaleString('id-ID')+' / '+totalBarang.toLocaleString('id-ID')+' record';
+            if (txt) txt.innerHTML = '<b style="color:#087f8c;">Sinkron Master Barang...</b><br>'+receivedBarang.toLocaleString('id-ID')+' / '+totalBarang.toLocaleString('id-ID')+' record'+
+              (duplicateBarang ? '<br><span style="color:#d97706;">ID barang duplikat: '+duplicateBarang+'</span>' : '');
           }
 
           // 2) Data lain tetap satu kali panggil karena ukurannya jauh lebih kecil.
@@ -4173,7 +4191,7 @@ function prosesCheckoutReturFinal() {
           // hanya mengirim baris yang memiliki id_barang. Baris kosong
           // tidak boleh dianggap sebagai data yang wajib masuk IndexedDB.
           const expected = {
-            masterBarang: receivedBarang,
+            masterBarang: receivedUniqueBarang,
             supplier: null,
             promo: null,
             stokMasuk: null,
