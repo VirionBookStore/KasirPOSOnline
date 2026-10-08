@@ -3176,27 +3176,88 @@ function simpanEditItemModal() {
       event.preventDefault();
       stopScanner();
       var form = document.getElementById("formBarang");
+      var btn = document.getElementById("btnSimpan");
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = "Menyimpan...";
+      }
+
       var payload = {
-        id_barang: form.id_barang.value, supplier: form.supplier.value, nama_barang: form.nama_barang.value,
-        harga_beli: form.harga_beli.value, harga_jual: form.harga_jual.value, stok: form.stok.value,
-        lokasi_rak: form.lokasi_rak.value, kategori: form.kategori.value, status: form.status.value,
+        id_barang: String(form.id_barang.value || '').trim(),
+        supplier: String(form.supplier.value || '').trim(),
+        nama_barang: String(form.nama_barang.value || '').trim(),
+        harga_beli: form.harga_beli.value,
+        harga_jual: form.harga_jual.value,
+        stok: form.stok.value,
+        lokasi_rak: String(form.lokasi_rak.value || '').trim(),
+        kategori: String(form.kategori.value || '').trim(),
+        status: form.status.value,
         link_gambar: form.querySelector('[name="link_gambar"]').value
       };
 
+      if (!payload.id_barang || !payload.supplier || !payload.nama_barang) {
+        if (btn) { btn.disabled = false; btn.innerText = "Simpan Barang"; }
+        return alert("ID Barang, Supplier, dan Nama Barang wajib diisi.");
+      }
+
       if (uploadMode === 'upload') {
         var fileInput = document.getElementById("fileInput");
-        if (fileInput.files.length > 0) {
+        if (fileInput && fileInput.files.length > 0) {
           var file = fileInput.files[0];
-          var reader = new FileReader();
-          reader.onload = function(e) {
-            payload.file_gambar = { bytes: Array.from(new Uint8Array(e.target.result)), type: file.type, name: file.name };
-            kirimBarang(payload);
-          };
-          reader.readAsArrayBuffer(file);
+
+          // Kompres gambar di HP agar payload POST ke GAS tidak terlalu besar.
+          compressImageForUpload(file, function(result) {
+            payload.file_gambar = result;
+            kirimBarang(payload, btn);
+          }, function(err) {
+            if (btn) { btn.disabled = false; btn.innerText = "Simpan Barang"; }
+            alert("Gambar tidak dapat diproses: " + err.message);
+          });
           return;
         }
       }
-      kirimBarang(payload);
+
+      kirimBarang(payload, btn);
+    }
+
+    function compressImageForUpload(file, done, failed) {
+      if (!file || !file.type || file.type.indexOf('image/') !== 0) {
+        return failed(new Error("File yang dipilih bukan gambar."));
+      }
+      var reader = new FileReader();
+      reader.onerror = function() { failed(new Error("Gagal membaca file gambar.")); };
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onerror = function() { failed(new Error("Gagal membaca gambar.")); };
+        img.onload = function() {
+          try {
+            var maxSide = 1200;
+            var scale = Math.min(1, maxSide / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height));
+            var canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round((img.naturalWidth || img.width) * scale));
+            canvas.height = Math.max(1, Math.round((img.naturalHeight || img.height) * scale));
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob(function(blob) {
+              if (!blob) return failed(new Error("Gagal mengompres gambar."));
+              var fr = new FileReader();
+              fr.onload = function(ev) {
+                done({
+                  bytes: Array.from(new Uint8Array(ev.target.result)),
+                  type: 'image/jpeg',
+                  name: (file.name || 'produk').replace(/\.[^.]+$/, '') + '.jpg'
+                });
+              };
+              fr.onerror = function() { failed(new Error("Gagal menyiapkan gambar.")); };
+              fr.readAsArrayBuffer(blob);
+            }, 'image/jpeg', 0.78);
+          } catch (err) {
+            failed(err);
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
     }
 
     function handleEditFormSubmit(event) {
@@ -3230,8 +3291,26 @@ function simpanEditItemModal() {
       kirimEditBarang(payload, btn);
     }
 
-    function kirimBarang(payload) {
-      google.script.run.withSuccessHandler(res => { alert(res); closeModal(); loadBarang(); }).tambahBarang(payload);
+    function kirimBarang(payload, btnElement) {
+      google.script.run
+        .withSuccessHandler(function(res) {
+          alert(res || "Barang berhasil disimpan.");
+          if (btnElement) {
+            btnElement.disabled = false;
+            btnElement.innerText = "Simpan Barang";
+          }
+          closeModal();
+          loadBarang();
+        })
+        .withFailureHandler(function(err) {
+          console.error("[AS-Pos] tambahBarang", err);
+          if (btnElement) {
+            btnElement.disabled = false;
+            btnElement.innerText = "Simpan Barang";
+          }
+          alert("Gagal menyimpan barang:\n\n" + (err && err.message ? err.message : String(err)));
+        })
+        .tambahBarang(payload);
     }
 
     function kirimEditBarang(payload, btnElement) {
@@ -3751,7 +3830,17 @@ function prosesCheckoutReturFinal() {
         try {
           // Minta izin kamera lebih dulu. Ini membantu browser/GitHub Pages
           // menampilkan prompt permission dengan benar.
-          await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+          // Uji izin kamera hanya sementara. Stream harus ditutup kembali
+          // sebelum Html5Qrcode membuka kamera, jika tidak Android Chrome
+          // dapat mengembalikan "Could not start video source".
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('Browser tidak menyediakan akses kamera.');
+          }
+          const permissionStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: 'environment' } },
+            audio: false
+          });
+          permissionStream.getTracks().forEach(function(track) { track.stop(); });
           const cameraId = await chooseCamera();
           readerDiv.innerHTML = '';
           scanner = new Html5Qrcode(readerId, { verbose: false });
