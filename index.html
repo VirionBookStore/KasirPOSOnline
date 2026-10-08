@@ -2991,8 +2991,26 @@ function simpanEditItemModal() {
     }
 
     function stopScanner() {
-      if (html5QrCode && isScanning) { html5QrCode.stop().then(() => { document.getElementById("reader").style.display = "none"; isScanning = false; }).catch(() => { document.getElementById("reader").style.display = "none"; isScanning = false; });
-      } else { document.getElementById("reader").style.display = "none"; isScanning = false; }
+      var readerEl = document.getElementById("reader");
+      if (readerEl) readerEl.style.display = "none";
+
+      // Jangan memanggil stop() lagi jika scanner sudah berhenti.
+      if (!html5QrCode || !isScanning) {
+        isScanning = false;
+        return Promise.resolve();
+      }
+
+      isScanning = false;
+      try {
+        var stopResult = html5QrCode.stop();
+        if (stopResult && typeof stopResult.catch === "function") {
+          return stopResult.catch(function() { return null; });
+        }
+        return Promise.resolve();
+      } catch (err) {
+        console.warn("[AS-Pos] scanner sudah berhenti:", err);
+        return Promise.resolve();
+      }
     }
 
     function stopMasukScanner() {
