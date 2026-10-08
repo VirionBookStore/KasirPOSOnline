@@ -4160,7 +4160,11 @@ function prosesCheckoutReturFinal() {
                 return;
               }
               seenBarangIds.add(id);
-              validBatch.push(item);
+              // Normalisasi key sebelum masuk IndexedDB. Ini mencegah
+              // perbedaan tipe (angka vs teks) dari membuat kunci yang
+              // terlihat berbeda di GAS tetapi bertabrakan di IndexedDB.
+              const normalizedItem = Object.assign({}, item, { id_barang: id });
+              validBatch.push(normalizedItem);
             });
 
             const saved = await putStoreBatch('masterBarang', validBatch);
