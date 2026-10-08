@@ -4169,8 +4169,11 @@ function prosesCheckoutReturFinal() {
           }
 
           // 3) Verifikasi jumlah lokal setelah seluruh proses.
+          // totalBarang = jumlah baris data di sheet, sedangkan batch
+          // hanya mengirim baris yang memiliki id_barang. Baris kosong
+          // tidak boleh dianggap sebagai data yang wajib masuk IndexedDB.
           const expected = {
-            masterBarang: totalBarang,
+            masterBarang: receivedBarang,
             supplier: null,
             promo: null,
             stokMasuk: null,
@@ -4182,7 +4185,11 @@ function prosesCheckoutReturFinal() {
             verify[name] = await getLocalStoreCount(name);
           }
           if (verify.masterBarang !== expected.masterBarang) {
-            throw new Error('Verifikasi Master Barang gagal: lokal '+verify.masterBarang+', sumber '+expected.masterBarang+'.');
+            throw new Error(
+              'Verifikasi Master Barang gagal: lokal '+verify.masterBarang+
+              ', data valid diterima '+expected.masterBarang+
+              ' (total baris sumber '+totalBarang+').'
+            );
           }
 
           const now = new Date();
