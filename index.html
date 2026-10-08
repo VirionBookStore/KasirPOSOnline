@@ -3221,15 +3221,24 @@ function simpanEditItemModal() {
     // Penyimpanan langsung dari GitHub Pages: bypass submit form dan bridge google.script.run.
     async function simpanBarangMobile(event) {
       if (event && typeof event.preventDefault === "function") event.preventDefault();
+
       var btn = document.getElementById("btnSimpan");
       var form = document.getElementById("formBarang");
-      if (!form) return alert("Form Tambah Produk tidak ditemukan.");
+      if (!form) {
+        alert("Form Tambah Produk tidak ditemukan.");
+        return;
+      }
+
       if (btn) {
         btn.disabled = true;
         btn.innerText = "Menyimpan...";
       }
 
       try {
+        // Pastikan proses simpan tidak pernah memanggil stop scanner.
+        // Scanner yang sudah membaca barcode boleh berhenti sendiri.
+        isScanning = false;
+
         var payload = {
           id_barang: String(form.elements["id_barang"].value || "").trim(),
           supplier: String(form.elements["supplier"].value || "").trim(),
@@ -3249,11 +3258,26 @@ function simpanEditItemModal() {
 
         var fileInput = document.getElementById("fileInput");
         if (uploadMode === "upload" && fileInput && fileInput.files && fileInput.files.length > 0) {
-          await new Promise(function(resolve, reject) {
-            compressImageForUpload(fileInput.files[0], function(result) {
-              payload.file_gambar = result;
-              resolve();
-            }, reject);
+          // Baca file langsung. Tidak menggunakan scanner dan tidak memanggil stop().
+          var file = fileInput.files[0];
+          var reader = new FileReader();
+
+          payload.file_gambar = await new Promise(function(resolve, reject) {
+            reader.onload = function(e) {
+              try {
+                resolve({
+                  bytes: Array.from(new Uint8Array(e.target.result)),
+                  type: file.type || "image/jpeg",
+                  name: file.name || "produk.jpg"
+                });
+              } catch (err) {
+                reject(err);
+              }
+            };
+            reader.onerror = function() {
+              reject(new Error("Gagal membaca file gambar."));
+            };
+            reader.readAsArrayBuffer(file);
           });
         }
 
@@ -3262,19 +3286,46 @@ function simpanEditItemModal() {
           redirect: "follow",
           cache: "no-store",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ functionName: "tambahBarang", args: [payload] })
+          body: JSON.stringify({
+            functionName: "tambahBarang",
+            args: [payload]
+          })
         });
 
         var raw = await response.text();
-        if (!response.ok) throw new Error("HTTP " + response.status + " dari GAS.");
-        var result;
-        try { result = JSON.parse(raw); }
-        catch (e) { throw new Error("Respons GAS bukan JSON: " + raw.slice(0, 300)); }
-        if (!result || result.ok !== true) throw new Error((result && result.message) || "GAS menolak penyimpanan barang.");
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status + " dari GAS.");
+        }
 
+        var result;
+        try {
+          result = JSON.parse(raw);
+        } catch (parseErr) {
+          throw new Error("Respons GAS bukan JSON: " + raw.slice(0, 500));
+        }
+
+        if (!result || result.ok !== true) {
+          throw new Error((result && result.message) || "GAS menolak penyimpanan barang.");
+        }
+
+        // Simpan sudah berhasil. Tutup modal secara aman setelah pengguna membaca pesan.
         alert(result.data || "Berhasil menambahkan barang baru!");
-        closeModal();
-        loadBarang();
+
+        try {
+          closeModal();
+        } catch (closeErr) {
+          console.warn("[AS-Pos] closeModal:", closeErr);
+          var modal = document.getElementById("modalTambah");
+          if (modal) modal.style.display = "none";
+        }
+
+        // Refresh daftar tidak boleh mengubah status simpan menjadi gagal.
+        try {
+          loadBarang();
+        } catch (loadErr) {
+          console.warn("[AS-Pos] loadBarang:", loadErr);
+        }
+
       } catch (err) {
         console.error("[AS-Pos] simpanBarangMobile", err);
         alert("Gagal menyimpan barang:\n\n" + (err && err.message ? err.message : String(err)));
