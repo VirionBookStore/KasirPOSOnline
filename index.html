@@ -356,7 +356,7 @@
       <!-- INDIKATOR STATUS SEPERTI APLIKASI SO -->
       <div style="margin-bottom: 20px;">
         <h3 style="font-size: 16px; font-weight: bold; color: #1e293b; margin: 0;">Status Data Kasir</h3>
-        <p id="txtDbStatus" style="font-size: 12px; color: #64748b; margin-top: 4px;">Database lokal: menyiapkan pemeriksaan...</p>
+        <p id="txtDbStatus" style="font-size: 12px; color: #64748b; margin-top: 4px;">Database lokal: menyiapkan pemeriksaan... <span style="font-size:10px;color:#94a3b8;">(DB v5)</span></p>
       </div>
 
       <div style="background: #e5f8fa; border: 1px solid #087f8c; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
@@ -1421,10 +1421,23 @@
     let grandFinalBayar = 0;
     let lastTransaksi = null;
 
+    function triggerLocalDbStatusCheck() {
+      try {
+        if (typeof checkLocalDbStatus === 'function') {
+          checkLocalDbStatus();
+        } else {
+          const el = document.getElementById('txtDbStatus');
+          if (el) el.innerHTML = '<span style="color:#dc3545;font-weight:bold;">Pemeriksaan database belum siap. Silakan muat ulang halaman.</span>';
+        }
+      } catch (err) {
+        console.error('[AS-Pos] triggerLocalDbStatusCheck', err);
+        const el = document.getElementById('txtDbStatus');
+        if (el) el.innerHTML = '<span style="color:#dc3545;font-weight:bold;">Gagal memeriksa database lokal.</span>';
+      }
+    }
+
     window.onload = function() {
-      setTimeout(function() {
-        if (typeof checkLocalDbStatus === 'function') checkLocalDbStatus();
-      }, 300);
+      setTimeout(triggerLocalDbStatusCheck, 300);
       loadLogoToko();
       var savedUser = localStorage.getItem("as_pos_current_user");
       if (savedUser) {
@@ -1442,6 +1455,15 @@
         }
       }
     };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        const el = document.getElementById('txtDbStatus');
+        if (el && /menyiapkan pemeriksaan/.test(el.textContent || '')) {
+          triggerLocalDbStatusCheck();
+        }
+      }, 800);
+    });
 
     function toggleSidebar() {
       document.querySelector('.sidebar').classList.toggle('active-mobile');
