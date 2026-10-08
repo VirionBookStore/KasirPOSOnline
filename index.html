@@ -350,7 +350,7 @@
         <!-- MANAJEMEN DATA & BACKUP -->
 <div id="sec-manajemenData" class="page-section">
   <div class="card">
-    <div class="card-header">Manajemen Database Lokal (IndexedDB)</div>
+    <div class="card-header">Manajemen Database Lokal (IndexedDB) <span style="font-size:12px;color:#64748b;font-weight:600;">v1.0</span></div>
     <div class="card-body">
 
       <!-- INDIKATOR STATUS SEPERTI APLIKASI SO -->
@@ -360,20 +360,20 @@
       </div>
 
       <div style="background: #e5f8fa; border: 1px solid #087f8c; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="margin-top: 0; color: #087f8c; font-size: 15px;">🔄 Sinkronisasi Manual</h4>
+        <h4 style="margin-top: 0; color: #087f8c; font-size: 15px;">🔄 Sinkronisasi Manual <span style="font-size:10px;color:#64748b;font-weight:600;">DB v1.0</span></h4>
         <p style="font-size: 13px; color: #555;">Tarik data terbaru dari Google Sheets ke penyimpanan perangkat ini.</p>
         <button class="btn btn-primary" id="btnSyncManual" onclick="syncAllDataManual()" style="font-weight: bold; width: 100%; max-width: 300px;">🔄 Sinkronkan Data</button>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
         <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 8px;">
-          <h4 style="margin-top: 0; font-size: 15px;">📥 Backup Data</h4>
+          <h4 style="margin-top: 0; font-size: 15px;">📥 Backup Data <span style="font-size:10px;color:#64748b;font-weight:600;">DB v1.0</span></h4>
           <p style="font-size: 13px; color: #555;">Download data yang ada di memori perangkat menjadi file backup (.json).</p>
           <button class="btn btn-outline" id="btnBackup" onclick="backupIndexedDB()" style="font-weight: bold; width: 100%;">Download Backup</button>
         </div>
         
         <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 8px;">
-          <h4 style="margin-top: 0; font-size: 15px;">📤 Restore Data</h4>
+          <h4 style="margin-top: 0; font-size: 15px;">📤 Restore Data <span style="font-size:10px;color:#64748b;font-weight:600;">DB v1.0</span></h4>
           <p style="font-size: 13px; color: #555;">Pulihkan aplikasi menggunakan file backup (.json) yang pernah didownload.</p>
           <input type="file" id="fileRestore" accept=".json" class="form-control" style="margin-bottom: 10px; font-size: 12px;">
           <button class="btn btn-danger" id="btnRestore" onclick="restoreIndexedDB()" style="font-weight: bold; width: 100%;">Restore Data</button>
