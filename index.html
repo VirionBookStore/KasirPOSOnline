@@ -1456,6 +1456,7 @@
           document.getElementById("userRole").innerText = currentUser.role;
           document.getElementById("userAvatar").src = currentUser.foto;
           document.getElementById("cashierNameDisplay").innerText = "Kasir: " + currentUser.nama;
+          if(!applyRolePermissions()) return;
           initApp();
         } catch (e) {
           localStorage.removeItem("as_pos_current_user");
@@ -1482,6 +1483,37 @@
       document.getElementById('sidebarOverlay').classList.remove('active-mobile');
     }
 
+    /* AS-POS ROLE: OWNER / ADMIN / USER */
+    const AS_POS_ROLE_PERMISSIONS = {
+      OWNER:{menus:['dashboard','masterBarang','supplier','promoManajemen','posKasir','returPos','riwayatPenjualan','riwayatPerBarang','stokMasuk','returBarang','manajemenData']},
+      ADMIN:{menus:['dashboard','masterBarang','promoManajemen','posKasir','returPos','stokMasuk','returBarang','manajemenData']},
+      USER:{menus:['masterBarang','posKasir','stokMasuk','barangKeluar','manajemenData']}
+    };
+    function normalizeRole(role){return String(role||'').trim().toUpperCase();}
+    function isOwner(){return normalizeRole(currentUser&&currentUser.role)==='OWNER';}
+    function enforceRoleForMenu(menuId){
+      const cfg=AS_POS_ROLE_PERMISSIONS[normalizeRole(currentUser&&currentUser.role)];
+      if(!cfg||!cfg.menus.includes(menuId)){alert('Anda tidak memiliki akses ke menu ini.');return false;}
+      return true;
+    }
+    function applyRolePermissions(){
+      const role=normalizeRole(currentUser&&currentUser.role), cfg=AS_POS_ROLE_PERMISSIONS[role];
+      if(!cfg){alert('Role akun tidak dikenali. Silakan hubungi Owner.');logoutUser();return false;}
+      document.querySelectorAll('.sidebar-menu a[onclick*="switchMenu("]').forEach(function(a){
+        const m=a.getAttribute('onclick').match(/switchMenu\('([^']+)'/);
+        if(m){const li=a.closest('li');if(li)li.style.display=cfg.menus.includes(m[1])?'':'none';}
+      });
+      const logoMenu=Array.from(document.querySelectorAll('.sidebar-menu li')).find(li=>/Pengaturan Logo/i.test(li.textContent||''));
+      if(logoMenu)logoMenu.style.display=isOwner()?'':'none';
+      const sec=document.getElementById('sec-masterBarang');
+      if(sec){
+        const ro=role!=='OWNER';
+        sec.querySelectorAll('button[onclick*="openModal()"],button[onclick*="openImportBaruModal()"],button[onclick*="openEditExcelModal()"],button[onclick*="exportDataExcel()"]').forEach(b=>b.style.display=ro?'none':'');
+        const t=document.getElementById('tabelBarang');
+        if(t){let ai=-1;t.querySelectorAll('thead th').forEach((th,i)=>{if(/^\s*Aksi\s*$/i.test(th.textContent||''))ai=i;});if(ai>=0){t.querySelectorAll('thead th').forEach((th,i)=>{if(i===ai)th.style.display=ro?'none':'';});t.querySelectorAll('tbody tr').forEach(tr=>{if(tr.cells[ai])tr.cells[ai].style.display=ro?'none':'';});}}
+      }
+      return true;
+    }
     function handleLoginSubmit(event) {
       event.preventDefault();
       var email = document.getElementById("loginEmail").value;
@@ -1500,6 +1532,7 @@
           document.getElementById("userRole").innerText = res.user.role;
           document.getElementById("userAvatar").src = res.user.foto;
           document.getElementById("cashierNameDisplay").innerText = "Kasir: " + res.user.nama;
+          if(!applyRolePermissions()) return;
           initApp();
         } else {
           alert(res.message);
@@ -1545,6 +1578,7 @@ window.loadBarang = function(isLocalOnly = false) {
 };
     
     function switchMenu(menuId, el) {
+      if(!enforceRoleForMenu(menuId)) return;
       stopAllScanners();
       document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
       document.querySelectorAll('.sidebar-menu li a').forEach(a => a.classList.remove('active'));
