@@ -744,9 +744,16 @@
         <!-- RIWAYAT PENJUALAN (PER TRANSAKSI) -->
         <div id="sec-riwayatPenjualan" class="page-section">
           <div class="card">
-            <div class="card-header">
-              <span>Riwayat Transaksi Penjualan</span>
-              <input type="text" id="searchRiwayatInput" class="search-box" placeholder="Cari Nota, Kasir..." onkeyup="filterRiwayatTransaksi()" style="width: 200px; padding: 5px 10px; font-size: 12px;">
+            <div class="card-header" style="display:flex; flex-direction:column; align-items:stretch; gap:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+                <span>Riwayat Transaksi Penjualan</span>
+                <input type="text" id="searchRiwayatInput" class="search-box" placeholder="Cari Nota, Kasir..." oninput="filterRiwayatTransaksi()" style="width:min(260px, 100%); padding:7px 10px; font-size:12px;">
+              </div>
+              <div style="display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap;">
+                <div><label for="filterRiwayatStart" style="display:block; font-size:12px; margin-bottom:4px;">Dari Tanggal</label><input type="date" id="filterRiwayatStart" class="form-control" onchange="filterRiwayatTransaksi()" style="min-width:145px;"></div>
+                <div><label for="filterRiwayatEnd" style="display:block; font-size:12px; margin-bottom:4px;">Sampai Tanggal</label><input type="date" id="filterRiwayatEnd" class="form-control" onchange="filterRiwayatTransaksi()" style="min-width:145px;"></div>
+                <button type="button" class="btn btn-outline btn-sm" onclick="resetFilterRiwayat()">Reset Filter</button>
+              </div>
             </div>
             <div class="table-responsive">
               <table id="tabelRiwayat">
@@ -2625,9 +2632,42 @@ function simpanEditItemModal() {
 
     function loadRiwayat() {
       google.script.run.withSuccessHandler(function(data) {
-        globalRiwayatData = data;
-        renderTabelRiwayat(data);
+        globalRiwayatData = Array.isArray(data) ? data : [];
+        filterRiwayatTransaksi();
       }).getPenjualan();
+    }
+
+    function parseTanggalRiwayat(value) {
+      if (value instanceof Date && !isNaN(value.getTime())) return value;
+      var s = String(value == null ? '' : value).trim();
+      if (!s) return null;
+      var first = s.split(',')[0].trim();
+      var m = first.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (m) {
+        var d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+        return isNaN(d.getTime()) ? null : d;
+      }
+      var iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (iso) {
+        var id = new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+        return isNaN(id.getTime()) ? null : id;
+      }
+      var parsed = new Date(s);
+      return isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    function tanggalKeKunci(value) {
+      var d = parseTanggalRiwayat(value);
+      if (!d) return '';
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function resetFilterRiwayat() {
+      ['filterRiwayatStart', 'filterRiwayatEnd', 'searchRiwayatInput'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      filterRiwayatTransaksi();
     }
 
     function renderTabelRiwayat(data) {
@@ -2659,12 +2699,22 @@ function simpanEditItemModal() {
 }
 
     function filterRiwayatTransaksi() {
-      var keyword = document.getElementById("searchRiwayatInput").value.toLowerCase();
-      var filtered = globalRiwayatData.filter(r => 
-        String(r.no_nota || "").toLowerCase().includes(keyword) || 
-        String(r.kasir || "").toLowerCase().includes(keyword) || 
-        String(r.supplier || "").toLowerCase().includes(keyword)
-      );
+      var searchEl = document.getElementById('searchRiwayatInput');
+      var startEl = document.getElementById('filterRiwayatStart');
+      var endEl = document.getElementById('filterRiwayatEnd');
+      var keyword = String(searchEl && searchEl.value || '').toLowerCase().trim();
+      var start = String(startEl && startEl.value || '');
+      var end = String(endEl && endEl.value || '');
+      var filtered = globalRiwayatData.filter(function(r) {
+        var matchKeyword = String(r.no_nota || '').toLowerCase().includes(keyword) ||
+          String(r.kasir || '').toLowerCase().includes(keyword) ||
+          String(r.supplier || '').toLowerCase().includes(keyword);
+        if (!matchKeyword) return false;
+        var key = tanggalKeKunci(r.tanggal);
+        if (start && (!key || key < start)) return false;
+        if (end && (!key || key > end)) return false;
+        return true;
+      });
       renderTabelRiwayat(filtered);
     }
 
@@ -2755,8 +2805,9 @@ function simpanEditItemModal() {
               <th>Supplier</th>
               <th>Harga Barang</th>
               <th>Qty Terjual</th>
-              <th>Potongan Harga</th>
-              <th>Total Pembayaran</th>
+              <th>Brutto</th>
+              <th>Potongan</th>
+              <th>Pembayaran</th>
             </tr>
           `;
           let countFiltered = 0;
@@ -2766,6 +2817,9 @@ function simpanEditItemModal() {
             }
             countFiltered++;
             var tr = document.createElement("tr");
+            var brutoItem = (Number(item.harga_satuan) || 0) * (Number(item.qty) || 0);
+            var bayarItem = Number(item.subtotal) || 0;
+            var potonganItem = Math.max(0, brutoItem - bayarItem);
             tr.innerHTML = `
               <td><b>${item.no_nota}</b></td>
               <td>${item.kasir || '-'}</td>
@@ -2774,8 +2828,9 @@ function simpanEditItemModal() {
               <td>${item.supplier}</td>
               <td>Rp ${Number(item.harga_satuan).toLocaleString('id-ID')}</td>
               <td><b>${item.qty}</b></td>
-              <td style="color:#dc3545;"><b>Rp ${Number(item.diskon || 0).toLocaleString('id-ID')}</b></td>
-              <td><b>Rp ${Number(item.subtotal).toLocaleString('id-ID')}</b></td>
+              <td><b>Rp ${brutoItem.toLocaleString('id-ID')}</b></td>
+              <td style="color:#dc3545;"><b>Rp ${potonganItem.toLocaleString('id-ID')}</b></td>
+              <td><b>Rp ${bayarItem.toLocaleString('id-ID')}</b></td>
             `;
             tbody.appendChild(tr);
           });
@@ -2789,11 +2844,15 @@ function simpanEditItemModal() {
               <th>Supplier</th>
               <th>Harga Barang</th>
               <th>Total Qty Terjual</th>
-              <th>Potongan Harga</th>
-              <th>Total Pembayaran</th>
+              <th>Brutto</th>
+              <th>Potongan</th>
+              <th>Pembayaran</th>
             </tr>
           `;
           resData.forEach(item => {
+            var brutoRekap = (Number(item.harga_satuan) || 0) * (Number(item.total_qty) || 0);
+            var bayarRekap = Number(item.total_pendapatan) || 0;
+            var potonganRekap = Math.max(0, brutoRekap - bayarRekap);
             var tr = document.createElement("tr");
             tr.innerHTML = `
               <td><b>${item.id_barang}</b></td>
@@ -2801,8 +2860,9 @@ function simpanEditItemModal() {
               <td>${item.supplier}</td>
               <td>Rp ${Number(item.harga_satuan || 0).toLocaleString('id-ID')}</td>
               <td><b>${item.total_qty}</b></td>
-              <td style="color:#dc3545;"><b>Rp ${Number(item.total_diskon || 0).toLocaleString('id-ID')}</b></td>
-              <td><b>Rp ${Number(item.total_pendapatan).toLocaleString('id-ID')}</b></td>
+              <td><b>Rp ${brutoRekap.toLocaleString('id-ID')}</b></td>
+              <td style="color:#dc3545;"><b>Rp ${potonganRekap.toLocaleString('id-ID')}</b></td>
+              <td><b>Rp ${bayarRekap.toLocaleString('id-ID')}</b></td>
             `;
             tbody.appendChild(tr);
           });
@@ -2815,8 +2875,9 @@ function simpanEditItemModal() {
               <th>Supplier</th>
               <th>Harga Barang</th>
               <th>Qty Terjual</th>
-              <th>Potongan Harga</th>
-              <th>Total Pembayaran</th>
+              <th>Brutto</th>
+              <th>Potongan</th>
+              <th>Pembayaran</th>
             </tr>
           `;
           let countFiltered = 0;
@@ -2835,6 +2896,9 @@ function simpanEditItemModal() {
             
             countFiltered++;
             var tr = document.createElement("tr");
+            var brutoSupplier = (Number(item.harga_satuan) || 0) * (Number(item.qty) || 0);
+            var bayarSupplier = Number(item.subtotal) || 0;
+            var potonganSupplier = Math.max(0, brutoSupplier - bayarSupplier);
             tr.innerHTML = `
               <td><b>${item.no_nota}</b></td>
               <td><b>${item.id_barang}</b></td>
@@ -2842,8 +2906,9 @@ function simpanEditItemModal() {
               <td><b>${item.supplier}</b></td>
               <td>Rp ${Number(item.harga_satuan || 0).toLocaleString('id-ID')}</td>
               <td><b>${item.qty}</b></td>
-              <td style="color:#dc3545;"><b>Rp ${Number(item.diskon || 0).toLocaleString('id-ID')}</b></td>
-              <td><b>Rp ${Number(item.subtotal || 0).toLocaleString('id-ID')}</b></td>
+              <td><b>Rp ${brutoSupplier.toLocaleString('id-ID')}</b></td>
+              <td style="color:#dc3545;"><b>Rp ${potonganSupplier.toLocaleString('id-ID')}</b></td>
+              <td><b>Rp ${bayarSupplier.toLocaleString('id-ID')}</b></td>
             `;
             tbody.appendChild(tr);
           });
@@ -2868,15 +2933,17 @@ function simpanEditItemModal() {
         var exportRows = [];
         
         if (mode === 'transaksi' || mode === 'kasir') {
-          exportRows.push(["No Nota", "Kasir", "ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Qty Terjual", "Potongan Harga", "Total Pembayaran"]);
+          exportRows.push(["No Nota", "Kasir", "ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Qty Terjual", "Brutto", "Potongan", "Pembayaran"]);
           resData.forEach(item => {
             if (mode === 'kasir' && selectedKasir && selectedKasir !== "Semua") {
               if (String(item.kasir).toLowerCase() !== String(selectedKasir).toLowerCase()) return;
             }
-            exportRows.push([item.no_nota, item.kasir, item.id_barang, item.nama_barang, item.supplier, item.harga_satuan, item.qty, item.diskon || 0, item.subtotal]);
+            var bruto = (Number(item.harga_satuan) || 0) * (Number(item.qty) || 0);
+            var pembayaran = Number(item.subtotal) || 0;
+            exportRows.push([item.no_nota, item.kasir, item.id_barang, item.nama_barang, item.supplier, item.harga_satuan, item.qty, bruto, Math.max(0, bruto - pembayaran), pembayaran]);
           });
         } else if (mode === 'supplier') {
-          exportRows.push(["No Nota", "ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Qty Terjual", "Potongan Harga", "Total Pembayaran"]);
+          exportRows.push(["No Nota", "ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Qty Terjual", "Brutto", "Potongan", "Pembayaran"]);
           resData.forEach(item => {
             let matchSupp = false;
             if (suppTokens.length === 2) {
@@ -2888,12 +2955,16 @@ function simpanEditItemModal() {
               matchSupp = true;
             }
             if (!matchSupp) return;
-            exportRows.push([item.no_nota, item.id_barang, item.nama_barang, item.supplier, item.harga_satuan, item.qty, item.diskon || 0, item.subtotal]);
+            var brutoSupplier = (Number(item.harga_satuan) || 0) * (Number(item.qty) || 0);
+            var pembayaranSupplier = Number(item.subtotal) || 0;
+            exportRows.push([item.no_nota, item.id_barang, item.nama_barang, item.supplier, item.harga_satuan, item.qty, brutoSupplier, Math.max(0, brutoSupplier - pembayaranSupplier), pembayaranSupplier]);
           });
         } else {
-          exportRows.push(["ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Total Qty Terjual", "Potongan Harga", "Total Pembayaran"]);
+          exportRows.push(["ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Total Qty Terjual", "Brutto", "Potongan", "Pembayaran"]);
           resData.forEach(item => {
-            exportRows.push([item.id_barang, item.nama_barang, item.supplier, item.harga_satuan || 0, item.total_qty, item.total_diskon || 0, item.total_pendapatan]);
+            var brutoRekap = (Number(item.harga_satuan) || 0) * (Number(item.total_qty) || 0);
+            var pembayaranRekap = Number(item.total_pendapatan) || 0;
+            exportRows.push([item.id_barang, item.nama_barang, item.supplier, item.harga_satuan || 0, item.total_qty, brutoRekap, Math.max(0, brutoRekap - pembayaranRekap), pembayaranRekap]);
           });
         }
 
@@ -4004,8 +4075,7 @@ function prosesCheckoutReturFinal() {
       initReturPos();
       loadBarang(true);
 
-      var msg = res.message || "Retur dan tukar transaksi berhasil disimpan!";
-      alert(msg);
+      // Transaksi sukses tidak lagi memunculkan alert yang menghalangi layar.
     })
     .catch(function(err) {
       console.error('[AS-Pos] retur/tukar', err);
