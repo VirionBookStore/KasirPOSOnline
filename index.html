@@ -2764,16 +2764,51 @@ function simpanEditItemModal() {
       var mode = document.getElementById("filterModeBarang").value;
       var wrapperSup = document.getElementById("wrapperDropdownSupplier");
       var wrapperKasir = document.getElementById("wrapperDropdownKasir");
-      
+      var selectSupplier = document.getElementById("filterPilihSupplier");
+
       wrapperSup.style.display = (mode === 'supplier') ? "block" : "none";
       wrapperKasir.style.display = (mode === 'kasir') ? "block" : "none";
+
+      // Supplier sebelumnya hanya dimuat saat menu Supplier dibuka.
+      // Muat langsung dari GAS saat filter Supplier dipilih agar dropdown tidak kosong.
+      if (mode === 'supplier' && selectSupplier && !selectSupplier.dataset.loaded && !selectSupplier.dataset.loading) {
+        selectSupplier.dataset.loading = '1';
+        selectSupplier.disabled = true;
+        selectSupplier.innerHTML = '<option value="">Memuat daftar supplier...</option>';
+        google.script.run
+          .withSuccessHandler(function(data) {
+            var rows = Array.isArray(data) ? data : [];
+            globalDataSupplier = rows;
+            selectSupplier.innerHTML = '<option value="">-- Semua Supplier --</option>';
+            rows.forEach(function(s) {
+              var opt = document.createElement('option');
+              opt.value = String(s.id_supplier || '') + '|||' + String(s.nama_supplier || '');
+              opt.textContent = String(s.nama_supplier || s.id_supplier || 'Supplier') +
+                (s.id_supplier ? ' (' + s.id_supplier + ')' : '');
+              selectSupplier.appendChild(opt);
+            });
+            selectSupplier.dataset.loaded = '1';
+            selectSupplier.dataset.loading = '';
+            selectSupplier.disabled = false;
+          })
+          .withFailureHandler(function(err) {
+            selectSupplier.dataset.loading = '';
+            selectSupplier.disabled = false;
+            selectSupplier.innerHTML = '<option value="">Gagal memuat supplier — pilih ulang filter</option>';
+            console.error('[AS-Pos] gagal memuat daftar supplier untuk laporan', err);
+          })
+          .getSupplier();
+      }
 
       if (mode === 'kasir') {
         var selectKasir = document.getElementById("filterPilihKasir");
         selectKasir.innerHTML = '<option value="Semua">-- Semua Kasir --</option>';
         var listKasir = [...new Set(globalRiwayatData.map(r => r.kasir))].filter(Boolean);
-        listKasir.forEach(k => {
-          selectKasir.innerHTML += `<option value="${k}">${k}</option>`;
+        listKasir.forEach(function(k) {
+          var opt = document.createElement('option');
+          opt.value = k;
+          opt.textContent = k;
+          selectKasir.appendChild(opt);
         });
         if (currentUser) selectKasir.value = currentUser.nama;
       }
