@@ -755,15 +755,29 @@
                 <button type="button" class="btn btn-outline btn-sm" onclick="resetFilterRiwayat()">Reset Filter</button>
               </div>
             </div>
+            <div id="ringkasanRiwayatPenjualan" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; padding:14px 20px; border-bottom:1px solid #dee2e6;">
+              <div style="border:1px solid #cfe5d6; background:#f2fbf5; border-radius:8px; padding:12px;">
+                <div style="font-size:12px; color:#52645a;">Total Brutto</div>
+                <div id="riwayatTotalBrutto" style="font-size:20px; font-weight:800; color:#137344;">Rp 0</div>
+              </div>
+              <div style="border:1px solid #f0d2d2; background:#fff6f6; border-radius:8px; padding:12px;">
+                <div style="font-size:12px; color:#775555;">Total Potongan</div>
+                <div id="riwayatTotalPotongan" style="font-size:20px; font-weight:800; color:#c62828;">Rp 0</div>
+              </div>
+              <div style="border:1px solid #cddff2; background:#f3f8ff; border-radius:8px; padding:12px;">
+                <div style="font-size:12px; color:#4d6178;">Total Pembayaran</div>
+                <div id="riwayatTotalPembayaran" style="font-size:20px; font-weight:800; color:#174f8a;">Rp 0</div>
+              </div>
+            </div>
             <div class="table-responsive">
               <table id="tabelRiwayat">
                 <thead>
                   <tr>
                     <th>No Nota</th>
                     <th>Tanggal</th>
-                    <th>Diskon / Potongan</th>
-                    <th>Total Item</th>
-                    <th>Total Bayar</th>
+                    <th>Potongan</th>
+                    <th>Item</th>
+                    <th>Bayar</th>
                     <th>Metode</th>
                     <th>Kasir</th>
                     <th style="text-align: center;">Aksi Struk</th>
@@ -2678,6 +2692,25 @@ function simpanEditItemModal() {
     function renderTabelRiwayat(data) {
   var tbody = document.querySelector("#tabelRiwayat tbody");
   tbody.innerHTML = "";
+
+  // Ringkasan mengikuti hasil filter tanggal dan pencarian yang sedang aktif.
+  var totalBrutto = 0, totalPotongan = 0, totalPembayaran = 0;
+  data.forEach(function(r) {
+    var bayar = Number(r.total_bayar) || 0;
+    var potongan = Number(r.potongan) || 0;
+    totalPembayaran += bayar;
+    totalPotongan += potongan;
+    // Pada ringkasan transaksi, brutto = pembayaran bersih + total potongan.
+    totalBrutto += bayar + potongan;
+  });
+  var fmt = function(n) { return 'Rp ' + (Number(n) || 0).toLocaleString('id-ID'); };
+  var bruttoEl = document.getElementById('riwayatTotalBrutto');
+  var potonganEl = document.getElementById('riwayatTotalPotongan');
+  var pembayaranEl = document.getElementById('riwayatTotalPembayaran');
+  if (bruttoEl) bruttoEl.textContent = fmt(totalBrutto);
+  if (potonganEl) potonganEl.textContent = fmt(totalPotongan);
+  if (pembayaranEl) pembayaranEl.textContent = fmt(totalPembayaran);
+
   if (data.length === 0) {
     tbody.innerHTML = `<tr><td colspan="8" style="text-align: center;">Belum ada riwayat transaksi.</td></tr>`;
     return;
@@ -2685,19 +2718,17 @@ function simpanEditItemModal() {
   data.forEach(function(r) {
     var tr = document.createElement("tr");
     var safeNota = String(r.no_nota || '').replace(/'/g, "\\'");
-    
-    // Format angka potongan menjadi Rupiah. Jika 0, tampilkan strip (-)
-    var formatDiskon = r.potongan > 0 ? "Rp " + Number(r.potongan).toLocaleString('id-ID') : "-";
-
+    var potongan = Number(r.potongan) || 0;
+    var formatPotongan = potongan > 0 ? fmt(potongan) : "-";
     tr.innerHTML = `
       <td><b>${r.no_nota}</b></td>
       <td>${r.tanggal}</td>
-      <td style="color: #dc3545; font-weight: bold;">${formatDiskon}</td> <!-- Baris ini yang diubah -->
+      <td style="color:#dc3545; font-weight:bold;">${formatPotongan}</td>
       <td>${r.total_item}</td>
-      <td>Rp ${Number(r.total_bayar).toLocaleString('id-ID')}</td>
+      <td>${fmt(r.total_bayar)}</td>
       <td>${r.metode_pembayaran}</td>
       <td>${r.kasir || '-'}</td>
-      <td style="text-align: center;"><button class="badge-ubah" onclick="bukaStrukUlang('${safeNota}')" title="Cetak atau bagikan struk transaksi ini">Cetak / Share Struk</button></td>
+      <td style="text-align:center;"><button class="badge-ubah" onclick="bukaStrukUlang('${safeNota}')" title="Cetak atau bagikan struk transaksi ini">Cetak / Share Struk</button></td>
     `;
     tbody.appendChild(tr);
   });
