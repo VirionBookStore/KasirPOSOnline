@@ -300,7 +300,7 @@
       </div>
       <ul class="sidebar-menu">
         <div class="sidebar-section">Utama</div>
-        <li><a href="#" onclick="switchMenu('dashboard', this)" class="active">📊 Dashboard</a></li>
+        <li><a href="#" onclick="switchMenu('dashboard', this)">📊 Dashboard</a></li>
         
         <div class="sidebar-section">Database</div>
         <li><a href="#" onclick="switchMenu('masterBarang', this)">📚 Master Barang</a></li>
@@ -1505,6 +1505,19 @@
       });
       const logoMenu=Array.from(document.querySelectorAll('.sidebar-menu li')).find(li=>/Pengaturan Logo/i.test(li.textContent||''));
       if(logoMenu)logoMenu.style.display=isOwner()?'':'none';
+      // Pastikan halaman yang aktif juga mengikuti role. Ini penting karena
+      // Dashboard memiliki class "active" dari HTML awal dan sebelumnya bisa
+      // tampil sesaat untuk USER walaupun menu Dashboard sudah disembunyikan.
+      const initialMenu = cfg.menus.includes('dashboard') ? 'dashboard' : 'posKasir';
+      document.querySelectorAll('.page-section').forEach(function(secEl){ secEl.classList.remove('active'); });
+      const initialSection = document.getElementById('sec-' + initialMenu);
+      if(initialSection) initialSection.classList.add('active');
+      document.querySelectorAll('.sidebar-menu li a').forEach(function(a){
+        a.classList.remove('active');
+        const oc = String(a.getAttribute('onclick') || '');
+        if(oc.indexOf("switchMenu('" + initialMenu + "'") !== -1) a.classList.add('active');
+      });
+
       const sec=document.getElementById('sec-masterBarang');
       if(sec){
         const ro=role!=='OWNER';
