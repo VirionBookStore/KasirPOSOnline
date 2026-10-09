@@ -2976,21 +2976,41 @@ function simpanEditItemModal() {
             exportRows.push([item.no_nota, item.kasir, item.id_barang, item.nama_barang, item.supplier, item.harga_satuan, item.qty, bruto, Math.max(0, bruto - pembayaran), pembayaran]);
           });
         } else if (mode === 'supplier') {
-          exportRows.push(["No Nota", "ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Qty Terjual", "Brutto", "Potongan", "Pembayaran"]);
-          resData.forEach(item => {
-            let matchSupp = false;
+          exportRows.push(["ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Total Qty Terjual", "Brutto"]);
+          var supplierGrouped = new Map();
+          var supplierBruttoTotal = 0;
+          resData.forEach(function(item) {
+            var itemSupp = String(item.supplier || '').trim().toLowerCase();
+            var matchSupp = !selectedSupplierRaw;
             if (suppTokens.length === 2) {
-              let itemSupp = String(item.supplier).trim().toLowerCase();
-              if (itemSupp === suppTokens[0].trim().toLowerCase() || itemSupp === suppTokens[1].trim().toLowerCase()) {
-                matchSupp = true;
-              }
-            } else if (!selectedSupplierRaw) {
-              matchSupp = true;
+              matchSupp = itemSupp === suppTokens[0].trim().toLowerCase() ||
+                          itemSupp === suppTokens[1].trim().toLowerCase();
+            } else if (selectedSupplierRaw) {
+              matchSupp = itemSupp === selectedSupplierRaw.trim().toLowerCase();
             }
             if (!matchSupp) return;
-            var brutoSupplier = (Number(item.harga_satuan) || 0) * (Number(item.qty) || 0);
-            var pembayaranSupplier = Number(item.subtotal) || 0;
-            exportRows.push([item.no_nota, item.id_barang, item.nama_barang, item.supplier, item.harga_satuan, item.qty, brutoSupplier, Math.max(0, brutoSupplier - pembayaranSupplier), pembayaranSupplier]);
+            var id = String(item.id_barang || '').trim();
+            var nama = String(item.nama_barang || '').trim();
+            var supplier = String(item.supplier || '').trim();
+            var harga = Number(item.harga_satuan) || 0;
+            var qty = Number(item.qty) || 0;
+            var bruto = harga * qty;
+            supplierBruttoTotal += bruto;
+            var key = [id, nama, supplier, harga].join('|||');
+            if (!supplierGrouped.has(key)) supplierGrouped.set(key, {
+              id_barang:id, nama_barang:nama, supplier:supplier,
+              harga_satuan:harga, total_qty:0, total_brutto:0
+            });
+            var row = supplierGrouped.get(key);
+            row.total_qty += qty;
+            row.total_brutto += bruto;
+          });
+          var supplierLabel = document.getElementById("filterPilihSupplier").selectedOptions[0]
+            ? document.getElementById("filterPilihSupplier").selectedOptions[0].textContent.trim()
+            : "Semua Supplier";
+          exportRows.push(["TOTAL BRUTTO", "", supplierLabel, "", "", supplierBruttoTotal]);
+          Array.from(supplierGrouped.values()).forEach(function(item) {
+            exportRows.push([item.id_barang, item.nama_barang, item.supplier, item.harga_satuan, item.total_qty, item.total_brutto]);
           });
         } else {
           exportRows.push(["ID Barang", "Nama Barang", "Supplier", "Harga Barang", "Total Qty Terjual", "Brutto", "Potongan", "Pembayaran"]);
