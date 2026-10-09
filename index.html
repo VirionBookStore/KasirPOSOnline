@@ -2834,7 +2834,7 @@ function simpanEditItemModal() {
             `;
             tbody.appendChild(tr);
           });
-          if(countFiltered === 0) tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 20px;">Tidak ada data untuk filter kasir tersebut.</td></tr>`;
+          if(countFiltered === 0) tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 20px;">Tidak ada data untuk filter kasir tersebut.</td></tr>`;
           
         } else if (mode === 'rekap') {
           thead.innerHTML = `
@@ -2913,7 +2913,7 @@ function simpanEditItemModal() {
             tbody.appendChild(tr);
           });
           if(countFiltered === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px;">Tidak ada penjualan untuk supplier tersebut pada rentang tanggal terpilih.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 20px;">Tidak ada penjualan untuk supplier tersebut pada rentang tanggal terpilih.</td></tr>`;
           }
         }
       }).getLaporanPenjualanBarangAdvanced(start, end, mode === 'supplier' ? 'transaksi' : mode);
