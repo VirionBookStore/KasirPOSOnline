@@ -1608,13 +1608,18 @@ window.loadBarang = function(isLocalOnly = false) {
 
     function initApp() {
       loadLogoToko();
-      loadDashboardStats();
+      // Data dasar tetap dipanaskan, tetapi halaman awal mengikuti hak akses role.
       loadBarang();
-      loadSupplier();
-      loadRiwayat();
       google.script.run.withSuccessHandler(function(data) {
         globalPromoData = data;
       }).getPromoList();
+
+      const role = normalizeRole(currentUser && currentUser.role);
+      const defaultMenu = role === 'USER' ? 'posKasir' : 'dashboard';
+      const defaultLink = Array.from(document.querySelectorAll('.sidebar-menu a')).find(function(a) {
+        return String(a.getAttribute('onclick') || '').indexOf("switchMenu('" + defaultMenu + "'") !== -1;
+      });
+      switchMenu(defaultMenu, defaultLink || null);
     }
 
     function setDashboardDateDefaults() {
@@ -3958,23 +3963,49 @@ function stopReturPosScanner() {
 
 function prosesCheckoutReturFinal() {
   if (keranjangRetur.length === 0) return alert("Keranjang kosong!");
-  
+
+  var btn = document.querySelector('#modalKeranjangRetur button[onclick*="prosesCheckoutReturFinal"]');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = "MEMPROSES...";
+  }
+
   let metode = document.getElementById("returMetodeBayar").value;
   let petugasNama = currentUser ? currentUser.nama : 'Admin';
 
   let payload = {
     petugas: petugasNama,
     metode: metode,
-    items: keranjangRetur
+    items: JSON.parse(JSON.stringify(keranjangRetur))
   };
 
-  tutupModalKeranjangRetur();
-  
-  google.script.run.withSuccessHandler(function(res) {
-    alert(res || "Retur dan tukar transaksi berhasil disimpan!");
-    initReturPos();
-    loadBarang(); // Refresh stok master
-  }).simpanReturTukarTransaksi(payload);
+  // Jangan tutup/ubah keranjang sebelum server benar-benar berhasil.
+  asposGasCallPromise('simpanReturTukarTransaksi', [payload])
+    .then(function(res) {
+      if (!res || res.status !== 'success') {
+        throw new Error((res && res.message) || 'Server tidak mengonfirmasi transaksi retur/tukar.');
+      }
+
+      keranjangRetur = [];
+      tutupModalKeranjangRetur();
+      initReturPos();
+      loadBarang(true);
+
+      var msg = res.message || "Retur dan tukar transaksi berhasil disimpan!";
+      alert(msg);
+    })
+    .catch(function(err) {
+      console.error('[AS-Pos] retur/tukar', err);
+      // Keranjang sengaja TIDAK diubah agar qty tetap ada dan transaksi bisa dicoba lagi.
+      alert("Retur/tukar belum tersimpan.\n\n" + (err && err.message ? err.message : err));
+    })
+    .finally(function() {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = "PROSES RETUR & CETAK NOTA";
+      }
+      renderKeranjangRetur();
+    });
 }
   </script>
 
