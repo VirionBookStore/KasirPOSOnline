@@ -821,6 +821,11 @@
                 </div>
               </div>
 
+              <div id="supplierBruttoSummary" style="display:none; margin:0 0 12px; padding:14px 16px; border:1px solid #b7dfc8; border-radius:10px; background:#f0fff5;">
+                <div id="supplierBruttoPeriod" style="font-size:12px; color:#52645a; margin-bottom:5px;"></div>
+                <div style="font-size:13px; color:#315b42;">Total Brutto Penjualan</div>
+                <div id="supplierBruttoTotal" style="font-size:22px; font-weight:800; color:#137344;">Rp 0</div>
+              </div>
               <div class="table-responsive" id="areaRekapBarangPrint">
                 <table id="tabelRekapBarang">
                   <thead id="headerRekapBarang"></thead>
@@ -2869,52 +2874,80 @@ function simpanEditItemModal() {
         } else if (mode === 'supplier') {
           thead.innerHTML = `
             <tr>
-              <th>No Nota</th>
               <th>ID Barang</th>
               <th>Nama Barang</th>
               <th>Supplier</th>
               <th>Harga Barang</th>
-              <th>Qty Terjual</th>
+              <th>Total Qty Terjual</th>
               <th>Brutto</th>
-              <th>Potongan</th>
-              <th>Pembayaran</th>
             </tr>
           `;
-          let countFiltered = 0;
-          resData.forEach(item => {
-            let matchSupp = false;
+
+          var summaryBox = document.getElementById('supplierBruttoSummary');
+          var summaryPeriod = document.getElementById('supplierBruttoPeriod');
+          var summaryTotal = document.getElementById('supplierBruttoTotal');
+          var startLabel = start ? new Date(start + 'T00:00:00').toLocaleDateString('id-ID') : '-';
+          var endLabel = end ? new Date(end + 'T00:00:00').toLocaleDateString('id-ID') : '-';
+          var supplierLabel = document.getElementById('filterPilihSupplier').selectedOptions[0]
+            ? document.getElementById('filterPilihSupplier').selectedOptions[0].textContent.trim()
+            : 'Semua Supplier';
+          var grouped = new Map();
+          var totalBruttoSupplier = 0;
+
+          resData.forEach(function(item) {
+            var itemSupp = String(item.supplier || '').trim().toLowerCase();
+            var matchSupp = !selectedSupplierRaw;
             if (suppTokens.length === 2) {
-              let itemSupp = String(item.supplier).trim().toLowerCase();
-              if (itemSupp === suppTokens[0].trim().toLowerCase() || itemSupp === suppTokens[1].trim().toLowerCase()) {
-                matchSupp = true;
-              }
-            } else if (!selectedSupplierRaw) {
-              matchSupp = true; 
+              matchSupp = itemSupp === suppTokens[0].trim().toLowerCase() ||
+                          itemSupp === suppTokens[1].trim().toLowerCase();
+            } else if (selectedSupplierRaw) {
+              matchSupp = itemSupp === selectedSupplierRaw.trim().toLowerCase();
             }
-            
             if (!matchSupp) return;
-            
-            countFiltered++;
-            var tr = document.createElement("tr");
-            var brutoSupplier = (Number(item.harga_satuan) || 0) * (Number(item.qty) || 0);
-            var bayarSupplier = Number(item.subtotal) || 0;
-            var potonganSupplier = Math.max(0, brutoSupplier - bayarSupplier);
-            tr.innerHTML = `
-              <td><b>${item.no_nota}</b></td>
-              <td><b>${item.id_barang}</b></td>
-              <td>${item.nama_barang}</td>
-              <td><b>${item.supplier}</b></td>
-              <td>Rp ${Number(item.harga_satuan || 0).toLocaleString('id-ID')}</td>
-              <td><b>${item.qty}</b></td>
-              <td><b>Rp ${brutoSupplier.toLocaleString('id-ID')}</b></td>
-              <td style="color:#dc3545;"><b>Rp ${potonganSupplier.toLocaleString('id-ID')}</b></td>
-              <td><b>Rp ${bayarSupplier.toLocaleString('id-ID')}</b></td>
-            `;
-            tbody.appendChild(tr);
+
+            var id = String(item.id_barang || '').trim();
+            var nama = String(item.nama_barang || '').trim();
+            var supplier = String(item.supplier || '').trim();
+            var harga = Number(item.harga_satuan) || 0;
+            var qty = Number(item.qty) || 0;
+            var bruto = harga * qty;
+            totalBruttoSupplier += bruto;
+
+            var key = [id, nama, supplier, harga].join('|||');
+            if (!grouped.has(key)) grouped.set(key, {
+              id_barang: id, nama_barang: nama, supplier: supplier,
+              harga_satuan: harga, total_qty: 0, total_brutto: 0
+            });
+            var row = grouped.get(key);
+            row.total_qty += qty;
+            row.total_brutto += bruto;
           });
-          if(countFiltered === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 20px;">Tidak ada penjualan untuk supplier tersebut pada rentang tanggal terpilih.</td></tr>`;
+
+          if (summaryBox) summaryBox.style.display = 'block';
+          if (summaryPeriod) summaryPeriod.textContent =
+            'Filter supplier: ' + supplierLabel + ' | Tanggal ' + startLabel + ' - ' + endLabel;
+          if (summaryTotal) summaryTotal.textContent =
+            'Rp ' + totalBruttoSupplier.toLocaleString('id-ID');
+
+          if (grouped.size === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;">Tidak ada penjualan untuk supplier tersebut pada rentang tanggal terpilih.</td></tr>`;
+          } else {
+            Array.from(grouped.values()).forEach(function(item) {
+              var tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td><b>${item.id_barang}</b></td>
+                <td>${item.nama_barang}</td>
+                <td><b>${item.supplier}</b></td>
+                <td>Rp ${item.harga_satuan.toLocaleString('id-ID')}</td>
+                <td><b>${item.total_qty.toLocaleString('id-ID')}</b></td>
+                <td><b>Rp ${item.total_brutto.toLocaleString('id-ID')}</b></td>
+              `;
+              tbody.appendChild(tr);
+            });
           }
+        } else {
+          var summaryBox = document.getElementById('supplierBruttoSummary');
+          if (summaryBox) summaryBox.style.display = 'none';
         }
       }).getLaporanPenjualanBarangAdvanced(start, end, mode === 'supplier' ? 'transaksi' : mode);
     }
